@@ -1,0 +1,9 @@
+node_modules/
+.vscode/
+package-lock.json
+yarn.lock
+.DS_Store
+dist/
+build/
+coverage/
+*.log
