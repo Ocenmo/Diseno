@@ -48,7 +48,7 @@ udpServer.on('message', (msg, rinfo) => {
 
         if (!latitud || !longitud || !timestamp) {
             console.error(" Datos incompletos recibidos:", datos);
-            return;
+            throw new Error('Datos incompletos');
         }
 
         // Convertimos el timestamp de Unix a formato de fecha MySQL
