@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Datos</title>
+</head>
+<body>
+    <h1>Mensajes Recibidos</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-datos"></tbody>
+    </table>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:3000');
+
+        socket.onmessage = function(event) {
+            const nuevoDato = JSON.parse(event.data);
+            agregarFila(nuevoDato);
+        };
+
+        function agregarFila(dato) {
+            let tabla = document.getElementById("tabla-datos");
+            let row = tabla.insertRow(0);
+            row.insertCell(0).innerText = dato.id;
+            row.insertCell(1).innerText = dato.latitud;
+            row.insertCell(2).innerText = dato.longitud;
+            row.insertCell(3).innerText = new Date(dato.timestamp * 1000).toLocaleString();
+        }
+
+        window.onload = function() {
+            fetch('/datos')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(dato => agregarFila(dato));
+                })
+                .catch(error => console.error('❌ Error al obtener datos:', error));
+        };
+    </script>
+</body>
+</html>
