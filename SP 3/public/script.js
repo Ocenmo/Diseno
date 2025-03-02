@@ -14,9 +14,9 @@ const socket = new WebSocket('ws://localhost:3000');
             let row = tabla.insertRow(insertBackwards ? -1 : 0);
             //let row = tabla.insertRow(0);
             row.insertCell(0).innerText = dato.id;
-            row.insertCell(1).innerText = dato.latitud;
-            row.insertCell(2).innerText = dato.longitud;
-            row.insertCell(3).innerText = new Date(dato.timestamp * 1000).toLocaleString();
+            row.insertCell(1).innerText = dato.latitude;
+            row.insertCell(2).innerText = dato.longitude;
+            row.insertCell(3).innerText = new Date(dato.timestamp).toLocaleString();
         }
 
         window.onload = function() {
@@ -27,8 +27,8 @@ const socket = new WebSocket('ws://localhost:3000');
                     data.forEach(dato => {
                         const nuevoDato = {
                             id: dato.id,
-                            latitud: dato.Latitud,
-                            longitud: dato.Longitud,
+                            latitude: dato.Latitud,
+                            longitude: dato.Longitud,
                             timestamp: dato.timestamp
                         };
                         agregarFila(nuevoDato, true);

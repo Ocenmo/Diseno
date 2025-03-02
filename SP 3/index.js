@@ -30,8 +30,8 @@ db.connect(err => {
 db.query(`
     CREATE TABLE IF NOT EXISTS mensaje (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        Latitud DECIMAL(10, 6),
-        Longitud DECIMAL(10, 6),
+        Latitud DECIMAL(10, 7),
+        Longitud DECIMAL(10, 7),
         TimeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
 `, err => {
@@ -41,8 +41,8 @@ db.query(`
 
 // Servidor UDP
 const udpServer = dgram.createSocket('udp4');
-udpServer.bind(4665, () => {
-    console.log(" Servidor UDP escuchando en el puerto 4665");
+udpServer.bind(process.env.UDP_PORT, () => {
+    console.log(" Servidor UDP escuchando en el puerto", process.env.UDP_PORT);
 });
 
 udpServer.on('message', (msg, rinfo) => {
@@ -50,18 +50,18 @@ udpServer.on('message', (msg, rinfo) => {
         const datos = JSON.parse(msg.toString());
         console.log(` Mensaje recibido de ${rinfo.address}:${rinfo.port} ->`, datos);
 
-        const { latitud, longitud, timestamp } = datos;
-        const fecha = new Date(timestamp * 1000).toISOString().slice(0, 19).replace('T', ' ');
+        let { latitude, longitude, timestamp } = datos;
+        //const fecha = new Date(timestamp * 1000).toISOString().slice(0, 19).replace('T', ' ');
 
         const query = 'INSERT INTO mensaje (Latitud, Longitud, TimeStamp) VALUES (?, ?, ?)';
-        db.query(query, [latitud, longitud, fecha], (err, result) => {
+        db.query(query, [latitude, longitude, timestamp], (err, result) => {
             if (err) {
                 console.error(" Error al guardar en MySQL:", err);
             } else {
                 console.log(" Datos guardados en MySQL");
 
                 // Enviar datos a los clientes WebSocket
-                const mensaje = JSON.stringify({ id: result.insertId, latitud, longitud, timestamp });
+                const mensaje = JSON.stringify({ id: result.insertId, latitude, longitude, timestamp });
                 wss.clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(mensaje);
@@ -76,7 +76,7 @@ udpServer.on('message', (msg, rinfo) => {
 
 // Ruta para obtener datos guardados
 app.get('/datos', async (req, res) => {
-    const query = 'SELECT id, Latitud, Longitud, UNIX_TIMESTAMP(TimeStamp) AS timestamp FROM mensaje ORDER BY id DESC';
+    const query = 'SELECT id, Latitud, Longitud, timestamp FROM mensaje ORDER BY id DESC';
     db.query(query, (err, results) => {
         if (err) {
             console.error(' Error al obtener datos de MySQL:', err);
