@@ -14,7 +14,7 @@ app.use(express.static('public')); // Sirve archivos estáticos desde "public"
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'oCENMOP_02_07',
+    password: 'La contraseña que hayas puesto',
     database: 'Local_instance_MySQL80'
 });
 
