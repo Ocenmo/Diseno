@@ -12,10 +12,10 @@ app.use(express.static('public')); // Sirve archivos estáticos desde "public"
 
 // Configurar MySQL
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'La contraseña que hayas puesto',
-    database: 'Local_instance_MySQL80'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
 });
 
 db.connect(err => {
@@ -75,19 +75,20 @@ udpServer.on('message', (msg, rinfo) => {
 });
 
 // Ruta para obtener datos guardados
-app.get('/datos', (req, res) => {
+app.get('/datos', async (req, res) => {
     const query = 'SELECT id, Latitud, Longitud, UNIX_TIMESTAMP(TimeStamp) AS timestamp FROM mensaje ORDER BY id DESC';
     db.query(query, (err, results) => {
         if (err) {
             console.error(' Error al obtener datos de MySQL:', err);
             res.status(500).json({ error: 'Error al obtener los datos' });
         } else {
+            console.log(results);
             res.json(results);
         }
     });
 });
 
 // Servidor HTTP y WebSockets
-server.listen(3000, () => {
-    console.log(" Servidor HTTP en http://localhost:3000");
+server.listen(process.env.PORT, () => {
+    console.log(" Servidor HTTP en http://localhost:" + process.env.PORT);
 });
