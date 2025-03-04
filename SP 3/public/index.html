@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Datos</title>
+    <title>ViaTracker</title>
 </head>
 <body>
-    <h1>Mensajes Recibidos</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
-                <th>Timestamp</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-datos"></tbody>
-    </table>
+    <div>
+        <h2>Ubicación Actual</h2>
+        <p>Latitud: <span id="current-lat">--</span></p>
+        <p>Longitud: <span id="current-lon">--</span></p>
+        <p>Fecha y Hora: <span id="current-time">--</span></p>
+    </div>
 
     <script src="script.js"></script>
+    
 </body>
 </html>
