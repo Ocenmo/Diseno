@@ -2,7 +2,7 @@ const currentLat = document.getElementById("current-lat");
 const currentLon = document.getElementById("current-lon");
 const currentTime = document.getElementById("current-time");
 
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket('ws://186.168.71.25:3000');
 
 socket.onmessage = function(event) {
     const nuevoDato = JSON.parse(event.data);
@@ -32,6 +32,6 @@ socket.onerror = function(error) {
 socket.onclose = function(event) {
     console.log('WebSocket cerrado. Intentando reconectar...');
     setTimeout(() => {
-        socket = new WebSocket('ws://localhost:3000');
+        socket = new WebSocket('ws://186.168.71.25:3000');
     }, 5000);
 };
