@@ -49,25 +49,55 @@ udpServer.bind(process.env.UDP_PORT, () => {
 });
 
 udpServer.on('message', async (msg, rinfo) => {
-    if (isPrimaryActive) {
-        console.log("📥 Mensaje recibido pero ignorado (servidor primario activo)");
-        return;
-    }
-
     try {
         const datos = JSON.parse(msg.toString());
-        console.log(`📥 Mensaje recibido de ${rinfo.address}:${rinfo.port}`);
+        console.log('\n=== Mensaje UDP Recibido ===');
+        console.log(`Puerto: 4665`);
+        console.log(`Remitente: ${rinfo.address}:${rinfo.port}`);
+        console.log('Contenido:', msg.toString());
+        console.log('========================\n');
 
         const { latitude, longitude, timestamp } = datos;
 
-        const query = 'INSERT INTO mensaje (Latitud, Longitud, TimeStamp) VALUES (?, ?, ?)';
-        db.query(query, [latitude, longitude, timestamp], (err, result) => {
-            if (err) {
-                console.error("❌ Error al guardar en MySQL:", err);
+        const checkQuery = `
+            SELECT id FROM mensaje 
+            WHERE TimeStamp = ? 
+            AND Latitud = ? 
+            AND Longitud = ? 
+            LIMIT 1
+        `;
+
+        db.query(checkQuery, [timestamp, latitude, longitude], (checkErr, checkResults) => {
+            if (checkErr) {
+                console.error("❌ Error al verificar duplicado:", checkErr);
+                return;
+            }
+
+            if (checkResults.length === 0) {
+                const insertQuery = 'INSERT INTO mensaje (Latitud, Longitud, TimeStamp) VALUES (?, ?, ?)';
+                db.query(insertQuery, [latitude, longitude, timestamp], (err, result) => {
+                    if (err) {
+                        console.error("❌ Error al guardar en MySQL:", err);
+                    } else {
+                        console.log("✅ Datos guardados en MySQL (servidor secundario)");
+                        const mensaje = JSON.stringify({
+                            id: result.insertId,
+                            latitude,
+                            longitude,
+                            timestamp
+                        });
+                        wss.clients.forEach(client => {
+                            if (client.readyState === WebSocket.OPEN) {
+                                client.send(mensaje);
+                            }
+                        });
+                    }
+                });
             } else {
-                console.log("✅ Datos guardados en MySQL (servidor secundario)");
+                console.log("ℹ️ Dato duplicado, no se insertará");
+
                 const mensaje = JSON.stringify({
-                    id: result.insertId,
+                    id: checkResults[0].id,
                     latitude,
                     longitude,
                     timestamp
