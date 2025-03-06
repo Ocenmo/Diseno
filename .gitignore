@@ -6,4 +6,6 @@ yarn.lock
 dist/
 build/
 coverage/
+.env
+.env.local  # local env variables
 *.log
