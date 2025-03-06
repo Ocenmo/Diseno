@@ -9,6 +9,6 @@ const mensaje = Buffer.from(JSON.stringify({
 
 client.send(mensaje, 4665, 'localhost', (err) => {
     if (err) console.error('❌ Error al enviar:', err);
-    else console.log('📤 Mensaje enviado con éxito');
+    else console.log(' Mensaje enviado con éxito');
     client.close();
 });

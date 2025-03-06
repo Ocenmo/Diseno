@@ -47,8 +47,8 @@ udpServer.on('message', (msg, rinfo) => {
         const { latitud, longitud, timestamp } = datos;
 
         if (!latitud || !longitud || !timestamp) {
-            console.error(" Datos incompletos recibidos:", datos);
-            return;
+            console.error("Datos incompletos recibidos:", datos);
+            throw new Error("Datos incompletos");
         }
 
         // Convertimos el timestamp de Unix a formato de fecha MySQL
@@ -86,7 +86,8 @@ app.get('/datos', (req, res) => {
             console.error('❌ Error al obtener datos:', err);
             res.status(500).send('Error en el servidor');
         } else {
-            let html = '<h1>Datos de Transacciones</h1>';
+            let html = '<meta http-equiv="refresh" content="5">'; // Refrescar cada 5 segundos
+            html += '<h1>Datos de Transacciones</h1>';
             html += `<p>Hay ${results.length} transacciones almacenadas</p>`;
             html += '<table border="1"><tr><th>ID</th><th>Latitud</th><th>Longitud</th><th>TimeStamp</th></tr>';
             results.forEach(row => {
