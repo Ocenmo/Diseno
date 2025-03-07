@@ -7,7 +7,9 @@
     "ws": "^8.18.1"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node P1_S4",
+    "dev": "node P1_S4",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   }
 }
