@@ -37,3 +37,6 @@ const socket = new WebSocket('ws://localhost:3000');
                 })
                 .catch(error => console.error('❌ Error al obtener datos:', error));
         };
+function limpiarDatos() {
+    document.getElementById('tabla-datos').innerHTML = '';
+}
