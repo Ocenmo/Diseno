@@ -2,7 +2,9 @@ const currentLat = document.getElementById("current-lat");
 const currentLon = document.getElementById("current-lon");
 const currentTime = document.getElementById("current-time");
 
-const socket = new WebSocket('ws://viatracker.ddns.net:3000');
+const socket = new WebSocket('ws://3.140.223.188:3000');
+
+
 
 socket.onmessage = function(event) {
     const nuevoDato = JSON.parse(event.data);

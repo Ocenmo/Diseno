@@ -3,15 +3,18 @@ const mysql = require('mysql2');
 const dgram = require('dgram');
 const http = require('http');
 const WebSocket = require('ws');
+const cors = require('cors'); // 📌 Importa CORS
 require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-let isActive = true;  
+let isActive = true;
 
 app.use(express.static('public'));
+app.use(express.json()); // 📌 Habilita el manejo de JSON en las solicitudes
+app.use(cors()); // 📌 Habilita CORS para permitir acceso externo
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -101,7 +104,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/datos', async (req, res) => {
-    const query = 'SELECT id, Latitud, Longitud, timestamp FROM mensaje ORDER BY id DESC LIMIT 1';
+    const query = 'SELECT id, Latitud, Longitud, TimeStamp FROM mensaje ORDER BY id DESC LIMIT 1';
     db.query(query, (err, results) => {
         if (err) {
             console.error('❌ Error al obtener datos:', err);
@@ -114,7 +117,7 @@ app.get('/datos', async (req, res) => {
 
 wss.on('connection', (ws) => {
     console.log('✅ Nueva conexión WebSocket establecida');
-    
+
     ws.on('error', (error) => {
         console.error('❌ Error en WebSocket:', error);
     });
@@ -124,8 +127,25 @@ wss.on('connection', (ws) => {
     });
 });
 
+// 📌 Manejo de errores al iniciar el servidor
 server.listen(process.env.PORT, () => {
     console.log("✅ Servidor Central en puerto", process.env.PORT);
+}).on('error', (err) => {
+    console.error("❌ Error al iniciar el servidor:", err);
+    process.exit(1);
+});
+
+// 📌 Manejo de cierre de base de datos
+process.on('SIGINT', () => {
+    console.log("\n🔴 Cerrando el servidor...");
+    db.end(err => {
+        if (err) {
+            console.error("❌ Error al cerrar MySQL:", err);
+        } else {
+            console.log("✅ Conexión a MySQL cerrada correctamente");
+        }
+        process.exit(0);
+    });
 });
 
 process.on('uncaughtException', (error) => {
