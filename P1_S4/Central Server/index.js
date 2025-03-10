@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-let isActive = true;  
+let isActive = true;
 
 app.use(express.static('public'));
 
@@ -114,7 +114,7 @@ app.get('/datos', async (req, res) => {
 
 wss.on('connection', (ws) => {
     console.log('✅ Nueva conexión WebSocket establecida');
-    
+
     ws.on('error', (error) => {
         console.error('❌ Error en WebSocket:', error);
     });

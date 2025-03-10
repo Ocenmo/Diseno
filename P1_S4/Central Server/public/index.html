@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ViaTracker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div>
-        <h2>Ubicación Actual</h2>
-        <p>Latitud: <span id="current-lat">--</span></p>
-        <p>Longitud: <span id="current-lon">--</span></p>
-        <p>Fecha y Hora: <span id="current-time">--</span></p>
+    <header>
+        <h1>
+            ViaTracker
+        </h1>
+    </header>
+    <div id="map-container">
+        <div id="map"></div>
     </div>
 
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5em391M0eCTbKlaH610KzWPno8rBiMPc&callback=initMap"></script>
     <script src="script.js"></script>
-    
 </body>
 </html>
