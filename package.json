@@ -10,6 +10,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "pnpm exec tsc --watch"
   }
 }
