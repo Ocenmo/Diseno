@@ -5,6 +5,8 @@ const currentTime = document.getElementById("current-time");
 let socket = new WebSocket('ws://3.140.223.188:3000');
 let map, marker;
 
+>>>>>>> 7556c5f205d64ce2c405d9d913e0cc1329e6a061
+
 async function initMap() {
     const position = { lat: -25.344, lng: 131.031 }; // Coordenadas iniciales
 
