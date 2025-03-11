@@ -17,8 +17,8 @@ const Table = ({ data, error }) => {
                     <tbody>
                         <tr>
                             <td>{data[0].id || "N/A"}</td>
-                            <td>{data[0].Latitud || "N/A"}</td>
-                            <td>{data[0].Longitud || "N/A"}</td>
+                            <td>{data[0].Latitud}</td>
+                            <td>{data[0].Longitud}</td>
                             <td>{data[0].Timestamp || data[0].timestamp || "N/A"}</td>
                         </tr>
                     </tbody>
