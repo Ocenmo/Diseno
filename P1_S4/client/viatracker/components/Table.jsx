@@ -29,3 +29,5 @@ const Table = ({ data, error }) => {
         </div>
     );
 };
+
+export default Table;
