@@ -31,12 +31,21 @@ function App() {
             ws.onmessage = (event) => {
               try {
                   const newData = JSON.parse(event.data);
-                  console.log("Nuevo dato recibido:", newData); // 🛠️ Verifica los nombres de los campos
-                  setData([newData]);
+                  console.log("Nuevo dato recibido:", newData);
+          
+                  setData((prevData) => {
+                      return [{
+                          id: newData.id || prevData[0]?.id || "N/A",
+                          latitud: newData.latitud || prevData[0]?.latitud || "N/A",
+                          longitud: newData.longitud || prevData[0]?.longitud || "N/A",
+                          timestamp: newData.timestamp || prevData[0]?.timestamp || "N/A",
+                      }];
+                  });
               } catch (err) {
                   console.error("Error procesando mensaje WebSocket:", err);
               }
           };
+          
           
 
             ws.onerror = (err) => {
