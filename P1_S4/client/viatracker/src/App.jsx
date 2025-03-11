@@ -4,7 +4,7 @@ import Table from "../components/Table";
 import { connectWebSocket } from "./WebsocketService"; // Importamos el servicio
 
 function App() {
-    const [data, seData] = useState([]);
+    const [data, setData] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
