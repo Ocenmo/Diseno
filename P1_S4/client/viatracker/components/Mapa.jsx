@@ -9,7 +9,7 @@ const Map = ({ latitude, longitude }) => {
 
     return (
         <GoogleMap
-            zoom={15}
+            zoom={15} // Ajusta el zoom para ver bien la ubicación
             center={{ lat: latitude, lng: longitude }}
             mapContainerStyle={{ width: "100%", height: "400px" }}
         >
