@@ -38,7 +38,9 @@ function App() {
 
   return (
     <div>
-      <h1>Datos del Backend</h1>
+      <h1>
+        <a href="App.jsx">Datos del Backend</a>
+      </h1>
       {error ? (
         <p style={{ color: "red" }}>{error}</p>
       ) : data.length > 0 ? (
