@@ -16,7 +16,7 @@ function App() {
       });
 
     // Conectar WebSocket
-    const ws = new WebSocket("ws://3.140.223.188:5173");
+    const ws = new WebSocket("ws://3.140.223.188:3000");
     ws.onmessage = (event) => {
       try {
         const newData = JSON.parse(event.data);
