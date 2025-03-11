@@ -33,18 +33,18 @@ function App() {
                   const newData = JSON.parse(event.data);
                   console.log("Nuevo dato recibido:", newData);
           
-                  setData((prevData) => {
-                      return [{
-                          id: newData.id || prevData[0]?.id || "N/A",
-                          latitud: newData.latitud || prevData[0]?.latitud || "N/A",
-                          longitud: newData.longitud || prevData[0]?.longitud || "N/A",
-                          timestamp: newData.timestamp || prevData[0]?.timestamp || "N/A",
-                      }];
-                  });
+                  setData([{
+                      id: newData.id ?? "N/A",
+                      latitude: newData.latitude ?? "N/A",
+                      longitude: newData.longitude ?? "N/A",
+                      timestamp: newData.timestamp ?? "N/A",
+                  }]);
+          
               } catch (err) {
                   console.error("Error procesando mensaje WebSocket:", err);
               }
           };
+          
           
           
 
