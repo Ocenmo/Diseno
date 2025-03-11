@@ -29,13 +29,15 @@ function App() {
             };
 
             ws.onmessage = (event) => {
-                try {
-                    const newData = JSON.parse(event.data);
-                    setData([newData]); // Reemplaza con el nuevo dato
-                } catch (err) {
-                    console.error("Error procesando mensaje WebSocket:", err);
-                }
-            };
+              try {
+                  const newData = JSON.parse(event.data);
+                  console.log("Nuevo dato recibido:", newData); // 🛠️ Verifica los nombres de los campos
+                  setData([newData]);
+              } catch (err) {
+                  console.error("Error procesando mensaje WebSocket:", err);
+              }
+          };
+          
 
             ws.onerror = (err) => {
                 console.error("Error en WebSocket:", err);
