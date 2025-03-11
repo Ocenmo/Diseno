@@ -15,12 +15,14 @@ const Table = ({ data, error }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>{data[0].id || "N/A"}</td>
-                            <td>{data[0].Latitud || data[0].lat || "N/A"}</td>
-                            <td>{data[0].Longitud || data[0].lng || data[0].long || "N/A"}</td>
-                            <td>{data[0].timestamp || data[0].timestamp || "N/A"}</td>
-                        </tr>
+                        {data.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.id}</td>
+                                <td>{item.latitude}</td>
+                                <td>{item.longitude}</td>
+                                <td>{item.timestamp}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             ) : (
