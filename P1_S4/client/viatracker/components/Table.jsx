@@ -1,7 +1,7 @@
 const Table = ({ data, error }) => {
     return (
         <div>
-            <h1>Datos del Backend</h1>
+            <h1>Último Dato Recibido</h1>
             {error ? (
                 <p style={{ color: "red" }}>{error}</p>
             ) : data.length > 0 ? (
@@ -15,14 +15,12 @@ const Table = ({ data, error }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item) => (
-                            <tr key={item.id}>
-                                <td>{item.id}</td>
-                                <td>{item.Latitud}</td>
-                                <td>{item.Longitud}</td>
-                                <td>{item.Timestamp}</td>
-                            </tr>
-                        ))}
+                        <tr>
+                            <td>{data[0].id}</td>
+                            <td>{data[0].Latitud}</td>
+                            <td>{data[0].Longitud}</td>
+                            <td>{data[0].Timestamp}</td>
+                        </tr>
                     </tbody>
                 </table>
             ) : (
