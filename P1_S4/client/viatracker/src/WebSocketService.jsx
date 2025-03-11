@@ -28,3 +28,5 @@ export const connectWebSocket = (setData) => {
 
     return ws; // Retorna la conexión WebSocket para cerrarla cuando sea necesario
 };
+
+export default connectWebSocket;
