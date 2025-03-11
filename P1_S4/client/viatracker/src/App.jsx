@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Table from "../components/Table";
 
 function App() {
   const [data, setData] = useState([]);
@@ -35,40 +36,12 @@ function App() {
 
     return () => ws.close(); // Cerrar WebSocket al desmontar
   }, []);
-
   return (
-    <div>
-      <h1>
-        <a href="App.jsx">Datos del Backend</a>
-      </h1>
-      {error ? (
-        <p style={{ color: "red" }}>{error}</p>
-      ) : data.length > 0 ? (
-        <table border="1" style={{ width: "100%", textAlign: "left" }}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Latitud</th>
-              <th>Longitud</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.Latitud}</td>
-                <td>{item.Longitud}</td>
-                <td>{item.TimeStamp}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>Cargando datos...</p>
-      )}
-    </div>
-  );
+    <>
+      <Table data={data} error={error} />;
+    </>
+  )
+  
 }
 
 export default App;
