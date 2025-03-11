@@ -17,8 +17,8 @@ const Table = ({ data, error }) => {
                     <tbody>
                         <tr>
                             <td>{data[0].id || "N/A"}</td>
-                            <td>{data[0].Latitud}</td>
-                            <td>{data[0].Longitud}</td>
+                            <td>{data[0].Latitud || data[0].lat || "N/A"}</td>
+                            <td>{data[0].Longitud || data[0].lng || data[0].long || "N/A"}</td>
                             <td>{data[0].Timestamp || data[0].timestamp || "N/A"}</td>
                         </tr>
                     </tbody>
@@ -29,5 +29,3 @@ const Table = ({ data, error }) => {
         </div>
     );
 };
-
-export default Table;
