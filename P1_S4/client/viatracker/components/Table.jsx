@@ -1,3 +1,6 @@
+import React from "react";
+import "./Table.css"
+
 const Table = ({ data, error }) => {
     return (
         <div>

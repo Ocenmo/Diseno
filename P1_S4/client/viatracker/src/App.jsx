@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Table from "../components/Table";
 import connectWebSocket from "./WebSocketService"; // Importamos el servicio
+import Map from "../components/Mapa";
 
 function App() {
     const [data, setData] = useState([]);
@@ -35,10 +36,8 @@ function App() {
 
     return (
         <>
-            <Table data={data} error={error} />
-            <section>
-                <a href="Maps.jsx">Go to Maps</a>
-            </section>
+          <Table data={data} error={error} />
+          {data && <Map latitude={data.latitude} longitude={data.longitude} />}
         </>
     );
 }
