@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Table from "../components/Table";
-import { connectWebSocket } from "./WebsocketService"; // Importamos el servicio
+import connectWebSocket from "./WebSocketService"; // Importamos el servicio
 
 function App() {
     const [data, setData] = useState([]);

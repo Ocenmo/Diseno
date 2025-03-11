@@ -7,7 +7,7 @@ export const connectWebSocket = (setData) => {
             const newData = JSON.parse(event.data);
             console.log("Nuevo dato recibido:", newData);
 
-            setDta([{
+            setData([{
                 id: newData.id ?? "N/A",
                 latitude: newData.latitude ?? "N/A",
                 longitude: newData.longitude ?? "N/A",
@@ -28,3 +28,5 @@ export const connectWebSocket = (setData) => {
 
     return ws; // Retorna la conexión WebSocket para cerrarla cuando sea necesario
 };
+
+export default connectWebSocket;
