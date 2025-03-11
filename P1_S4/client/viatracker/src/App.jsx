@@ -7,64 +7,56 @@ function App() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Obtener el dato inicial
-        axios.get("http://3.140.223.188:3000/datos")
-            .then(response => {
-                if (response.data.length > 0) {
-                    setData([response.data[0]]); // Tomar solo el primer dato
-                }
-            })
-            .catch(error => {
-                console.error("Error al obtener datos:", error);
-                setError("No se pudieron obtener los datos");
-            });
-
-        let ws;
-
-        const connectWebSocket = () => {
-            ws = new WebSocket("ws://3.140.223.188:3000");
-
-            ws.onopen = () => {
-                console.log("Conectado al WebSocket");
-            };
-
-            ws.onmessage = (event) => {
-              try {
-                  const newData = JSON.parse(event.data);
-                  console.log("Nuevo dato recibido:", newData);
-          
-                  setData([{
-                      id: newData.id ?? "N/A",
-                      latitude: newData.latitude ?? "N/A",
-                      longitude: newData.longitude ?? "N/A",
-                      timestamp: newData.timestamp ?? "N/A",
-                  }]);
-          
-              } catch (err) {
-                  console.error("Error procesando mensaje WebSocket:", err);
-              }
-          };
-          
-          
-          
-
-            ws.onerror = (err) => {
-                console.error("Error en WebSocket:", err);
-                setTimeout(connectWebSocket, 3000); // Reintentar conexión después de 3 segundos
-            };
-
-            ws.onclose = () => {
-                console.warn("Conexión WebSocket cerrada. Reintentando...");
-                setTimeout(connectWebSocket, 3000);
-            };
-        };
-
-        connectWebSocket();
-
-        return () => {
-            if (ws) ws.close();
-        };
+      // Obtener el último dato disponible desde el backend
+      axios.get("http://3.140.223.188:3000/datos")
+        .then(response => {
+          if (response.data.length > 0) {
+            const lastData = response.data[response.data.length - 1]; // Último elemento del array
+            setData([{
+              id: lastData.id ?? "N/A",
+              latitude: lastData.latitude ?? "N/A",
+              longitude: lastData.longitude ?? "N/A",
+              timestamp: lastData.timestamp ?? "N/A",
+            }]);
+          }
+        })
+        .catch(error => {
+          console.error("Error al obtener datos iniciales:", error);
+          setError("No se pudieron obtener los datos iniciales");
+        });
+    
+      // Conectar WebSocket
+      const ws = new WebSocket("ws://3.140.223.188:3000");
+      
+      ws.onmessage = (event) => {
+        try {
+          const newData = JSON.parse(event.data);
+          console.log("Nuevo dato recibido:", newData);
+    
+          setData([{
+            id: newData.id ?? "N/A",
+            latitude: newData.latitude ?? "N/A",
+            longitude: newData.longitude ?? "N/A",
+            timestamp: newData.timestamp ?? "N/A",
+          }]);
+    
+        } catch (err) {
+          console.error("Error procesando mensaje WebSocket:", err);
+        }
+      };
+    
+      ws.onerror = (err) => {
+        console.error("Error en WebSocket:", err);
+      };
+    
+      ws.onclose = () => {
+        console.warn("Conexión WebSocket cerrada");
+      };
+    
+      return () => ws.close(); // Cerrar WebSocket al desmontar
+    
     }, []);
+    
 
     return <Table data={data} error={error} />;
 }
