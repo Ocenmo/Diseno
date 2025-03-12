@@ -2,63 +2,46 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Table from "../components/Table";
 import Map from "../components/Mapa";
+import connectWebSocket from "./WebSocketService";
 
 function App() {
     const [data, setData] = useState(null);
-    const [latitude, setLatitude] = useState(
-        parseFloat(localStorage.getItem("latitude")) || 37.7749
-    );
-    const [longitude, setLongitude] = useState(
-        parseFloat(localStorage.getItem("longitude")) || -122.4194
-    );
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
 
     useEffect(() => {
-        axios.get("http://3.140.223.188:3000/datos")
-            .then(response => {
-                if (response.data.length > 0) {
-                    const lastData = response.data[response.data.length - 1];
-                    if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
-                        updateLocation(lastData);
+        // Intentar recuperar del localStorage
+        const storedData = localStorage.getItem("lastLocation");
+        if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            setData(parsedData);
+            setLatitude(parsedData.latitude);
+            setLongitude(parsedData.longitude);
+        } else {
+            // Si no hay datos en localStorage, obtener del backend
+            axios.get("http://3.140.223.188:3000/datos")
+                .then(response => {
+                    if (response.data.length > 0) {
+                        const lastData = response.data[response.data.length - 1];
+                        setData(lastData);
+                        setLatitude(lastData.latitude);
+                        setLongitude(lastData.longitude);
                     }
-                }
-            })
-            .catch(error => {
-                console.error("Error al obtener datos iniciales:", error);
-            });
+                })
+                .catch(error => {
+                    console.error("Error al obtener datos iniciales:", error);
+                });
+        }
 
-        // WebSocket
-        const ws = new WebSocket("ws://3.140.223.188:3000");
+        // Conectar WebSocket
+        const ws = connectWebSocket((newData) => {
+            setData(newData);
+            setLatitude(newData.latitude);
+            setLongitude(newData.longitude);
+        });
 
-        ws.onmessage = (event) => {
-            try {
-                const newData = JSON.parse(event.data);
-                if (isValidCoordinate(newData.latitude, newData.longitude)) {
-                    updateLocation(newData);
-                }
-            } catch (err) {
-                console.error("Error procesando mensaje WebSocket:", err);
-            }
-        };
-
-        ws.onerror = (err) => console.error("Error en WebSocket:", err);
-        ws.onclose = () => console.warn("Conexión WebSocket cerrada");
-
-        return () => ws.close();
-
+        return () => ws.close(); // Cierra WebSocket al desmontar
     }, []);
-
-    function isValidCoordinate(lat, lng) {
-        return typeof lat === "number" && typeof lng === "number" &&
-               isFinite(lat) && isFinite(lng);
-    }
-
-    function updateLocation(newData) {
-        setData(newData);
-        setLatitude(newData.latitude);
-        setLongitude(newData.longitude);
-        localStorage.setItem("latitude", newData.latitude);
-        localStorage.setItem("longitude", newData.longitude);
-    }
 
     return (
         <>
