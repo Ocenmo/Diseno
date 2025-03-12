@@ -20,6 +20,9 @@ function App() {
                     if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
                         updateLocation(lastData);
                     }
+                console.log("Datos iniciales:", response.data);
+                console.log("Último dato:", lastData);
+                console.log(lastData.latitude, lastData.longitude);
                 }
             })
             .catch(error => {
