@@ -27,7 +27,7 @@ function App() {
             });
 
         // WebSocket
-        const ws = new WebSocket("wss://3.140.223.188:3000");
+        const ws = new WebSocket("ws://3.140.223.188:3000/datos");
 
         ws.onmessage = (event) => {
             try {
