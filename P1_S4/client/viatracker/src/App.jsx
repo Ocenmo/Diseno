@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Table from "../components/Table";
 import Map from "../components/Mapa";
+import { saveLastLocation, getLastLocation } from "../components/storageService"; // Importamos las funciones
 
 function App() {
     const [data, setData] = useState(null);
@@ -9,7 +10,15 @@ function App() {
     const [longitude, setLongitude] = useState(0);
 
     useEffect(() => {
-        // Obtener el último dato disponible desde el backend
+        // Cargar última ubicación desde localStorage
+        const savedData = getLastLocation();
+        if (savedData) {
+            setData(savedData);
+            setLatitude(savedData.latitude);
+            setLongitude(savedData.longitude);
+        }
+
+        // Obtener el último dato desde el backend
         axios.get("http://3.140.223.188:3000/datos")
             .then(response => {
                 if (response.data.length > 0) {
@@ -17,6 +26,9 @@ function App() {
                     setData(lastData);
                     setLatitude(lastData.latitude);
                     setLongitude(lastData.longitude);
+
+                    // Guardar en localStorage
+                    saveLastLocation(lastData);
                 }
             })
             .catch(error => {
@@ -32,6 +44,9 @@ function App() {
                 setData(newData);
                 setLatitude(newData.latitude);
                 setLongitude(newData.longitude);
+
+                // Guardar en localStorage
+                saveLastLocation(newData);
             } catch (err) {
                 console.error("Error procesando mensaje WebSocket:", err);
             }
