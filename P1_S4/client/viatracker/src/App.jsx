@@ -20,14 +20,14 @@ function App() {
                     if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
                         updateLocation(lastData);
                     }
-                console.log("Datos iniciales:", response.data);
-                console.log("Último dato:", lastData);
-                console.log(lastData.latitude, lastData.longitude);
                 }
             })
             .catch(error => {
                 console.error("Error al obtener datos iniciales:", error);
             });
+        console.log("Datos iniciales:", response.data);
+        console.log("Último dato:", lastData);
+        console.log(lastData.latitude, lastData.longitude);
 
         // WebSocket
         const ws = new WebSocket("ws://3.140.223.188:3000/datos");
