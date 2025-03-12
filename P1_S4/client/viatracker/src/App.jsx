@@ -16,7 +16,7 @@ function App() {
         axios.get("http://3.140.223.188:3000/datos")
             .then(response => {
                 if (response.data.length > 0) {
-                    const lastData = response.data[response.data.length - 1];
+                    const lastData = response.data[response.data.length];
                     if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
                         updateLocation(lastData);
                     }
