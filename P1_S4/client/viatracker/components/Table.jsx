@@ -4,11 +4,10 @@ import "./Table.css"
 const Table = ({ data, error }) => {
     return (
         <div>
-            <h1>Último Dato Recibido</h1>
             {error ? (
                 <p style={{ color: "red" }}>{error}</p>
             ) : data.length > 0 ? (
-                <table border="1" style={{ width: "100%", textAlign: "left" }}>
+                <table>
                     <thead>
                         <tr>
                             <th>ID</th>

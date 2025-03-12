@@ -51,8 +51,18 @@ function App() {
 
     return (
         <>
-            <Table data={data ? [data] : []} />
-            <Map latitude={latitude} longitude={longitude} />
+            <header>
+                <h1>ViaTracker</h1>
+            </header>
+            <section>
+                <div>
+                    <Table data={data ? [data] : []} />
+                </div>
+                <div className="Mapa">
+                    <h2 className="MapaTitle">Mapa</h2>
+                    <Map latitude={latitude} longitude={longitude} />
+                </div>
+            </section>
         </>
     );
 }
