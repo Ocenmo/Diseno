@@ -115,8 +115,11 @@ app.get('/datos', async (req, res) => {
     });
 });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+    console.log('Cliente conectado desde', req.connection.remoteAddress);
+    console.log('Cliente conectado desde', req.headers.origin);
     console.log('✅ Nueva conexión WebSocket establecida');
+
 
     ws.on('error', (error) => {
         console.error('❌ Error en WebSocket:', error);
@@ -128,7 +131,7 @@ wss.on('connection', (ws) => {
 });
 
 // 📌 Manejo de errores al iniciar el servidor
-server.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, "0.0.0.0", () => {
     console.log("✅ Servidor Central en puerto", process.env.PORT);
 }).on('error', (err) => {
     console.error("❌ Error al iniciar el servidor:", err);
