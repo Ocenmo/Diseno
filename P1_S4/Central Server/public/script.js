@@ -2,8 +2,9 @@ const currentLat = document.getElementById("current-lat");
 const currentLon = document.getElementById("current-lon");
 const currentTime = document.getElementById("current-time");
 
-let socket = new WebSocket('ws://3.140.223.188:3000');
-let map, marker;
+const socket = new WebSocket('ws://3.140.223.188:3000');
+
+
 
 async function initMap() {
     const position = { lat: -25.344, lng: 131.031 }; // Coordenadas iniciales
