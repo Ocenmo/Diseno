@@ -18,7 +18,7 @@ function App() {
         wsRef.current = connectWebSocket(updateLocation);
         return () => wsRef.current?.close();
         console.log(ApiKey);
-        console.log(wsUrl);
+        console.log(wsRef.current);
     }, []);
 
     function updateLocation(newData) {
