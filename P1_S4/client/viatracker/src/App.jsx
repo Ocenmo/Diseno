@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import connectWebSocket from "./services/WebSocketService";
-import Table from "./components/Table";
-import Map from "./components/Mapa";
+import connectWebSocket from "../services/WebSocketService";
+import Table from "../components/Table";
+import Map from "../components/Mapa";
 
 function App() {
     const [data, setData] = useState(null);

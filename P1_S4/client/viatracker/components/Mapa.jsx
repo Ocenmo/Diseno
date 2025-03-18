@@ -1,7 +1,4 @@
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const defaultPosition = { lat: 37.7749, lng: -122.4194 };
 
