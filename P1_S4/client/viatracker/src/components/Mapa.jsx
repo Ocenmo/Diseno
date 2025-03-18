@@ -1,10 +1,11 @@
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 const defaultPosition = { lat: 37.7749, lng: -122.4194 };
+const ApiKey = import.meta.env.VITE_API_KEY || "AIzaSyB5em391M0eCTbKlaH610KzWPno8rBiMPc";
 
 const Map = ({ latitude, longitude }) => {
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        googleMapsApiKey: ApiKey,
     });
 
     if (!isLoaded) return <p>Cargando mapa...</p>;

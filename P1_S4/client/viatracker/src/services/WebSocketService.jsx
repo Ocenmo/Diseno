@@ -1,5 +1,5 @@
 export const connectWebSocket = (setDataCallback) => {
-    const wsUrl = import.meta.env.VITE_WS_URL
+    const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:3000/datos"; 
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
