@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import connectWebSocket from "./services/WebSocketService";
-import axios from "axios";
+import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
 
@@ -17,21 +16,6 @@ function App() {
 
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
-
-        //Hacer la petición inicial al backend para obtener los últimos datos guardados
-        axios.get("http://3.140.223.188:3000/datos")
-            .then(response => {
-                if (response.data.length > 0) {
-                    const lastData = response.data[response.data.length - 1];
-                    if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
-                        updateLocation(lastData);
-                    }
-                }
-            })
-            .catch(error => {
-                console.error("Error al obtener datos iniciales:", error);
-            });
-
         return () => wsRef.current?.close();
     }, []);
 
