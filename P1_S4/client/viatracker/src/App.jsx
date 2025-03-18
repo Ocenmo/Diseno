@@ -1,59 +1,23 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import Table from "../components/Table";
-import Map from "../components/Mapa";
+import { useState, useEffect, useRef } from "react";
+import { connectWebSocket } from "./services/websocketService";
+import Table from "./components/Table";
+import Map from "./components/Mapa";
 
 function App() {
     const [data, setData] = useState(null);
-    const [latitude, setLatitude] = useState(
-        parseFloat(localStorage.getItem("latitude")) || 37.7749
-    );
-    const [longitude, setLongitude] = useState(
-        parseFloat(localStorage.getItem("longitude")) || -122.4194
-    );
+    const [latitude, setLatitude] = useState(() => {
+        return parseFloat(localStorage.getItem("latitude")) || 37.7749;
+    });
+    const [longitude, setLongitude] = useState(() => {
+        return parseFloat(localStorage.getItem("longitude")) || -122.4194;
+    });
+
+    const wsRef = useRef(null);
 
     useEffect(() => {
-        axios.get("http://3.140.223.188:3000/datos")
-            .then(response => {
-            // Check if there's any data to read.
-            if (response.data.length > 0) {
-                // Retrieve last position using length-1
-                const lastData = response.data[response.data.length - 1];
-                if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
-                    updateLocation(lastData);
-                }
-            }
-            })
-    .catch(error => {
-        console.error("Error al obtener datos iniciales:", error);
-    }
-);
-
-        // WebSocket
-        const ws = new WebSocket("ws://3.140.223.188:3000/datos");
-
-        ws.onmessage = (event) => {
-            try {
-                const newData = JSON.parse(event.data);
-                if (isValidCoordinate(newData.latitude, newData.longitude)) {
-                    updateLocation(newData);
-                }
-            } catch (err) {
-                console.error("Error procesando mensaje WebSocket:", err);
-            }
-        };
-
-        ws.onerror = (err) => console.error("Error en WebSocket:", err);
-        ws.onclose = () => console.warn("Conexión WebSocket cerrada");
-
-        return () => ws.close();
-
+        wsRef.current = connectWebSocket(updateLocation);
+        return () => wsRef.current?.close();
     }, []);
-
-    function isValidCoordinate(lat, lng) {
-        return typeof lat === "number" && typeof lng === "number" &&
-                isFinite(lat) && isFinite(lng);
-    }
 
     function updateLocation(newData) {
         setData(newData);
