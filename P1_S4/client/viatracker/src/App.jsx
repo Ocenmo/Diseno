@@ -20,8 +20,8 @@ function App() {
         //Hacer la petición inicial al backend para obtener los últimos datos guardados
         fetch("http://3.140.223.188:3000/datos")
             .then(response => response.json())
-            .then(result => {
-                if (result.length > 0) {
+            .then(response => {
+                if (response.data.length > 0) {
                     const lastData = response.data[response.data.length - 1];
                     if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
                         updateLocation(lastData);
