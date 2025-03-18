@@ -1,7 +1,7 @@
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 const defaultPosition = { lat: 37.7749, lng: -122.4194 };
-const ApiKey = import.meta.env.VITE_API_KEY || "AIzaSyB5em391M0eCTbKlaH610KzWPno8rBiMPc";
+const ApiKey = import.meta.env.VITE_API_KEY;
 
 const Map = ({ latitude, longitude }) => {
     const { isLoaded } = useLoadScript({
