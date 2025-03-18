@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import dotenv from 'dotenv';
 

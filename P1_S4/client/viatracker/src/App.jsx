@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { connectWebSocket } from "./services/websocketService";
+import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
 
