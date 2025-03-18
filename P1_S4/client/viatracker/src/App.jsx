@@ -22,12 +22,10 @@ function App() {
             .then(response => response.json())
             .then(result => {
                 if (result.length > 0) {
-                    const lastData = result;
-                    setData(lastData);
-                    setLatitude(lastData.Latitud);
-                    setLongitude(lastData.Longitud);
-                    localStorage.setItem("latitude", lastData.Latitud);
-                    localStorage.setItem("longitude", lastData.Longitud);
+                    const lastData = response.data[response.data.length - 1];
+                    if (isValidCoordinate(lastData.latitude, lastData.longitude)) {
+                        updateLocation(lastData);
+                    }
                 }
             })
             .catch(error => console.error("❌ Error al obtener los datos del backend:", error));
