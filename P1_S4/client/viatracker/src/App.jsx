@@ -17,12 +17,12 @@ function App() {
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
 
-        // 📌 Hacer la petición inicial al backend para obtener los últimos datos guardados
+        //Hacer la petición inicial al backend para obtener los últimos datos guardados
         fetch("http://3.140.223.188:3000/datos")
             .then(response => response.json())
             .then(result => {
                 if (result.length > 0) {
-                    const lastData = result[0];
+                    const lastData = result;
                     setData(lastData);
                     setLatitude(lastData.Latitud);
                     setLongitude(lastData.Longitud);
