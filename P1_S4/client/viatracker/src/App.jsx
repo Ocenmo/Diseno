@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import connectWebSocket from "./services/WebSocketService";
+import axios from "axios";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
 
@@ -18,8 +19,7 @@ function App() {
         wsRef.current = connectWebSocket(updateLocation);
 
         //Hacer la petición inicial al backend para obtener los últimos datos guardados
-        fetch("http://3.140.223.188:3000/datos")
-            .then(response => response.json())
+        axios.get("http://3.140.223.188:3000/datos")
             .then(response => {
                 if (response.data.length > 0) {
                     const lastData = response.data[response.data.length - 1];
@@ -28,7 +28,9 @@ function App() {
                     }
                 }
             })
-            .catch(error => console.error("❌ Error al obtener los datos del backend:", error));
+            .catch(error => {
+                console.error("Error al obtener datos iniciales:", error);
+            });
 
         return () => wsRef.current?.close();
     }, []);
