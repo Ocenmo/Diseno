@@ -16,6 +16,7 @@ function App() {
 
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
+        console.log(wsRef.current);
         return () => wsRef.current?.close();
     }, []);
 
@@ -25,6 +26,8 @@ function App() {
         setLongitude(newData.longitude);
         localStorage.setItem("latitude", newData.latitude);
         localStorage.setItem("longitude", newData.longitude);
+        console.log("Location updated:", latitude, longitude);
+        console.log("Data:", data);
     }
 
     return (
