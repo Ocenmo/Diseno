@@ -1,6 +1,5 @@
 export const connectWebSocket = (setDataCallback) => {
     const wsUrl = import.meta.env.VITE_WS_URL;
-    let reconnectInterval = 5000;
     let ws;
 
     const connect = () => {
@@ -26,9 +25,7 @@ export const connectWebSocket = (setDataCallback) => {
 
         ws.onerror = (err) => console.error("Error en WebSocket:", err);
         ws.onclose = () => {
-            console.warn("Conexión WebSocket cerrada, reconectando en", reconnectInterval, "ms");
-            setTimeout(connect, reconnectInterval);
-
+            console.warn("Conexión WebSocket cerrada");
         };
     };
     connect();
