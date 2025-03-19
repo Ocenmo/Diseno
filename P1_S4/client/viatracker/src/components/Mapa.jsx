@@ -1,6 +1,8 @@
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { latestLocation } from "../services/api";
 
-const defaultPosition = { lat: 37.7749, lng: -122.4194 };
+const latestData = latestLocation();
+const defaultPosition = { lat: latestData.Latitud, lng: latestData.Longitud };
 const ApiKey = import.meta.env.VITE_API_KEY;
 
 const Map = ({ latitude, longitude }) => {
