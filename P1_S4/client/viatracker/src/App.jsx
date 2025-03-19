@@ -22,13 +22,20 @@ function App() {
         return () => wsRef.current?.close();
     }, []);
 
+
     useEffect(() => {
         const getInitialData = async () => {
             const latestData = await latestLocation();
             console.log("Latest data:", latestData);
-            // if (latestData){
-            //     updateLocation(latestData);
-            // }
+            if (latestData){
+                let initialData = {
+                    id: latestData[0].id,
+                    latitude: latestData[0].Latitud,
+                    longitude: latestData[0].Longitud,
+                    timestamp: latestData[0].TimeStamp,
+                };
+                updateLocation(initialData);
+            }
         };
         getInitialData();
     }, []);
