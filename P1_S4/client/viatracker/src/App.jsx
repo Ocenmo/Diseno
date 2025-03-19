@@ -15,7 +15,7 @@ function App() {
         const latestData = latestLocation();
         return parseFloat(localStorage.getItem("longitude")) || latestData[0].Longitud;
     });
-
+    const [path, setPath] = useState([]);
     const wsRef = useRef(null);
 
 
@@ -47,6 +47,7 @@ function App() {
         setData(newData);
         setLatitude(newData.latitude);
         setLongitude(newData.longitude);
+        setPath((prevPath) => [...prevPath, [newData.latitude, newData.longitude]]);
         localStorage.setItem("latitude", newData.latitude);
         localStorage.setItem("longitude", newData.longitude);
         console.log("Location updated:", latitude, longitude);
@@ -64,7 +65,7 @@ function App() {
                 </div>
                 <div className="Mapa">
                     <h2 className="MapaTitle">Mapa</h2>
-                    <Map latitude={latitude} longitude={longitude} />
+                    <Map latitude={latitude} longitude={longitude} path={path} />
                 </div>
             </section>
         </>
