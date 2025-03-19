@@ -17,8 +17,6 @@ function App() {
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
         return () => wsRef.current?.close();
-        console.log(ApiKey);
-        console.log(wsRef.current);
     }, []);
 
     function updateLocation(newData) {
