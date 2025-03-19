@@ -9,11 +9,11 @@ function App() {
     const [data, setData] = useState(null);
     const [latitude, setLatitude] = useState(() => {
         const latestData = latestLocation();
-        return parseFloat(localStorage.getItem("latitude")) || latestData[0].Latitud;
+        return parseFloat(localStorage.getItem("latitude")) || -33.4372;
     });
     const [longitude, setLongitude] = useState(() => {
         const latestData = latestLocation();
-        return parseFloat(localStorage.getItem("longitude")) || latestData[0].Longitud;
+        return parseFloat(localStorage.getItem("longitude")) || -70.6506;
     });
 
     const wsRef = useRef(null);
