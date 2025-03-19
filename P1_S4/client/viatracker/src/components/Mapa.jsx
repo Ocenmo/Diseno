@@ -43,16 +43,17 @@ const Map = ({ latitude, longitude, path }) => {
             <Marker position={{ lat: validLat, lng: validLng }} />
 
             {/* Línea del recorrido */}
-            {path.length > 1 && (
+            {path.length > 1 && path.every(p => typeof p.lat === "number" && isFinite(p.lat) && typeof p.lng === "number" && isFinite(p.lng)) && (
                 <Polyline
-                    path={path.map((coord) => ({ lat: coord[0], lng: coord[1] }))}
+                    path={path}
                     options={{
                         strokeColor: "#FF0000",
                         strokeOpacity: 0.8,
                         strokeWeight: 4,
-                    }}
-                />
-            )}
+        }}
+    />
+)}
+
         </GoogleMap>
     );
 };
