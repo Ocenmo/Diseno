@@ -8,8 +8,6 @@ const Map = ({ latitude, longitude }) => {
         googleMapsApiKey: ApiKey,
     });
 
-    console.log("Google Maps API Key:", ApiKey);
-
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
     const validLat = typeof latitude === "number" && isFinite(latitude) ? latitude : defaultPosition.lat;

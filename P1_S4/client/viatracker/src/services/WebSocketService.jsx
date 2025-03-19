@@ -3,7 +3,6 @@ export const connectWebSocket = (setDataCallback) => {
     let ws;
 
     const connect = () => {
-        console.log("Conectando a WebSocket en", wsUrl);
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
