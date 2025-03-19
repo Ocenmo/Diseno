@@ -3,6 +3,7 @@ import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
 import { latestLocation } from "./services/api";
+import { formatDateTime } from "./utils/utils";
 
 function App() {
     const [data, setData] = useState(null);
@@ -32,7 +33,7 @@ function App() {
                     id: latestData[0].id,
                     latitude: latestData[0].Latitud,
                     longitude: latestData[0].Longitud,
-                    timestamp: latestData[0].TimeStamp,
+                    timestamp: formatDateTime(latestData[0].TimeStamp),
                 };
                 updateLocation(initialData);
             }
