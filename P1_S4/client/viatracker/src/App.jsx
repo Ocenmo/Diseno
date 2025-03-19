@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
+import { latestLocation } from "./services/api";
 
 function App() {
     const [data, setData] = useState(null);
@@ -14,10 +15,22 @@ function App() {
 
     const wsRef = useRef(null);
 
+
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
         console.log("Current location", JSON.stringify(wsRef.current));
         return () => wsRef.current?.close();
+    }, []);
+
+    useEffect(() => {
+        const getInitialData = async () => {
+            const latestData = await latestLocation();
+            console.log("Latest data:", latestData);
+            // if (latestData){
+            //     updateLocation(latestData);
+            // }
+        };
+        getInitialData();
     }, []);
 
     function updateLocation(newData) {
