@@ -45,7 +45,7 @@ const Map = ({ latitude, longitude}) => {
 
     return (
         <GoogleMap
-            onClick={addPointToPath}
+            onCenterChanged={addPointToPath}
             zoom={15} // Ajusta el zoom para ver bien la ubicación
             center={{ lat: validLat, lng: validLng }}
             mapContainerStyle={{ width: "100%", height: "500px" }}
