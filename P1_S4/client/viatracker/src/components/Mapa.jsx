@@ -16,13 +16,13 @@ const Map = ({ latitude, longitude }) => {
         const fetchLatestLocation = async () => {
             try {
                 const latestData = await latestLocation();
-                if (latestData && latestData.Latitud && latestData.Longitud) {
-                    const lastPosition = {
-                        lat: latestData.Latitud,
-                        lng: latestData.Longitud,
+                if (latestData && latestData[0]?.Latitud && latestData[0]?.Longitud) {
+                    const initialPosition = {
+                        lat: latestData[0].Latitud,
+                        lng: latestData[0].Longitud,
                     };
-                    setDefaultPosition(lastPosition);
-                    setPath([lastPosition]); // Iniciar la trayectoria con la última ubicación obtenida
+                    setDefaultPosition(initialPosition);
+                    setPath([initialPosition]); // Iniciar el camino con la última ubicación
                 }
             } catch (error) {
                 console.error("Error fetching latest location:", error);
@@ -32,15 +32,16 @@ const Map = ({ latitude, longitude }) => {
     }, []);
 
     useEffect(() => {
-        if (latitude && longitude && isFinite(latitude) && isFinite(longitude)) {
-            setPath((prevPath) => [...prevPath, { lat: latitude, lng: longitude }]);
+        if (latitude && longitude) {
+            const newPoint = { lat: latitude, lng: longitude };
+            setPath((prevPath) => [...prevPath, newPoint]);
         }
     }, [latitude, longitude]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = isFinite(longitude) ? longitude : defaultPosition.lng;
+    const validLat = typeof latitude === "number" && isFinite(latitude) ? latitude : defaultPosition.lat;
+    const validLng = typeof longitude === "number" && isFinite(longitude) ? longitude : defaultPosition.lng;
 
     return (
         <GoogleMap
@@ -48,13 +49,16 @@ const Map = ({ latitude, longitude }) => {
             center={{ lat: validLat, lng: validLng }}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
+            {/* Marcador de la última ubicación */}
             <Marker position={{ lat: validLat, lng: validLng }} />
+
+            {/* Línea de trayectoria */}
             <Polyline
                 path={path}
                 options={{
                     strokeColor: "#2d6a4f",
                     strokeOpacity: 1,
-                    strokeWeight: 2,
+                    strokeWeight: 2
                 }}
             />
         </GoogleMap>
