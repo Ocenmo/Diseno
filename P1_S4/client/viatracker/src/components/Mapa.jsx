@@ -58,7 +58,7 @@ const Map = ({ latitude, longitude}) => {
             <Polyline
             path={path}
             options={{
-                strokeColor: "#1b4332",
+                strokeColor: "#2d6a4f",
                 strokeOpacity: 1,
                 strokeWeight: 2 }}
             />
