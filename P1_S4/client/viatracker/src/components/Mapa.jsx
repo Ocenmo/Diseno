@@ -4,12 +4,13 @@ import { latestLocation } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, path }) => {
+const Map = ({ latitude, longitude}) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
+    const [path, setPath] = useState([]);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -33,8 +34,18 @@ const Map = ({ latitude, longitude, path }) => {
     const validLat = typeof latitude === "number" && isFinite(latitude) ? latitude : defaultPosition.lat;
     const validLng = typeof longitude === "number" && isFinite(longitude) ? longitude : defaultPosition.lng;
 
+    const addPointToPath = (e) => {
+        try {
+            const latLng = {lat: e.latLng.lat(), lng: e.latLng.lng()};
+            setPath([...path, latLng]);
+            } catch (error) {
+                console.error("Error adding point to path:", error);
+            }
+        };
+
     return (
         <GoogleMap
+            onCenterChanged={addPointToPath}
             zoom={15} // Ajusta el zoom para ver bien la ubicación
             center={{ lat: validLat, lng: validLng }}
             mapContainerStyle={{ width: "100%", height: "500px" }}
@@ -42,18 +53,15 @@ const Map = ({ latitude, longitude, path }) => {
             {/* Marcador en la última ubicación */}
             <Marker position={{ lat: validLat, lng: validLng }} />
 
-            {/* Línea del recorrido */}
-            {path.length > 1 && path.every(p => typeof p.lat === "number" && isFinite(p.lat) && typeof p.lng === "number" && isFinite(p.lng)) && (
-                <Polyline
-                    path={path}
-                    options={{
-                        strokeColor: "#FF0000",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 4,
-        }}
-    />
-)}
 
+            {/* Línea de trayectoria */}
+            <Polyline
+            path={path}
+            options={{
+                strokeColor: "#1b4332",
+                strokeOpacity: 1,
+                strokeWeight: 2 }}
+            />
         </GoogleMap>
     );
 };
