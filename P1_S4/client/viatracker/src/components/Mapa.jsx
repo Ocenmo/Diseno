@@ -17,10 +17,12 @@ const Map = ({ latitude, longitude }) => {
             try {
                 const latestData = await latestLocation();
                 if (latestData && latestData.Latitud && latestData.Longitud) {
-                    setDefaultPosition({
-                        lat: latestData.Latitud,
-                        lng: latestData.Longitud,
-                    });
+                    const newPosition = {
+                        lat: parseFloat(latestData.Latitud),
+                        lng: parseFloat(latestData.Longitud),
+                    };
+                    setDefaultPosition(newPosition);
+                    setPath((prevPath) => [...prevPath, newPosition]);
                 }
             } catch (error) {
                 console.error("Error fetching latest location:", error);
@@ -28,12 +30,6 @@ const Map = ({ latitude, longitude }) => {
         };
         fetchLatestLocation();
     }, []);
-
-    useEffect(() => {
-        if (latitude && longitude) {
-            setPath((prevPath) => [...prevPath, { lat: latitude, lng: longitude }]);
-        }
-    }, [latitude, longitude]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
@@ -51,7 +47,7 @@ const Map = ({ latitude, longitude }) => {
 
             {/* Línea de trayectoria */}
             <Polyline
-                path={path}
+                path={path.filter(point => point.lat && point.lng && isFinite(point.lat) && isFinite(point.lng))}
                 options={{
                     strokeColor: "#2d6a4f",
                     strokeOpacity: 1,
