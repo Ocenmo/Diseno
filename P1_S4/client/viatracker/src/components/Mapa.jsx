@@ -17,12 +17,12 @@ const Map = ({ latitude, longitude }) => {
             try {
                 const latestData = await latestLocation();
                 if (latestData && latestData.Latitud && latestData.Longitud) {
-                    const newPosition = {
-                        lat: parseFloat(latestData.Latitud),
-                        lng: parseFloat(latestData.Longitud),
+                    const lastPosition = {
+                        lat: latestData.Latitud,
+                        lng: latestData.Longitud,
                     };
-                    setDefaultPosition(newPosition);
-                    setPath((prevPath) => [...prevPath, newPosition]);
+                    setDefaultPosition(lastPosition);
+                    setPath([lastPosition]); // Iniciar la trayectoria con la última ubicación obtenida
                 }
             } catch (error) {
                 console.error("Error fetching latest location:", error);
@@ -31,10 +31,16 @@ const Map = ({ latitude, longitude }) => {
         fetchLatestLocation();
     }, []);
 
+    useEffect(() => {
+        if (latitude && longitude && isFinite(latitude) && isFinite(longitude)) {
+            setPath((prevPath) => [...prevPath, { lat: latitude, lng: longitude }]);
+        }
+    }, [latitude, longitude]);
+
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = typeof latitude === "number" && isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = typeof longitude === "number" && isFinite(longitude) ? longitude : defaultPosition.lng;
+    const validLat = isFinite(latitude) ? latitude : defaultPosition.lat;
+    const validLng = isFinite(longitude) ? longitude : defaultPosition.lng;
 
     return (
         <GoogleMap
@@ -42,12 +48,9 @@ const Map = ({ latitude, longitude }) => {
             center={{ lat: validLat, lng: validLng }}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador en la última ubicación */}
             <Marker position={{ lat: validLat, lng: validLng }} />
-
-            {/* Línea de trayectoria */}
             <Polyline
-                path={path.filter(point => point.lat && point.lng && isFinite(point.lat) && isFinite(point.lng))}
+                path={path}
                 options={{
                     strokeColor: "#2d6a4f",
                     strokeOpacity: 1,
