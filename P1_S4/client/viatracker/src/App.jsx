@@ -8,10 +8,10 @@ import { formatDateTime } from "./utils/utils";
 function App() {
     const [data, setData] = useState(null);
     const [latitude, setLatitude] = useState(() => {
-        return parseFloat(localStorage.getItem("latitude")) || -33.4372;
+        return parseFloat(localStorage.getItem("latitude"));
     });
     const [longitude, setLongitude] = useState(() => {
-        return parseFloat(localStorage.getItem("longitude")) || -70.6506;
+        return parseFloat(localStorage.getItem("longitude"));
     });
 
     const wsRef = useRef(null);
