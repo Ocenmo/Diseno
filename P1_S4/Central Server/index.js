@@ -114,11 +114,38 @@ app.get('/datos', async (req, res) => {
     });
 });
 
+app.get('/rango-fechas', (req, res) => {
+    const query = 'SELECT MIN(TimeStamp) as inicio, MAX(TimeStamp) as fin FROM mensaje';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('❌ Error al obtener el rango de fechas:', err);
+            res.status(500).json({ error: 'Error al obtener el rango de fechas' });
+        } else {
+            res.json(results[0]);
+        }
+    });
+});
+
+app.get('/rutas', (req, res) => {
+    const { inicio, fin } = req.query;
+    if (!inicio || !fin) {
+        return res.status(400).json({ error: 'Debe proporcionar inicio y fin' });
+    }
+    const query = 'SELECT id, Latitud, Longitud, TimeStamp FROM mensaje WHERE TimeStamp BETWEEN ? AND ? ORDER BY TimeStamp';
+    db.query(query, [inicio, fin], (err, results) => {
+        if (err) {
+            console.error('❌ Error al obtener la ruta:', err);
+            res.status(500).json({ error: 'Error al obtener la ruta' });
+        } else {
+            res.json(results);
+        }
+    });
+});
+
 wss.on('connection', (ws, req) => {
     console.log('Cliente conectado desde', req.connection.remoteAddress);
     console.log('Cliente conectado desde', req.headers.origin);
     console.log('✅ Nueva conexión WebSocket establecida');
-
 
     ws.on('error', (error) => {
         console.error('❌ Error en WebSocket:', error);
