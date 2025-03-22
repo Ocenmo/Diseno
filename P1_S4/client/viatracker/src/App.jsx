@@ -4,7 +4,7 @@ import Table from "./components/Table";
 import Map from "./components/Mapa";
 import { latestLocation } from "./services/api";
 import { formatDateTime } from "./utils/utils";
-import DateTimeSelector from "./components/DateTimeSelector";
+import DateTimeSelector from "./components/DatetimePicker";
 
 function App() {
     const [data, setData] = useState(null);
