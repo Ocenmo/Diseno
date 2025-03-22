@@ -1,36 +1,32 @@
-import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import TimePicker from "react-time-picker";
-import { rangoFechas } from "../services/api";
+import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import TimePicker from 'react-time-picker';
+import { rangoFechas } from '../services/api';
+import { Temporal } from '@js-temporal/polyfill';
 
 const DateTimeSelector = ({ onDateTimeSelect }) => {
     const [availableDates, setAvailableDates] = useState([]);
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedTime, setSelectedTime] = useState("12:00");
+    const [selectedDates, setSelectedDates] = useState([null, null]);
+    const [selectedTime, setSelectedTime] = useState('12:00');
 
     useEffect(() => {
         const fetchAvailableDates = async () => {
             try {
-                const availableDates = await rangoFechas();
-                if (!availableDates || !availableDates.inicio || !availableDates.fin) {
-                    console.error("Datos de rango de fechas inválidos:", availableDates);
+                const { inicio, fin } = await rangoFechas();
+                if (!inicio || !fin) {
+                    console.error("Datos de rango de fechas inválidos:", { inicio, fin });
                     return;
                 }
 
-                const startDate = new Date(availableDates.inicio);
-                const endDate = new Date(availableDates.fin);
-
-                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                    console.error("Las fechas no son válidas:", availableDates);
-                    return;
-                }
+                const startDate = Temporal.PlainDate.from(inicio);
+                const endDate = Temporal.PlainDate.from(fin);
 
                 let dates = [];
-                let currentDate = new Date(startDate);
-                while (currentDate <= endDate) {
-                    dates.push(new Date(currentDate));
-                    currentDate.setDate(currentDate.getDate() + 1);
+                let currentDate = startDate;
+                while (Temporal.PlainDate.compare(currentDate, endDate) <= 0) {
+                    dates.push(currentDate);
+                    currentDate = currentDate.add({ days: 1 });
                 }
 
                 setAvailableDates(dates);
@@ -42,28 +38,31 @@ const DateTimeSelector = ({ onDateTimeSelect }) => {
     }, []);
 
     const isDateAvailable = (date) => {
-        return availableDates.some((d) => d.toDateString() === date.toDateString());
-    };
-
-    const handleConfirm = () => {
-        if (!selectedDate) {
-            console.error("No se ha seleccionado una fecha.");
-            return;
-        }
-        onDateTimeSelect(selectedDate, selectedTime);
+        const plainDate = Temporal.PlainDate.from(date.toISOString().split('T')[0]);
+        return availableDates.some(d => Temporal.PlainDate.compare(d, plainDate) === 0);
     };
 
     return (
         <div>
-            <h2>Selecciona una fecha y una hora</h2>
+            <h2>Selecciona un rango de fechas y una hora</h2>
             <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
+                selected={selectedDates[0]}
+                onChange={dates => setSelectedDates(dates)}
+                startDate={selectedDates[0]}
+                endDate={selectedDates[1]}
+                selectsRange
                 filterDate={isDateAvailable}
                 inline
             />
-            <TimePicker onChange={setSelectedTime} value={selectedTime} disableClock={true} />
-            <button onClick={handleConfirm} disabled={!selectedDate}>
+            <TimePicker
+                onChange={setSelectedTime}
+                value={selectedTime}
+                disableClock={true}
+            />
+            <button
+                onClick={() => onDateTimeSelect(selectedDates, selectedTime)}
+                disabled={!selectedDates[0] || !selectedDates[1]}
+            >
                 Confirmar
             </button>
         </div>

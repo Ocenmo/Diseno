@@ -3,38 +3,37 @@ import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
 import { latestLocation } from "./services/api";
-import { formatDateTime } from "./utils/utils";
+import { Temporal } from "@js-temporal/polyfill";
 import DateTimeSelector from "./components/DatetimePicker";
 
 function App() {
     const [data, setData] = useState(null);
     const [latitude, setLatitude] = useState(() => {
-        return parseFloat(localStorage.getItem("latitude"));
+        return parseFloat(localStorage.getItem("latitude")) || 0;
     });
     const [longitude, setLongitude] = useState(() => {
-        return parseFloat(localStorage.getItem("longitude"));
+        return parseFloat(localStorage.getItem("longitude")) || 0;
     });
-    const [selectedDateTime, setSelectedDateTime] = useState(null);
+    const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
+    const [selectedTime, setSelectedTime] = useState("12:00");
     const [showDateTimePicker, setShowDateTimePicker] = useState(false);
 
     const wsRef = useRef(null);
 
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
-        console.log("Current location", JSON.stringify(wsRef.current));
         return () => wsRef.current?.close();
     }, []);
 
     useEffect(() => {
         const getInitialData = async () => {
             const latestData = await latestLocation();
-            console.log("Latest data:", latestData);
             if (latestData) {
                 let initialData = {
                     id: latestData[0].id,
                     latitude: latestData[0].Latitud,
                     longitude: latestData[0].Longitud,
-                    timestamp: formatDateTime(latestData[0].TimeStamp),
+                    timestamp: Temporal.Instant.from(latestData[0].TimeStamp).toString()
                 };
                 updateLocation(initialData);
             }
@@ -48,17 +47,11 @@ function App() {
         setLongitude(newData.longitude);
         localStorage.setItem("latitude", newData.latitude);
         localStorage.setItem("longitude", newData.longitude);
-        console.log("Location updated:", latitude, longitude);
-        console.log("Data:", data);
     }
 
-    function handleDateTimeSelect(date, time) {
-        if (!(date instanceof Date)) {
-            console.error("La fecha seleccionada no es válida:", date);
-            return;
-        }
-
-        setSelectedDateTime(`${date.toLocaleDateString()} ${time}`);
+    function handleDateTimeSelect(dateRange, time) {
+        setSelectedDateRange(dateRange);
+        setSelectedTime(time);
         setShowDateTimePicker(false);
     }
 
@@ -77,7 +70,9 @@ function App() {
                 </div>
                 <div>
                     <button onClick={() => setShowDateTimePicker(true)}>Seleccionar Fecha y Hora</button>
-                    {selectedDateTime && <p>Fecha y Hora Seleccionada: {selectedDateTime}</p>}
+                    {selectedDateRange[0] && selectedDateRange[1] && (
+                        <p>Rango de fechas seleccionado: {selectedDateRange[0].toString()} - {selectedDateRange[1].toString()} a las {selectedTime}</p>
+                    )}
                     {showDateTimePicker && (
                         <div className="modal">
                             <DateTimeSelector onDateTimeSelect={handleDateTimeSelect} />
