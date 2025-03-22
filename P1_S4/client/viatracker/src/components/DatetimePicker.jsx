@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import TimePicker from 'react-time-picker';
-import { rangoFechas } from '../services/api';
+import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import TimePicker from "react-time-picker";
+import { rangoFechas } from "../services/api";
 
 const DateTimeSelector = ({ onDateTimeSelect }) => {
     const [availableDates, setAvailableDates] = useState([]);
-    const [selectedDates, setSelectedDates] = useState([null, null]);
-    const [selectedTime, setSelectedTime] = useState('12:00');
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState("12:00");
 
     useEffect(() => {
         const fetchAvailableDates = async () => {
@@ -41,31 +41,29 @@ const DateTimeSelector = ({ onDateTimeSelect }) => {
         fetchAvailableDates();
     }, []);
 
-    const isDateAvailable = date => {
-        return availableDates.some(d => d.toDateString() === date.toDateString());
+    const isDateAvailable = (date) => {
+        return availableDates.some((d) => d.toDateString() === date.toDateString());
+    };
+
+    const handleConfirm = () => {
+        if (!selectedDate) {
+            console.error("No se ha seleccionado una fecha.");
+            return;
+        }
+        onDateTimeSelect(selectedDate, selectedTime);
     };
 
     return (
         <div>
-            <h2>Selecciona un rango de fechas y una hora</h2>
+            <h2>Selecciona una fecha y una hora</h2>
             <DatePicker
-                selected={selectedDates[0]}
-                onChange={dates => setSelectedDates(dates)}
-                startDate={selectedDates[0]}
-                endDate={selectedDates[1]}
-                selectsRange
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
                 filterDate={isDateAvailable}
                 inline
             />
-            <TimePicker
-                onChange={setSelectedTime}
-                value={selectedTime}
-                disableClock={true}
-            />
-            <button
-                onClick={() => onDateTimeSelect(selectedDates, selectedTime)}
-                disabled={!selectedDates[0] || !selectedDates[1]}
-            >
+            <TimePicker onChange={setSelectedTime} value={selectedTime} disableClock={true} />
+            <button onClick={handleConfirm} disabled={!selectedDate}>
                 Confirmar
             </button>
         </div>

@@ -53,6 +53,11 @@ function App() {
     }
 
     function handleDateTimeSelect(date, time) {
+        if (!(date instanceof Date)) {
+            console.error("La fecha seleccionada no es válida:", date);
+            return;
+        }
+
         setSelectedDateTime(`${date.toLocaleDateString()} ${time}`);
         setShowDateTimePicker(false);
     }
