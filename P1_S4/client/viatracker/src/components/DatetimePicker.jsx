@@ -11,17 +11,38 @@ const DateTimeSelector = ({ onDateTimeSelect }) => {
 
     useEffect(() => {
         const fetchAvailableDates = async () => {
-            const availableDates = await rangoFechas();
-            const { inicio, fin } = availableDates;
-            setAvailableDates([...Array((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24) + 1)]
-                .map((_, i) => new Date(new Date(inicio).setDate(new Date(inicio).getDate() + i)))
-            );
+            try {
+                const availableDates = await rangoFechas();
+                if (!availableDates || !availableDates.inicio || !availableDates.fin) {
+                    console.error("Datos de rango de fechas inválidos:", availableDates);
+                    return;
+                }
+
+                const startDate = new Date(availableDates.inicio);
+                const endDate = new Date(availableDates.fin);
+
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    console.error("Las fechas no son válidas:", availableDates);
+                    return;
+                }
+
+                let dates = [];
+                let currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    dates.push(new Date(currentDate));
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                setAvailableDates(dates);
+            } catch (error) {
+                console.error("Error al obtener el rango de fechas:", error);
+            }
         };
         fetchAvailableDates();
     }, []);
 
     const isDateAvailable = date => {
-        return availableDates.some(d => new Date(d).toDateString() === date.toDateString());
+        return availableDates.some(d => d.toDateString() === date.toDateString());
     };
 
     return (
