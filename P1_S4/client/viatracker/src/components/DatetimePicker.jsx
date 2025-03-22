@@ -6,54 +6,44 @@ import { rangoFechas } from '../services/api';
 
 const DateTimeSelector = ({ onDateTimeSelect }) => {
     const [availableDates, setAvailableDates] = useState([]);
-    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedDates, setSelectedDates] = useState([null, null]);
     const [selectedTime, setSelectedTime] = useState('12:00');
 
     useEffect(() => {
         const fetchAvailableDates = async () => {
-            try {
-                const { inicio, fin } = await rangoFechas();
-
-                // Convertimos las fechas a UTC para evitar problemas con zonas horarias
-                const startDate = new Date(inicio);
-                const endDate = new Date(fin);
-                const dates = [];
-
-                for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                    dates.push(new Date(d)); // Guardamos la fecha en la lista
-                }
-
-                setAvailableDates(dates);
-            } catch (error) {
-                console.error('Error al obtener el rango de fechas:', error);
-            }
+            const availableDates = await rangoFechas();
+            const { inicio, fin } = availableDates;
+            setAvailableDates([...Array((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24) + 1)]
+                .map((_, i) => new Date(new Date(inicio).setDate(new Date(inicio).getDate() + i)))
+            );
         };
-
         fetchAvailableDates();
     }, []);
 
-    // Función para verificar si una fecha está disponible
     const isDateAvailable = date => {
-        return availableDates.some(d => d.toDateString() === date.toDateString());
+        return availableDates.some(d => new Date(d).toDateString() === date.toDateString());
     };
 
     return (
         <div>
-            <h2>Selecciona fecha y hora</h2>
+            <h2>Selecciona un rango de fechas y una hora</h2>
             <DatePicker
-                selected={selectedDate}
-                onChange={date => setSelectedDate(date)}
-                filterDate={isDateAvailable} // Solo muestra fechas disponibles
+                selected={selectedDates[0]}
+                onChange={dates => setSelectedDates(dates)}
+                startDate={selectedDates[0]}
+                endDate={selectedDates[1]}
+                selectsRange
+                filterDate={isDateAvailable}
                 inline
             />
             <TimePicker
                 onChange={setSelectedTime}
                 value={selectedTime}
-                disableClock={true} // Solo usa la rueda
+                disableClock={true}
             />
             <button
-                onClick={() => onDateTimeSelect(selectedDate, selectedTime)}
-                disabled={!selectedDate}
+                onClick={() => onDateTimeSelect(selectedDates, selectedTime)}
+                disabled={!selectedDates[0] || !selectedDates[1]}
             >
                 Confirmar
             </button>
