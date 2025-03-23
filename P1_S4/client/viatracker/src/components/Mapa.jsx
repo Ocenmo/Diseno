@@ -1,10 +1,10 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation, rutas } from "../services/api";
+import { latestLocation } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, selectedDateTime }) => {
+const Map = ({ latitude, longitude }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
@@ -43,28 +43,6 @@ const Map = ({ latitude, longitude, selectedDateTime }) => {
             }
         }
     }, [latitude, longitude]);
-
-    useEffect(() => {
-        if (selectedDateTime) {
-            const fetchRoute = async () => {
-                try {
-                    const { inicio, fin } = selectedDateTime;
-                    const routeData = await rutas(inicio, fin);
-                    if (routeData.length > 0) {
-                        const newPath = routeData.map(point => ({
-                            lat: parseFloat(point.Latitud),
-                            lng: parseFloat(point.Longitud)
-                        })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
-
-                        setPath(newPath);
-                    }
-                } catch (error) {
-                    console.error("Error fetching route:", error);
-                }
-            };
-            fetchRoute();
-        }
-    }, [selectedDateTime]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
