@@ -1,68 +1,72 @@
-import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
-import { useEffect, useState } from "react";
-import { latestLocation } from "../services/api";
+import { useState, useEffect, useRef } from "react";
+import { connectWebSocket } from "./services/WebSocketService";
+import Table from "./components/Table";
+import Map from "./components/Mapa";
+import { latestLocation } from "./services/api";
+import { formatDateTime } from "./utils/utils";
 
-const ApiKey = import.meta.env.VITE_API_KEY;
-
-const Map = ({ latitude, longitude }) => {
-    const { isLoaded } = useLoadScript({
-        googleMapsApiKey: ApiKey,
+function App() {
+    const [data, setData] = useState(null);
+    const [latitude, setLatitude] = useState(() => {
+        return parseFloat(localStorage.getItem("latitude")) || -33.4372;
+    });
+    const [longitude, setLongitude] = useState(() => {
+        return parseFloat(localStorage.getItem("longitude")) || -70.6506;
     });
 
-    const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
-    const [path, setPath] = useState([]);
+    const wsRef = useRef(null);
+
 
     useEffect(() => {
-        const fetchLatestLocation = async () => {
-            try {
-                const latestData = await latestLocation();
-                if (latestData && latestData[0]?.Latitud && latestData[0]?.Longitud) {
-                    const initialPosition = {
-                        lat: latestData[0].Latitud,
-                        lng: latestData[0].Longitud,
-                    };
-                    setDefaultPosition(initialPosition);
-                    setPath([initialPosition]); // Iniciar el camino con la última ubicación
-                }
-            } catch (error) {
-                console.error("Error fetching latest location:", error);
-            }
-        };
-        fetchLatestLocation();
+        wsRef.current = connectWebSocket(updateLocation);
+        console.log("Current location", JSON.stringify(wsRef.current));
+        return () => wsRef.current?.close();
     }, []);
 
+
     useEffect(() => {
-        if (latitude && longitude) {
-            const newPoint = { lat: latitude, lng: longitude };
-            setPath((prevPath) => [...prevPath, newPoint]);
-        }
-    }, [latitude, longitude]);
+        const getInitialData = async () => {
+            const latestData = await latestLocation();
+            console.log("Latest data:", latestData);
+            if (latestData){
+                let initialData = {
+                    id: latestData[0].id,
+                    latitude: latestData[0].Latitud,
+                    longitude: latestData[0].Longitud,
+                    timestamp: formatDateTime(latestData[0].TimeStamp),
+                };
+                updateLocation(initialData);
+            }
+        };
+        getInitialData();
+    }, []);
 
-    if (!isLoaded) return <p>Cargando mapa...</p>;
-
-    const validLat = typeof latitude === "number" && isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = typeof longitude === "number" && isFinite(longitude) ? longitude : defaultPosition.lng;
+    function updateLocation(newData) {
+        setData(newData);
+        setLatitude(newData.latitude);
+        setLongitude(newData.longitude);
+        localStorage.setItem("latitude", newData.latitude);
+        localStorage.setItem("longitude", newData.longitude);
+        console.log("Location updated:", latitude, longitude);
+        console.log("Data:", data);
+    }
 
     return (
-        <GoogleMap
-            zoom={15}
-            center={{ lat: validLat, lng: validLng }}
-            mapContainerStyle={{ width: "100%", height: "500px" }}
-        >
-            {/* Marcador de la última ubicación */}
-            <Marker position={{ lat: validLat, lng: validLng }} />
-
-            {/* Línea de trayectoria */}
-            <Polyline
-                path={path}
-                options={{
-                    strokeColor: "#2d6a4f",
-                    strokeOpacity: 1,
-                    strokeWeight: 2
-                }}
-            />
-        </GoogleMap>
+        <>
+            <header>
+                <h1>ViaTracker</h1>
+            </header>
+            <section>
+                <div>
+                    <Table data={data ? [data] : []} />
+                </div>
+                <div className="Mapa">
+                    <h2 className="MapaTitle">Mapa</h2>
+                    <Map latitude={latitude} longitude={longitude} />
+                </div>
+            </section>
+        </>
     );
-};
+}
 
-export default Map;
+export default App;
