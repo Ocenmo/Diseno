@@ -10,6 +10,7 @@ table {
     background-color: #f9f9f9;
     box-shadow: 0 4px 8px #081c15;
     transition: transform 0.3s ease;
+    border-collapse: collapse;
 }
 
 /* Contenedor con scroll interno */
@@ -20,8 +21,14 @@ table {
 }
 
 .scrollable-table {
-    max-height: 300px; /* Ajusta la altura según sea necesario */
-    overflow-y: auto;
+    overflow: hidden; /* Por defecto no hay scroll */
+    max-height: none;
+    transition: max-height 0.3s ease;
+}
+
+.scrollable-table.scroll {
+    overflow-y: auto; /* Activa el scroll solo si hay más de 6 filas */
+    max-height: 300px; /* Ajusta la altura máxima */
 }
 
 /* Se asegura que los encabezados sean visibles al hacer scroll */

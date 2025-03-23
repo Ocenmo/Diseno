@@ -7,7 +7,7 @@ const Table = ({ data, error }) => {
             {error ? (
                 <p style={{ color: "red" }}>{error}</p>
             ) : data.length > 0 ? (
-                <div className="scrollable-table">
+                <div className={`scrollable-table ${data.length > 6 ? "scroll" : ""}`}>
                     <table>
                         <thead>
                             <tr>
