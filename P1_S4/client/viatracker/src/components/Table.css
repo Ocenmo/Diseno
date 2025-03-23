@@ -22,8 +22,6 @@ table {
 .scrollable-table {
     max-height: 300px; /* Ajusta la altura según sea necesario */
     overflow-y: auto;
-    border-radius: 99px; /* Se mantiene la estética redondeada */
-    border: 1px solid #74c69d;
 }
 
 /* Se asegura que los encabezados sean visibles al hacer scroll */

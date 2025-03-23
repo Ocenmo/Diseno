@@ -1,34 +1,32 @@
 import React from "react";
-import "./Table.css";
+import "./Table.css"
 
 const Table = ({ data, error }) => {
     return (
-        <div className="table-container">
+        <div>
             {error ? (
                 <p style={{ color: "red" }}>{error}</p>
             ) : data.length > 0 ? (
-                <div className="scrollable-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Latitud</th>
-                                <th>Longitud</th>
-                                <th>Timestamp</th>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Latitud</th>
+                            <th>Longitud</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.id}</td>
+                                <td>{item.latitude}</td>
+                                <td>{item.longitude}</td>
+                                <td>{item.timestamp}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {data.map((item, index) => (
-                                <tr key={index}>
-                                    <td>{item.id}</td>
-                                    <td>{item.Latitud}</td>  {/* Corregido */}
-                                    <td>{item.Longitud}</td> {/* Corregido */}
-                                    <td>{item.TimeStamp}</td> {/* Corregido */}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                </table>
             ) : (
                 <p>Cargando datos...</p>
             )}
