@@ -142,6 +142,7 @@ app.get('/rutas', (req, res) => {
     });
 });
 
+
 wss.on('connection', (ws, req) => {
     console.log('Cliente conectado desde', req.connection.remoteAddress);
     console.log('Cliente conectado desde', req.headers.origin);

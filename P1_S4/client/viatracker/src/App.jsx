@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
-import { latestLocation } from "./services/api";
+import DateRangeSidebar from "./components/DateRangeSidebar";
+import { latestLocation, rutas } from "./services/api";
 import { formatDateTime } from "./utils/utils";
+import Rutas from "./pages/Rutas";
 
 function App() {
     const [data, setData] = useState(null);
@@ -13,22 +15,21 @@ function App() {
     const [longitude, setLongitude] = useState(() => {
         return parseFloat(localStorage.getItem("longitude")) || -70.6506;
     });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [selectedRange, setSelectedRange] = useState(null);
+    const [routeData, setRouteData] = useState([]); // Ruta obtenida según la fecha
 
     const wsRef = useRef(null);
 
-
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
-        console.log("Current location", JSON.stringify(wsRef.current));
         return () => wsRef.current?.close();
     }, []);
-
 
     useEffect(() => {
         const getInitialData = async () => {
             const latestData = await latestLocation();
-            console.log("Latest data:", latestData);
-            if (latestData){
+            if (latestData) {
                 let initialData = {
                     id: latestData[0].id,
                     latitude: latestData[0].Latitud,
@@ -47,8 +48,30 @@ function App() {
         setLongitude(newData.longitude);
         localStorage.setItem("latitude", newData.latitude);
         localStorage.setItem("longitude", newData.longitude);
-        console.log("Location updated:", latitude, longitude);
-        console.log("Data:", data);
+    }
+
+    // Cuando `selectedRange` cambia, se obtiene la ruta del backend
+    useEffect(() => {
+        if (!selectedRange) return; // Si no hay rango, no se hace la petición
+        const fetchRoute = async () => {
+            const inicio = selectedRange.startDate.toISOString();
+            const fin = selectedRange.endDate.toISOString();
+            try {
+                const route = await rutas(inicio, fin);
+                setRouteData(route);
+            } catch (error) {
+                console.error("Error obteniendo ruta:", error);
+            }
+        };
+        fetchRoute();
+    }, [selectedRange]);
+
+    function handleApplyDateRange(range) {
+        setSelectedRange({
+            startDate: range[0].startDate,
+            endDate: range[0].endDate
+        });
+        setIsSidebarOpen(false);
     }
 
     return (
@@ -62,9 +85,11 @@ function App() {
                 </div>
                 <div className="Mapa">
                     <h2 className="MapaTitle">Mapa</h2>
-                    <Map latitude={latitude} longitude={longitude} />
+                    <Map latitude={latitude} longitude={longitude} routeData={routeData} />
                 </div>
+                <Rutas />
             </section>
+            <DateRangeSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onApply={handleApplyDateRange} />
         </>
     );
 }

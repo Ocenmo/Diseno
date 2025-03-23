@@ -7,17 +7,32 @@ export const latestLocation = async () => {
 }
 
 export const rangoFechas = async () => {
-    const response = await fetch(`${import.meta.env.VITE_DATE_RANGE_ENDPOINT}`);
-    if (!response.ok) {
-        throw new Error("Error al obtener el rango de fechas");
+    try {
+        const response = await fetch(`${import.meta.env.VITE_DATE_RANGE_ENDPOINT}`);
+        if (!response.ok) {
+            throw new Error("Error al obtener el rango de fechas");
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("❌ Error en la petición de rango de fechas:", error);
+        return null;
     }
-    return response.json();
-}
+};
 
 export const rutas = async (inicio, fin) => {
-    const response = await fetch(`${import.meta.env.VITE_ROUTE_ENDPOINT}?inicio=${inicio}&fin=${fin}`);
-    if (!response.ok) {
-        throw new Error("Error al obtener la ruta");
+    if (!inicio || !fin) {
+        console.error("❌ Error: inicio y fin son requeridos");
+        return null;
     }
-    return response.json();
-}
+
+    try {
+        const response = await fetch(`${import.meta.env.VITE_ROUTE_ENDPOINT}?inicio=${inicio}&fin=${fin}`);
+        if (!response.ok) {
+            throw new Error(`Error al obtener la ruta: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("❌ Error en la petición de rutas:", error);
+        return null;
+    }
+};
