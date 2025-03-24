@@ -13,7 +13,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [path, setPath] = useState([]);
 
     useEffect(() => {
-        // Si recibe props de latitud y longitud, las usa como posición inicial
         if (latitude !== undefined && longitude !== undefined) {
             const initialPosition = {
                 lat: parseFloat(latitude),
@@ -22,7 +21,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
             if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                 setDefaultPosition(initialPosition);
-                setPath([initialPosition]);
             }
         } else {
             const fetchLatestLocation = async () => {
@@ -36,7 +34,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
                         if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                             setDefaultPosition(initialPosition);
-                            setPath([initialPosition]);
                         }
                     }
                 } catch (error) {
@@ -61,13 +58,16 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
                         console.log("Coordenadas formateadas después del mapeo:", formattedCoordinates);
-                        setPath(formattedCoordinates); // Asegura que se reemplacen completamente las coordenadas anteriores
+                        setPath(formattedCoordinates);
                     } else {
-                        setPath([]); // Si no hay coordenadas, limpia el path
+                        setPath([]);
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
+                    setPath([]);
                 }
+            } else {
+                setPath([]);
             }
         };
         fetchCoordinatesInRange();
@@ -83,10 +83,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación o del lapso de tiempo */}
             <Marker position={lastPosition} />
-
-            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
