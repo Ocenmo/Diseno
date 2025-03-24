@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSideBar";
+import Map from "../components/Map";
 import { rutas } from "../services/api";
 
 const Rutas = () => {
@@ -39,15 +40,12 @@ const Rutas = () => {
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
-            {rutasData.length > 0 && (
-                <ul>
-                    {rutasData.map((ruta) => (
-                        <li key={ruta.id}>
-                            {ruta.TimeStamp} - ({ruta.Latitud}, {ruta.Longitud})
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <Map
+                latitude={rutasData.length > 0 ? parseFloat(rutasData[0].Latitud) : undefined}
+                longitude={rutasData.length > 0 ? parseFloat(rutasData[0].Longitud) : undefined}
+                startDate={selectedRange ? selectedRange.startDate.toISOString().split("T")[0] + " 00:00:00" : null}
+                endDate={selectedRange ? selectedRange.endDate.toISOString().split("T")[0] + " 23:59:59" : null}
+            />
 
             {/* Modal de selección de fechas */}
             <DateRangeModal
