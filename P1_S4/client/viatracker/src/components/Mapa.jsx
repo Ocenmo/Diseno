@@ -1,17 +1,17 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation } from "../services/api";
+import { latestLocation, rutas } from "../services/api"; // Se importa 'rutas' para obtener coordenadas dentro del rango de tiempo
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, filteredData }) => {
+const Map = ({ latitude, longitude, startDate, endDate }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
-    const [isFiltered, setIsFiltered] = useState(false);
+    const [useHistoricalPath, setUseHistoricalPath] = useState(false);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -36,30 +36,40 @@ const Map = ({ latitude, longitude, filteredData }) => {
     }, []);
 
     useEffect(() => {
-        if (filteredData && filteredData.length > 0) {
-            const newPath = filteredData.map((point) => ({
-                lat: parseFloat(point.Latitud),
-                lng: parseFloat(point.Longitud)
-            })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+        if (startDate && endDate) {
+            const fetchHistoricalPath = async () => {
+                try {
+                    const historicalData = await rutas(startDate, endDate);
+                    if (historicalData.length > 0) {
+                        const newPath = historicalData.map((item) => ({
+                            lat: parseFloat(item.Latitud),
+                            lng: parseFloat(item.Longitud),
+                        })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
 
-            if (newPath.length > 0) {
-                setPath(newPath);
-                setIsFiltered(true);
-            }
+                        if (newPath.length > 0) {
+                            setPath(newPath);
+                            setUseHistoricalPath(true);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching historical path:", error);
+                }
+            };
+            fetchHistoricalPath();
         } else {
-            setIsFiltered(false);
+            setUseHistoricalPath(false);
         }
-    }, [filteredData]);
+    }, [startDate, endDate]);
 
     useEffect(() => {
-        if (!isFiltered && latitude !== undefined && longitude !== undefined) {
+        if (!useHistoricalPath && latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
 
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
             }
         }
-    }, [latitude, longitude, isFiltered]);
+    }, [latitude, longitude, useHistoricalPath]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
@@ -71,7 +81,7 @@ const Map = ({ latitude, longitude, filteredData }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación */}
+            {/* Marcador en la última posición */}
             <Marker position={lastPosition} />
 
             {/* Línea de trayectoria */}
