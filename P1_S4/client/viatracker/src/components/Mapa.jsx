@@ -13,6 +13,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [path, setPath] = useState([]);
 
     useEffect(() => {
+        // Si recibe props de latitud y longitud, las usa como posición inicial
         if (latitude !== undefined && longitude !== undefined) {
             const initialPosition = {
                 lat: parseFloat(latitude),
@@ -27,10 +28,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             const fetchLatestLocation = async () => {
                 try {
                     const latestData = await latestLocation();
-                    if (latestData?.[0]?.Latitud !== undefined && latestData?.[0]?.Longitud !== undefined) {
+                    if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
                         const initialPosition = {
-                            lat: parseFloat(latestData[0].Latitud),
-                            lng: parseFloat(latestData[0].Longitud),
+                            lat: parseFloat(latestData[0].latitude),
+                            lng: parseFloat(latestData[0].longitude),
                         };
 
                         if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
@@ -51,7 +52,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             if (startDate && endDate) {
                 try {
                     const coordinates = await rutas(startDate, endDate);
-                    console.log("Ejemplo de datos recibidos:", coordinates[0]);
+                    console.log("Coordenadas en el intervalo:", coordinates);
 
                     if (coordinates?.length > 0) {
                         const formattedCoordinates = coordinates.map(coord => ({
@@ -60,8 +61,9 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
                         console.log("Coordenadas formateadas después del mapeo:", formattedCoordinates);
-                        setPath(formattedCoordinates);
-                        console.log("Path actualizado en el estado:", formattedCoordinates);
+                        setPath(formattedCoordinates); // Asegura que se reemplacen completamente las coordenadas anteriores
+                    } else {
+                        setPath([]); // Si no hay coordenadas, limpia el path
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
