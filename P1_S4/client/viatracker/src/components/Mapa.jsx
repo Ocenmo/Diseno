@@ -4,13 +4,14 @@ import { latestLocation } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, selectedPath }) => {
+const Map = ({ latitude, longitude, filteredData }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
+    const [isFiltered, setIsFiltered] = useState(false);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -35,15 +36,30 @@ const Map = ({ latitude, longitude, selectedPath }) => {
     }, []);
 
     useEffect(() => {
-        if (selectedPath && selectedPath.length > 0) {
-            setPath(selectedPath);
-        } else if (latitude !== undefined && longitude !== undefined) {
+        if (filteredData && filteredData.length > 0) {
+            const newPath = filteredData.map((point) => ({
+                lat: parseFloat(point.Latitud),
+                lng: parseFloat(point.Longitud)
+            })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+
+            if (newPath.length > 0) {
+                setPath(newPath);
+                setIsFiltered(true);
+            }
+        } else {
+            setIsFiltered(false);
+        }
+    }, [filteredData]);
+
+    useEffect(() => {
+        if (!isFiltered && latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
             }
         }
-    }, [latitude, longitude, selectedPath]);
+    }, [latitude, longitude, isFiltered]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
@@ -55,7 +71,7 @@ const Map = ({ latitude, longitude, selectedPath }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador en la última ubicación */}
+            {/* Marcador de la última ubicación */}
             <Marker position={lastPosition} />
 
             {/* Línea de trayectoria */}
@@ -65,7 +81,7 @@ const Map = ({ latitude, longitude, selectedPath }) => {
                     options={{
                         strokeColor: "#2d6a4f",
                         strokeOpacity: 1,
-                        strokeWeight: 2,
+                        strokeWeight: 2
                     }}
                 />
             )}
