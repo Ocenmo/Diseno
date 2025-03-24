@@ -10,7 +10,8 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     });
 
     const [defaultPosition, setDefaultPosition] = useState(null);
-    const [path, setPath] = useState([]);
+    const [realTimePath, setRealTimePath] = useState([]); // Ubicación en tiempo real
+    const [historicalPath, setHistoricalPath] = useState([]); // Historial de rutas
     const [mapKey, setMapKey] = useState(Date.now());
 
     // Efecto para establecer la posición inicial
@@ -23,7 +24,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                 };
                 if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                     setDefaultPosition(initialPosition);
-                    setPath([initialPosition]); // Inicializamos la ruta
+                    setRealTimePath([initialPosition]);
                 }
             } else {
                 try {
@@ -35,7 +36,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         };
                         if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
                             setDefaultPosition(newPosition);
-                            setPath([newPosition]);
+                            setRealTimePath([newPosition]);
                         }
                     }
                 } catch (error) {
@@ -58,8 +59,8 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                     };
 
                     if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
-                        setPath(prevPath => [...prevPath, newPosition]); // Añadir a la polilínea
-                        setMapKey(Date.now()); // Forzar re-render
+                        setRealTimePath(prevPath => [...prevPath, newPosition]); // Mantener historial en tiempo real
+                        setMapKey(Date.now());
                     }
                 }
             } catch (error) {
@@ -83,10 +84,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                             lng: parseFloat(coord.Longitud),
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                        setPath(formattedCoordinates);
-                        setMapKey(Date.now()); // Forzar re-render
+                        setHistoricalPath(formattedCoordinates); // Guardar historial sin afectar tiempo real
+                        setMapKey(Date.now());
                     } else {
-                        setPath([]);
+                        setHistoricalPath([]);
                         setMapKey(Date.now());
                     }
                 } catch (error) {
@@ -101,7 +102,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     if (!isLoaded) return <p>Cargando mapa...</p>;
     if (!defaultPosition) return <p>Obteniendo ubicación...</p>;
 
-    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
+    const lastPosition = realTimePath.length > 0 ? realTimePath[realTimePath.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
@@ -112,13 +113,26 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         >
             <Marker position={lastPosition} />
 
-            {path.length > 1 && (
+            {/* Polilínea del historial de rutas */}
+            {historicalPath.length > 1 && (
                 <Polyline
-                    path={path}
+                    path={historicalPath}
                     options={{
-                        strokeColor: "#2d6a4f",
+                        strokeColor: "#1d3557",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                    }}
+                />
+            )}
+
+            {/* Polilínea en tiempo real */}
+            {realTimePath.length > 1 && (
+                <Polyline
+                    path={realTimePath}
+                    options={{
+                        strokeColor: "#e63946",
                         strokeOpacity: 1,
-                        strokeWeight: 2
+                        strokeWeight: 2,
                     }}
                 />
             )}
