@@ -10,33 +10,7 @@ table {
     background-color: #f9f9f9;
     box-shadow: 0 4px 8px #081c15;
     transition: transform 0.3s ease;
-    border-collapse: collapse;
-}
 
-/* Contenedor con scroll interno */
-.table-container {
-    width: 100%;
-    max-width: 620px; /* Se ajusta al tamaño de la tabla */
-    margin: auto;
-}
-
-.scrollable-table {
-    overflow: hidden; /* Por defecto no hay scroll */
-    max-height: none;
-    transition: max-height 0.3s ease;
-}
-
-.scrollable-table.scroll {
-    overflow-y: auto; /* Activa el scroll solo si hay más de 6 filas */
-    max-height: 300px; /* Ajusta la altura máxima */
-}
-
-/* Se asegura que los encabezados sean visibles al hacer scroll */
-thead {
-    position: sticky;
-    top: 0;
-    background-color: #f9f9f9; /* Mantiene el color de fondo */
-    z-index: 10;
 }
 
 tr {
@@ -47,22 +21,4 @@ tr {
     align-items: center;
     border-bottom: 1px solid #ddd;
     margin-left: 1.3em;
-}
-
-th, td {
-    padding: 10px;
-    text-align: center;
-}
-
-/* Ajuste para que las columnas mantengan su alineación */
-thead tr {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-tbody tr {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
 }

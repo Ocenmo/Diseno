@@ -4,7 +4,7 @@ import { latestLocation } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude }) => {
+const Map = ({ latitude, longitude, selectedPath }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
@@ -35,28 +35,28 @@ const Map = ({ latitude, longitude }) => {
     }, []);
 
     useEffect(() => {
-        if (latitude !== undefined && longitude !== undefined) {
+        if (selectedPath && selectedPath.length > 0) {
+            setPath(selectedPath);
+        } else if (latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
-
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
             }
         }
-    }, [latitude, longitude]);
+    }, [latitude, longitude, selectedPath]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = !isNaN(latitude) && isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = !isNaN(longitude) && isFinite(longitude) ? longitude : defaultPosition.lng;
+    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
             zoom={15}
-            center={{ lat: validLat, lng: validLng }}
+            center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación */}
-            <Marker position={{ lat: validLat, lng: validLng }} />
+            {/* Marcador en la última ubicación */}
+            <Marker position={lastPosition} />
 
             {/* Línea de trayectoria */}
             {path.length > 1 && (
@@ -65,7 +65,7 @@ const Map = ({ latitude, longitude }) => {
                     options={{
                         strokeColor: "#2d6a4f",
                         strokeOpacity: 1,
-                        strokeWeight: 2
+                        strokeWeight: 2,
                     }}
                 />
             )}
