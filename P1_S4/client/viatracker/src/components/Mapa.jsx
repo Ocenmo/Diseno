@@ -13,7 +13,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [path, setPath] = useState([]);
 
     useEffect(() => {
-        // Si recibe props de latitud y longitud, las usa como posición inicial
         if (latitude !== undefined && longitude !== undefined) {
             const initialPosition = {
                 lat: parseFloat(latitude),
@@ -60,7 +59,11 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                             lng: parseFloat(coord.longitude),
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                        setPath(formattedCoordinates);
+                        console.log("Coordenadas formateadas:", formattedCoordinates);
+
+                        setPath([...formattedCoordinates]);
+                    } else {
+                        console.log("No hay coordenadas en el intervalo.");
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
@@ -69,6 +72,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         };
         fetchCoordinatesInRange();
     }, [startDate, endDate]);
+
+    useEffect(() => {
+        console.log("Path actualizado en el estado:", path);
+    }, [path]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
@@ -80,19 +87,19 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación o del lapso de tiempo */}
             <Marker position={lastPosition} />
 
-            {/* Línea de trayectoria */}
-            {path.length > 1 && (
+            {path.length > 1 ? (
                 <Polyline
                     path={path}
                     options={{
-                        strokeColor: "#2d6a4f",
+                        strokeColor: "#FF0000",
                         strokeOpacity: 1,
-                        strokeWeight: 2
+                        strokeWeight: 4,
                     }}
                 />
+            ) : (
+                <p>No hay suficientes puntos para la polilínea</p>
             )}
         </GoogleMap>
     );
