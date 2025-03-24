@@ -4,13 +4,14 @@ import { latestLocation, rutas } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, selectedTimeRange }) => {
+const Map = ({ latitude, longitude, startDate, endDate }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
+    const [isTimeRangeActive, setIsTimeRangeActive] = useState(false);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -24,7 +25,7 @@ const Map = ({ latitude, longitude, selectedTimeRange }) => {
 
                     if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                         setDefaultPosition(initialPosition);
-                        setPath([initialPosition]);
+                        setPath([initialPosition]); // Iniciar el camino con la última ubicación
                     }
                 }
             } catch (error) {
@@ -35,50 +36,54 @@ const Map = ({ latitude, longitude, selectedTimeRange }) => {
     }, []);
 
     useEffect(() => {
-        if (latitude !== undefined && longitude !== undefined) {
+        if (latitude !== undefined && longitude !== undefined && !isTimeRangeActive) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
             }
         }
-    }, [latitude, longitude]);
+    }, [latitude, longitude, isTimeRangeActive]);
 
     useEffect(() => {
-        const fetchRouteData = async () => {
-            if (selectedTimeRange.startDate && selectedTimeRange.endDate) {
+        const fetchRouteByTimeRange = async () => {
+            if (startDate && endDate) {
                 try {
-                    const routeData = await rutas(selectedTimeRange.startDate, selectedTimeRange.endDate);
-                    if (Array.isArray(routeData)) {
-                        const formattedPath = routeData.map((point) => ({
-                            lat: parseFloat(point.latitude),
-                            lng: parseFloat(point.longitude)
+                    const routeData = await rutas(startDate, endDate);
+                    if (routeData.length > 0) {
+                        const newPath = routeData.map(coord => ({
+                            lat: parseFloat(coord.latitude),
+                            lng: parseFloat(coord.longitude)
                         })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
 
-                        if (formattedPath.length > 0) {
-                            setPath(formattedPath);
+                        if (newPath.length > 0) {
+                            setPath(newPath);
+                            setIsTimeRangeActive(true);
                         }
                     }
                 } catch (error) {
-                    console.error("Error fetching route data:", error);
+                    console.error("Error fetching route by time range:", error);
                 }
             }
         };
-        fetchRouteData();
-    }, [selectedTimeRange]);
+        fetchRouteByTimeRange();
+    }, [startDate, endDate]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = !isNaN(latitude) && isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = !isNaN(longitude) && isFinite(longitude) ? longitude : defaultPosition.lng;
+    const lastPoint = path.length > 0 ? path[path.length - 1] : defaultPosition;
+    console.log("Última posición del marcador:", lastPoint);
 
     return (
         <GoogleMap
             zoom={15}
-            center={{ lat: validLat, lng: validLng }}
+            center={lastPoint}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            <Marker position={{ lat: validLat, lng: validLng }} />
+            {/* Marcador de la última ubicación */}
+            <Marker position={lastPoint} />
 
+            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
