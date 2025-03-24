@@ -1,17 +1,45 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation } from "../services/api";
+import { latestLocation, rutas } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, filteredData }) => {
+const Map = ({ latitude, longitude, startDate, endDate }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
-    const [isFiltered, setIsFiltered] = useState(false);
+
+    useEffect(() => {
+        console.log("Entró al useEffect de fechas en Mapa.jsx:", { startDate, endDate });
+        if (!startDate || !endDate) return;
+
+        const fetchPathByDateRange = async () => {
+            try {
+                console.log("Llamando API rutas con fechas:", startDate, endDate);
+                const routeData = await rutas(startDate, endDate);
+                console.log("Datos de rutas recibidos en Mapa.jsx:", routeData);
+
+                if (Array.isArray(routeData) && routeData.length > 0) {
+                    const formattedPath = routeData.map(item => ({
+                        lat: parseFloat(item.Latitud),
+                        lng: parseFloat(item.Longitud)
+                    })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+
+                    if (formattedPath.length > 0) {
+                        setPath(formattedPath);
+                        setDefaultPosition(formattedPath[formattedPath.length - 1]); // Última coordenada
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching path by date range:", error);
+            }
+        };
+
+        fetchPathByDateRange();
+    }, [startDate, endDate]);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -36,43 +64,25 @@ const Map = ({ latitude, longitude, filteredData }) => {
     }, []);
 
     useEffect(() => {
-        if (filteredData && filteredData.length > 0) {
-            const newPath = filteredData.map((point) => ({
-                lat: parseFloat(point.Latitud),
-                lng: parseFloat(point.Longitud)
-            })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
-
-            if (newPath.length > 0) {
-                setPath(newPath);
-                setIsFiltered(true);
-            }
-        } else {
-            setIsFiltered(false);
-        }
-    }, [filteredData]);
-
-    useEffect(() => {
-        if (!isFiltered && latitude !== undefined && longitude !== undefined) {
+        if (latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
 
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
             }
         }
-    }, [latitude, longitude, isFiltered]);
+    }, [latitude, longitude]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
-
-    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
             zoom={15}
-            center={lastPosition}
+            center={defaultPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
             {/* Marcador de la última ubicación */}
-            <Marker position={lastPosition} />
+            <Marker position={defaultPosition} />
 
             {/* Línea de trayectoria */}
             {path.length > 1 && (
