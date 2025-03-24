@@ -1,17 +1,17 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation, rutas } from "../services/api";
+import { latestLocation } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, startDate, endDate }) => {
+const Map = ({ latitude, longitude, filteredData }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
-    const [markerPosition, setMarkerPosition] = useState(null);
+    const [isFiltered, setIsFiltered] = useState(false);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -26,7 +26,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                     if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                         setDefaultPosition(initialPosition);
                         setPath([initialPosition]); // Iniciar el camino con la última ubicación
-                        setMarkerPosition(initialPosition);
                     }
                 }
             } catch (error) {
@@ -37,62 +36,43 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     }, []);
 
     useEffect(() => {
-        if (latitude !== undefined && longitude !== undefined) {
+        if (filteredData && filteredData.length > 0) {
+            const newPath = filteredData.map((point) => ({
+                lat: parseFloat(point.Latitud),
+                lng: parseFloat(point.Longitud)
+            })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+
+            if (newPath.length > 0) {
+                setPath(newPath);
+                setIsFiltered(true);
+            }
+        } else {
+            setIsFiltered(false);
+        }
+    }, [filteredData]);
+
+    useEffect(() => {
+        if (!isFiltered && latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
 
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
-                setMarkerPosition(newPoint);
             }
         }
-    }, [latitude, longitude]);
-
-    // Nueva función para traer coordenadas del intervalo de tiempo
-    useEffect(() => {
-        const fetchPathByDateRange = async () => {
-            if (!startDate || !endDate) return; // No buscar si no hay fechas seleccionadas
-
-            try {
-                const routeData = await rutas(startDate, endDate);
-                console.log("Datos de rutas recibidos en Mapa.jsx:", routeData);
-
-                if (routeData && routeData.length > 0) {
-                    const formattedPath = routeData.map(item => ({
-                        lat: parseFloat(item.Latitud),
-                        lng: parseFloat(item.Longitud),
-                    })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
-
-                    console.log("Coordenadas procesadas en Mapa.jsx:", formattedPath);
-
-                    if (formattedPath.length > 0) {
-                        setPath(formattedPath);
-                        setMarkerPosition(formattedPath[formattedPath.length - 1]); // Última coordenada
-
-                        console.log("Nueva ruta en el mapa:", formattedPath);
-                        console.log("Nueva posición del marcador:", formattedPath[formattedPath.length - 1]);
-                    }
-                }
-            } catch (error) {
-                console.error("Error al obtener las rutas:", error);
-            }
-        };
-
-        fetchPathByDateRange();
-    }, [startDate, endDate]);
+    }, [latitude, longitude, isFiltered]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = markerPosition?.lat || defaultPosition.lat;
-    const validLng = markerPosition?.lng || defaultPosition.lng;
+    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
             zoom={15}
-            center={{ lat: validLat, lng: validLng }}
+            center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador en la última posición */}
-            {markerPosition && <Marker position={markerPosition} />}
+            {/* Marcador de la última ubicación */}
+            <Marker position={lastPosition} />
 
             {/* Línea de trayectoria */}
             {path.length > 1 && (
