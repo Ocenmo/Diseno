@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
-import Map from "../components/Map";
+import Map from "../components/Mapa";
 import { rutas } from "../services/api";
 
 const Rutas = () => {
