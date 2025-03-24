@@ -4,101 +4,97 @@ import { latestLocation, rutas } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, selectedDateTime }) => {
+const Map = ({ latitude, longitude, startDate, endDate }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
-    const [livePath, setLivePath] = useState([]);
-    const [historyPath, setHistoryPath] = useState([]);
-
-    useEffect(() => {
-        const fetchLatestLocation = async () => {
-            try {
-                const latestData = await latestLocation();
-                if (latestData && latestData[0]?.Latitud !== undefined && latestData[0]?.Longitud !== undefined) {
-                    const initialPosition = {
-                        lat: parseFloat(latestData[0].Latitud),
-                        lng: parseFloat(latestData[0].Longitud),
-                    };
-
-                    if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
-                        setDefaultPosition(initialPosition);
-                        setLivePath([initialPosition]); // Iniciar la ruta en tiempo real
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching latest location:", error);
-            }
-        };
-        fetchLatestLocation();
-    }, []);
+    const [path, setPath] = useState([]);
+    const [mapKey, setMapKey] = useState(Date.now()); // Nueva clave única para forzar el re-renderizado
 
     useEffect(() => {
         if (latitude !== undefined && longitude !== undefined) {
-            const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+            const initialPosition = {
+                lat: parseFloat(latitude),
+                lng: parseFloat(longitude),
+            };
 
-            if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
-                setLivePath((prevPath) => [...prevPath, newPoint]);
+            if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                setDefaultPosition(initialPosition);
+                setPath([initialPosition]);
             }
+        } else {
+            const fetchLatestLocation = async () => {
+                try {
+                    const latestData = await latestLocation();
+                    if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
+                        const initialPosition = {
+                            lat: parseFloat(latestData[0].latitude),
+                            lng: parseFloat(latestData[0].longitude),
+                        };
+
+                        if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                            setDefaultPosition(initialPosition);
+                            setPath([initialPosition]);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching latest location:", error);
+                }
+            };
+            fetchLatestLocation();
         }
     }, [latitude, longitude]);
 
     useEffect(() => {
-        if (selectedDateTime) {
-            const fetchRoute = async () => {
+        const fetchCoordinatesInRange = async () => {
+            if (startDate && endDate) {
                 try {
-                    const { inicio, fin } = selectedDateTime;
-                    const routeData = await rutas(inicio, fin);
-                    if (routeData.length > 0) {
-                        const newPath = routeData.map(point => ({
-                            lat: parseFloat(point.Latitud),
-                            lng: parseFloat(point.Longitud)
-                        })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+                    const coordinates = await rutas(startDate, endDate);
+                    console.log("Coordenadas en el intervalo:", coordinates);
 
-                        setHistoryPath(newPath);
+                    if (coordinates?.length > 0) {
+                        const formattedCoordinates = coordinates.map(coord => ({
+                            lat: parseFloat(coord.Latitud),
+                            lng: parseFloat(coord.Longitud),
+                        })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+
+                        console.log("Coordenadas formateadas:", formattedCoordinates);
+
+                        setPath([]); // Limpiar el path
+                        setTimeout(() => setPath(formattedCoordinates), 0); // Esperar un poco antes de actualizar
+                        setMapKey(Date.now()); // Cambiar la clave del mapa para forzar el re-renderizado
+                    } else {
+                        setPath([]); // Si no hay coordenadas, limpiar el path
+                        setMapKey(Date.now()); // También forzar el re-renderizado
                     }
                 } catch (error) {
-                    console.error("Error fetching route:", error);
+                    console.error("Error obteniendo coordenadas:", error);
                 }
-            };
-            fetchRoute();
-        }
-    }, [selectedDateTime]);
+            }
+        };
+        fetchCoordinatesInRange();
+    }, [startDate, endDate]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = !isNaN(latitude) && isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = !isNaN(longitude) && isFinite(longitude) ? longitude : defaultPosition.lng;
+    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
+            key={mapKey} // Agregar clave única para forzar el re-renderizado
             zoom={15}
-            center={{ lat: validLat, lng: validLng }}
+            center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación */}
-            <Marker position={{ lat: validLat, lng: validLng }} />
+            <Marker position={lastPosition} />
 
-            {/* Polilínea en tiempo real */}
-            {livePath.length > 1 && (
+            {path.length > 1 && (
                 <Polyline
-                    path={livePath}
+                    path={path}
                     options={{
                         strokeColor: "#2d6a4f",
-                        strokeOpacity: 1,
-                        strokeWeight: 2
-                    }}
-                />
-            )}
-
-            {/* Polilínea del historial de rutas */}
-            {historyPath.length > 1 && (
-                <Polyline
-                    path={historyPath}
-                    options={{
-                        strokeColor: "#ff0000",
                         strokeOpacity: 1,
                         strokeWeight: 2
                     }}
