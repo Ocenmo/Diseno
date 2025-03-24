@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import DateRangeModal from "../components/DateRangeSideBar";
+import DateRangeModal from "../components/DateRangeSidebar";
 import Map from "../components/Map";
 import { rutas } from "../services/api";
 
