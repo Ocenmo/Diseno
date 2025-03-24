@@ -9,10 +9,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         googleMapsApiKey: ApiKey,
     });
 
-    const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
+    const [defaultPosition, setDefaultPosition] = useState({ lat: null, lng: null });
     const [path, setPath] = useState([]);
     const [realTimePath, setRealTimePath] = useState([]);
-    const [markerPosition, setMarkerPosition] = useState({ lat: 0, lng: 0 });
+    const [markerPosition, setMarkerPosition] = useState(null);
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -24,7 +24,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         lng: parseFloat(latestData[0].Longitud),
                     };
 
-                    if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                    if (isFinite(initialPosition.lat) && isFinite(initialPosition.lng)) {
                         setDefaultPosition(initialPosition);
                         setRealTimePath([initialPosition]);
                         setMarkerPosition(initialPosition);
@@ -41,7 +41,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         if (latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
 
-            if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
+            if (isFinite(newPoint.lat) && isFinite(newPoint.lng)) {
                 setRealTimePath((prevPath) => [...prevPath, newPoint]);
                 setMarkerPosition(newPoint);
             }
@@ -57,7 +57,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         const formattedPath = routeData.map(coord => ({
                             lat: parseFloat(coord.Latitud),
                             lng: parseFloat(coord.Longitud),
-                        })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+                        })).filter(point => isFinite(point.lat) && isFinite(point.lng));
 
                         if (formattedPath.length > 0) {
                             setPath(formattedPath);
@@ -74,16 +74,21 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validMarker = markerPosition.lat !== 0 && markerPosition.lng !== 0;
+    // Definir posición segura para el centro del mapa
+    const mapCenter = markerPosition && isFinite(markerPosition.lat) && isFinite(markerPosition.lng)
+        ? markerPosition
+        : (defaultPosition && isFinite(defaultPosition.lat) && isFinite(defaultPosition.lng) ? defaultPosition : { lat: 0, lng: 0 });
 
     return (
         <GoogleMap
             zoom={15}
-            center={validMarker ? markerPosition : defaultPosition}
+            center={mapCenter}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
             {/* Marker en la última posición válida */}
-            {validMarker && <Marker position={markerPosition} />}
+            {markerPosition && isFinite(markerPosition.lat) && isFinite(markerPosition.lng) && (
+                <Marker position={markerPosition} />
+            )}
 
             {/* Polilínea en tiempo real */}
             {path.length === 0 && realTimePath.length > 1 && (
