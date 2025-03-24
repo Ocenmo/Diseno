@@ -87,9 +87,11 @@ function App() {
                     <h2 className="MapaTitle">Mapa</h2>
                     <Map latitude={latitude} longitude={longitude} routeData={routeData} />
                 </div>
-                <Rutas />
             </section>
+            <div className="Rutas">
+            <Rutas />
             <DateRangeSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onApply={handleApplyDateRange} />
+            </div>
         </>
     );
 }

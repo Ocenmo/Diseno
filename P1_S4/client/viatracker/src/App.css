@@ -33,4 +33,17 @@ section {
   justify-content: space-between;
   margin: 2em 16em 0 10em;
   flex-wrap: wrap;
+  padding-bottom: 50px;
+}
+
+.Rutas {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 8px #2d6a4f;
+  transition: transform 0.3s ease;
+  border-radius: 15px;
+  overflow: hidden;
+  padding: 15px 15px 15px 15px;
 }

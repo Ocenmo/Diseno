@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
 import Map from "../components/Mapa";
 import { rutas } from "../services/api";
+import "./Rutas.css";
 
 const Rutas = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +28,7 @@ const Rutas = () => {
     return (
         <div>
             <h1>Historial de rutas</h1>
-            <button
+            <button className="buttonCalendario"
                 onClick={() => {
                     console.log("Abriendo modal...");
                     setIsModalOpen(true);
