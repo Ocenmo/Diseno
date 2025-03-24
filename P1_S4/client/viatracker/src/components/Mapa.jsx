@@ -9,32 +9,30 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         googleMapsApiKey: ApiKey,
     });
 
-    const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
+    const [defaultPosition, setDefaultPosition] = useState(null);
     const [path, setPath] = useState([]);
     const [mapKey, setMapKey] = useState(Date.now());
 
     // Efecto para establecer la posición inicial
     useEffect(() => {
-        if (latitude !== undefined && longitude !== undefined) {
-            const initialPosition = {
-                lat: parseFloat(latitude),
-                lng: parseFloat(longitude),
-            };
-
-            if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
-                setDefaultPosition(initialPosition);
-                setPath([initialPosition]); // Iniciar la ruta con la posición inicial
-            }
-        } else {
-            const fetchLatestLocation = async () => {
+        const setInitialPosition = async () => {
+            if (latitude !== undefined && longitude !== undefined) {
+                const initialPosition = {
+                    lat: parseFloat(latitude),
+                    lng: parseFloat(longitude),
+                };
+                if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                    setDefaultPosition(initialPosition);
+                    setPath([initialPosition]); // Inicializamos la ruta
+                }
+            } else {
                 try {
                     const latestData = await latestLocation();
-                    if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
+                    if (latestData?.[0]?.latitude && latestData?.[0]?.longitude) {
                         const newPosition = {
                             lat: parseFloat(latestData[0].latitude),
                             lng: parseFloat(latestData[0].longitude),
                         };
-
                         if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
                             setDefaultPosition(newPosition);
                             setPath([newPosition]);
@@ -43,25 +41,25 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                 } catch (error) {
                     console.error("Error fetching latest location:", error);
                 }
-            };
-            fetchLatestLocation();
-        }
+            }
+        };
+        setInitialPosition();
     }, [latitude, longitude]);
 
-    // Efecto para actualizar la posición en tiempo real
+    // Efecto para actualizar la ubicación en tiempo real
     useEffect(() => {
         const fetchLatestLocation = async () => {
             try {
                 const latestData = await latestLocation();
-                if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
+                if (latestData?.[0]?.latitude && latestData?.[0]?.longitude) {
                     const newPosition = {
                         lat: parseFloat(latestData[0].latitude),
                         lng: parseFloat(latestData[0].longitude),
                     };
 
                     if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
-                        setDefaultPosition(newPosition);
-                        setPath(prevPath => [...prevPath, newPosition]); // Acumular puntos en la polilínea
+                        setPath(prevPath => [...prevPath, newPosition]); // Añadir a la polilínea
+                        setMapKey(Date.now()); // Forzar re-render
                     }
                 }
             } catch (error) {
@@ -69,30 +67,24 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             }
         };
 
-        // Actualizar la ubicación cada 5 segundos en tiempo real
         const interval = setInterval(fetchLatestLocation, 5000);
-
         return () => clearInterval(interval);
     }, []);
 
-    // Efecto para cargar rutas históricas basadas en fechas
+    // Efecto para cargar rutas históricas con fechas seleccionadas
     useEffect(() => {
         const fetchCoordinatesInRange = async () => {
             if (startDate && endDate) {
                 try {
                     const coordinates = await rutas(startDate, endDate);
-                    console.log("Coordenadas en el intervalo:", coordinates);
-
                     if (coordinates?.length > 0) {
                         const formattedCoordinates = coordinates.map(coord => ({
                             lat: parseFloat(coord.Latitud),
                             lng: parseFloat(coord.Longitud),
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                        console.log("Coordenadas formateadas:", formattedCoordinates);
-
                         setPath(formattedCoordinates);
-                        setMapKey(Date.now()); // Forzar re-renderizado
+                        setMapKey(Date.now()); // Forzar re-render
                     } else {
                         setPath([]);
                         setMapKey(Date.now());
@@ -107,6 +99,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     }, [startDate, endDate]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
+    if (!defaultPosition) return <p>Obteniendo ubicación...</p>;
 
     const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
