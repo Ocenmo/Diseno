@@ -1,6 +1,6 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation, rutas } from "../services/api"; // Importa rutas para obtener coordenadas en el intervalo
+import { latestLocation, rutas } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
@@ -13,7 +13,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [path, setPath] = useState([]);
 
     useEffect(() => {
-        // Si recibe props de latitud y longitud, las usa como posición inicial
         if (latitude !== undefined && longitude !== undefined) {
             const initialPosition = {
                 lat: parseFloat(latitude),
@@ -51,17 +50,21 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         const fetchCoordinatesInRange = async () => {
             if (startDate && endDate) {
                 try {
-                    setPath([]); // Limpiar la polilínea antes de cargar nuevas coordenadas
                     const coordinates = await rutas(startDate, endDate);
                     console.log("Coordenadas en el intervalo:", coordinates);
 
                     if (coordinates?.length > 0) {
                         const formattedCoordinates = coordinates.map(coord => ({
-                            lat: parseFloat(coord.latitude || coord.Latitud),
-                            lng: parseFloat(coord.longitude || coord.Longitud),
+                            lat: parseFloat(coord.Latitud), // Asegúrate de que sea 'Latitud' y 'Longitud'
+                            lng: parseFloat(coord.Longitud),
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                        setPath(formattedCoordinates);
+                        console.log("Coordenadas formateadas:", formattedCoordinates);
+
+                        setPath([]); // Limpia el path antes de agregar las nuevas coordenadas
+                        setTimeout(() => setPath(formattedCoordinates), 0); // Asegura que el estado se actualice correctamente
+                    } else {
+                        setPath([]); // Si no hay coordenadas, se limpia el path
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
@@ -81,10 +84,8 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación o del lapso de tiempo */}
             <Marker position={lastPosition} />
 
-            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
