@@ -18,9 +18,9 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                 lat: parseFloat(latitude),
                 lng: parseFloat(longitude),
             };
-
             if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                 setDefaultPosition(initialPosition);
+                setPath([initialPosition]);
             }
         } else {
             const fetchLatestLocation = async () => {
@@ -31,9 +31,9 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                             lat: parseFloat(latestData[0].latitude),
                             lng: parseFloat(latestData[0].longitude),
                         };
-
                         if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                             setDefaultPosition(initialPosition);
+                            setPath([initialPosition]);
                         }
                     }
                 } catch (error) {
@@ -58,13 +58,13 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
                         console.log("Coordenadas formateadas después del mapeo:", formattedCoordinates);
+
                         setPath(formattedCoordinates);
                     } else {
                         setPath([]);
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
-                    setPath([]);
                 }
             } else {
                 setPath([]);
@@ -83,7 +83,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
+            {/* Marcador de la última ubicación o del lapso de tiempo */}
             <Marker position={lastPosition} />
+
+            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
