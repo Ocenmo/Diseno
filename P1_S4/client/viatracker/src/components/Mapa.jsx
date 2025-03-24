@@ -4,7 +4,7 @@ import { latestLocation, rutas } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, startDate, endDate }) => {
+const Map = ({ latitude, longitude, selectedTimeRange }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
@@ -13,47 +13,18 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [path, setPath] = useState([]);
 
     useEffect(() => {
-        console.log("Entró al useEffect de fechas en Mapa.jsx:", { startDate, endDate });
-        if (!startDate || !endDate) return;
-
-        const fetchPathByDateRange = async () => {
-            try {
-                console.log("Llamando API rutas con fechas:", startDate, endDate);
-                const routeData = await rutas(startDate, endDate);
-                console.log("Datos de rutas recibidos en Mapa.jsx:", routeData);
-
-                if (Array.isArray(routeData) && routeData.length > 0) {
-                    const formattedPath = routeData.map(item => ({
-                        lat: parseFloat(item.Latitud),
-                        lng: parseFloat(item.Longitud)
-                    })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-                    if (formattedPath.length > 0) {
-                        setPath(formattedPath);
-                        setDefaultPosition(formattedPath[formattedPath.length - 1]); // Última coordenada
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching path by date range:", error);
-            }
-        };
-
-        fetchPathByDateRange();
-    }, [startDate, endDate]);
-
-    useEffect(() => {
         const fetchLatestLocation = async () => {
             try {
                 const latestData = await latestLocation();
-                if (latestData && latestData[0]?.Latitud !== undefined && latestData[0]?.Longitud !== undefined) {
+                if (latestData && latestData[0]?.latitude !== undefined && latestData[0]?.longitude !== undefined) {
                     const initialPosition = {
-                        lat: parseFloat(latestData[0].Latitud),
-                        lng: parseFloat(latestData[0].Longitud),
+                        lat: parseFloat(latestData[0].latitude),
+                        lng: parseFloat(latestData[0].longitude),
                     };
 
                     if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                         setDefaultPosition(initialPosition);
-                        setPath([initialPosition]); // Iniciar el camino con la última ubicación
+                        setPath([initialPosition]);
                     }
                 }
             } catch (error) {
@@ -66,25 +37,48 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     useEffect(() => {
         if (latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
-
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setPath((prevPath) => [...prevPath, newPoint]);
             }
         }
     }, [latitude, longitude]);
 
+    useEffect(() => {
+        const fetchRouteData = async () => {
+            if (selectedTimeRange.startDate && selectedTimeRange.endDate) {
+                try {
+                    const routeData = await rutas(selectedTimeRange.startDate, selectedTimeRange.endDate);
+                    if (Array.isArray(routeData)) {
+                        const formattedPath = routeData.map((point) => ({
+                            lat: parseFloat(point.latitude),
+                            lng: parseFloat(point.longitude)
+                        })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+
+                        if (formattedPath.length > 0) {
+                            setPath(formattedPath);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching route data:", error);
+                }
+            }
+        };
+        fetchRouteData();
+    }, [selectedTimeRange]);
+
     if (!isLoaded) return <p>Cargando mapa...</p>;
+
+    const validLat = !isNaN(latitude) && isFinite(latitude) ? latitude : defaultPosition.lat;
+    const validLng = !isNaN(longitude) && isFinite(longitude) ? longitude : defaultPosition.lng;
 
     return (
         <GoogleMap
             zoom={15}
-            center={defaultPosition}
+            center={{ lat: validLat, lng: validLng }}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marcador de la última ubicación */}
-            <Marker position={defaultPosition} />
+            <Marker position={{ lat: validLat, lng: validLng }} />
 
-            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
