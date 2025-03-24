@@ -12,6 +12,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
     const [realTimePath, setRealTimePath] = useState([]);
+    const [markerPosition, setMarkerPosition] = useState({ lat: 0, lng: 0 });
 
     useEffect(() => {
         const fetchLatestLocation = async () => {
@@ -26,6 +27,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                     if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                         setDefaultPosition(initialPosition);
                         setRealTimePath([initialPosition]);
+                        setMarkerPosition(initialPosition);
                     }
                 }
             } catch (error) {
@@ -41,6 +43,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
             if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
                 setRealTimePath((prevPath) => [...prevPath, newPoint]);
+                setMarkerPosition(newPoint);
             }
         }
     }, [latitude, longitude]);
@@ -58,6 +61,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
                         if (formattedPath.length > 0) {
                             setPath(formattedPath);
+                            setMarkerPosition(formattedPath[formattedPath.length - 1]); // Última coordenada
                         }
                     }
                 } catch (error) {
@@ -70,17 +74,16 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    const validLat = !isNaN(latitude) && isFinite(latitude) ? latitude : defaultPosition.lat;
-    const validLng = !isNaN(longitude) && isFinite(longitude) ? longitude : defaultPosition.lng;
+    const validMarker = markerPosition.lat !== 0 && markerPosition.lng !== 0;
 
     return (
         <GoogleMap
             zoom={15}
-            center={{ lat: validLat, lng: validLng }}
+            center={validMarker ? markerPosition : defaultPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marker en la última posición */}
-            <Marker position={path.length > 0 ? path[path.length - 1] : { lat: validLat, lng: validLng }} />
+            {/* Marker en la última posición válida */}
+            {validMarker && <Marker position={markerPosition} />}
 
             {/* Polilínea en tiempo real */}
             {path.length === 0 && realTimePath.length > 1 && (
