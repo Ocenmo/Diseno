@@ -7,21 +7,25 @@ import "./Rutas.css";
 const Rutas = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
-    const [rutasData, setRutasData] = useState([]);
+    const [rutasData, setRutasData] = useState([]); // Guarda las rutas obtenidas por fecha
 
     const handleSelectRange = async (startDate, endDate) => {
         setSelectedRange({ startDate, endDate });
 
         console.log("Fechas seleccionadas:", { startDate, endDate });
 
-        // Formatear fechas correctamente en "YYYY-MM-DD HH:MM:SS"
         const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
-        const data = await rutas(formattedStartDate, formattedEndDate);
-
-        if (data) {
-            setRutasData(data);
+        try {
+            const data = await rutas(formattedStartDate, formattedEndDate);
+            if (data && data.length > 0) {
+                setRutasData(data);
+            } else {
+                setRutasData([]); // Si no hay datos, limpiar la ruta histórica
+            }
+        } catch (error) {
+            console.error("Error obteniendo rutas:", error);
         }
     };
 
@@ -41,11 +45,11 @@ const Rutas = () => {
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
+            {/* Pasamos rutasData directamente en lugar de startDate y endDate */}
             <Map
                 latitude={rutasData.length > 0 ? parseFloat(rutasData[0].Latitud) : undefined}
                 longitude={rutasData.length > 0 ? parseFloat(rutasData[0].Longitud) : undefined}
-                startDate={selectedRange ? selectedRange.startDate.toISOString().split("T")[0] + " 00:00:00" : null}
-                endDate={selectedRange ? selectedRange.endDate.toISOString().split("T")[0] + " 23:59:59" : null}
+                historicalData={rutasData} // Nuevo prop con la ruta histórica
             />
 
             {/* Modal de selección de fechas */}

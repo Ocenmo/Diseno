@@ -1,10 +1,10 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation, rutas } from "../services/api";
+import { latestLocation } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, startDate, endDate }) => {
+const Map = ({ latitude, longitude, historicalData }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
@@ -12,7 +12,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     const [defaultPosition, setDefaultPosition] = useState(null);
     const [realTimePath, setRealTimePath] = useState([]); // Ubicación en tiempo real
     const [historicalPath, setHistoricalPath] = useState([]); // Historial de rutas
-    const [mapKey, setMapKey] = useState(Date.now());
 
     // Efecto para establecer la posición inicial
     useEffect(() => {
@@ -60,7 +59,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
                     if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
                         setRealTimePath(prevPath => [...prevPath, newPosition]); // Mantener historial en tiempo real
-                        setMapKey(Date.now());
                     }
                 }
             } catch (error) {
@@ -72,32 +70,19 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         return () => clearInterval(interval);
     }, []);
 
-    // Efecto para cargar rutas históricas con fechas seleccionadas
+    // Efecto para actualizar el historial de rutas
     useEffect(() => {
-        const fetchCoordinatesInRange = async () => {
-            if (startDate && endDate) {
-                try {
-                    const coordinates = await rutas(startDate, endDate);
-                    if (coordinates?.length > 0) {
-                        const formattedCoordinates = coordinates.map(coord => ({
-                            lat: parseFloat(coord.Latitud),
-                            lng: parseFloat(coord.Longitud),
-                        })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+        if (historicalData?.length > 0) {
+            const formattedCoordinates = historicalData.map(coord => ({
+                lat: parseFloat(coord.Latitud),
+                lng: parseFloat(coord.Longitud),
+            })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                        setHistoricalPath(formattedCoordinates); // Guardar historial sin afectar tiempo real
-                        setMapKey(Date.now());
-                    } else {
-                        setHistoricalPath([]);
-                        setMapKey(Date.now());
-                    }
-                } catch (error) {
-                    console.error("Error obteniendo coordenadas:", error);
-                }
-            }
-        };
-
-        fetchCoordinatesInRange();
-    }, [startDate, endDate]);
+            setHistoricalPath(formattedCoordinates);
+        } else {
+            setHistoricalPath([]);
+        }
+    }, [historicalData]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
     if (!defaultPosition) return <p>Obteniendo ubicación...</p>;
@@ -106,7 +91,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
     return (
         <GoogleMap
-            key={mapKey}
             zoom={15}
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
