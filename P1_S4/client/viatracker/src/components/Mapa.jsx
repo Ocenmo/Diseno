@@ -11,6 +11,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
+    const [mapKey, setMapKey] = useState(Date.now()); // Nueva clave única para forzar el re-renderizado
 
     useEffect(() => {
         if (latitude !== undefined && longitude !== undefined) {
@@ -55,16 +56,18 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
                     if (coordinates?.length > 0) {
                         const formattedCoordinates = coordinates.map(coord => ({
-                            lat: parseFloat(coord.Latitud), // Asegúrate de que sea 'Latitud' y 'Longitud'
+                            lat: parseFloat(coord.Latitud),
                             lng: parseFloat(coord.Longitud),
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
                         console.log("Coordenadas formateadas:", formattedCoordinates);
 
-                        setPath([]); // Limpia el path antes de agregar las nuevas coordenadas
-                        setTimeout(() => setPath(formattedCoordinates), 0); // Asegura que el estado se actualice correctamente
+                        setPath([]); // Limpiar el path
+                        setTimeout(() => setPath(formattedCoordinates), 0); // Esperar un poco antes de actualizar
+                        setMapKey(Date.now()); // Cambiar la clave del mapa para forzar el re-renderizado
                     } else {
-                        setPath([]); // Si no hay coordenadas, se limpia el path
+                        setPath([]); // Si no hay coordenadas, limpiar el path
+                        setMapKey(Date.now()); // También forzar el re-renderizado
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
@@ -80,6 +83,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
     return (
         <GoogleMap
+            key={mapKey} // Agregar clave única para forzar el re-renderizado
             zoom={15}
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
