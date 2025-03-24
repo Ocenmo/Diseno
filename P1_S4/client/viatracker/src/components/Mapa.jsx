@@ -11,7 +11,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
 
     const [defaultPosition, setDefaultPosition] = useState(null);
     const [path, setPath] = useState([]);
-    const [realTimePath, setRealTimePath] = useState([]); // Ruta en tiempo real
+    const [mapKey, setMapKey] = useState(Date.now());
 
     // Efecto para establecer la posición inicial
     useEffect(() => {
@@ -23,8 +23,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                 };
                 if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                     setDefaultPosition(initialPosition);
-                    setPath([initialPosition]);
-                    setRealTimePath([initialPosition]); // Inicializamos ruta en tiempo real
+                    setPath([initialPosition]); // Inicializamos la ruta
                 }
             } else {
                 try {
@@ -37,7 +36,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
                             setDefaultPosition(newPosition);
                             setPath([newPosition]);
-                            setRealTimePath([newPosition]);
                         }
                     }
                 } catch (error) {
@@ -48,7 +46,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         setInitialPosition();
     }, [latitude, longitude]);
 
-    // Actualizar la ubicación en tiempo real cada 5 segundos
+    // Efecto para actualizar la ubicación en tiempo real
     useEffect(() => {
         const fetchLatestLocation = async () => {
             try {
@@ -60,7 +58,8 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                     };
 
                     if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
-                        setRealTimePath(prevPath => [...prevPath, newPosition]); // Agregar nueva posición a la ruta en tiempo real
+                        setPath(prevPath => [...prevPath, newPosition]); // Añadir a la polilínea
+                        setMapKey(Date.now()); // Forzar re-render
                     }
                 }
             } catch (error) {
@@ -72,7 +71,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         return () => clearInterval(interval);
     }, []);
 
-    // Cargar rutas históricas según las fechas seleccionadas
+    // Efecto para cargar rutas históricas con fechas seleccionadas
     useEffect(() => {
         const fetchCoordinatesInRange = async () => {
             if (startDate && endDate) {
@@ -85,8 +84,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
                         setPath(formattedCoordinates);
+                        setMapKey(Date.now()); // Forzar re-render
                     } else {
                         setPath([]);
+                        setMapKey(Date.now());
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
@@ -100,30 +101,17 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
     if (!isLoaded) return <p>Cargando mapa...</p>;
     if (!defaultPosition) return <p>Obteniendo ubicación...</p>;
 
-    const lastPosition = realTimePath.length > 0 ? realTimePath[realTimePath.length - 1] : defaultPosition;
+    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
+            key={mapKey}
             zoom={15}
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Última posición en tiempo real */}
             <Marker position={lastPosition} />
 
-            {/* Polilínea en tiempo real */}
-            {realTimePath.length > 1 && (
-                <Polyline
-                    path={realTimePath}
-                    options={{
-                        strokeColor: "#ff0000", // Color rojo para diferenciar la polilínea en tiempo real
-                        strokeOpacity: 1,
-                        strokeWeight: 2
-                    }}
-                />
-            )}
-
-            {/* Polilínea de historial de rutas */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
