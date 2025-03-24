@@ -27,11 +27,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             const fetchLatestLocation = async () => {
                 try {
                     const latestData = await latestLocation();
-                    console.log("Última ubicación obtenida:", latestData);
-                    if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
+                    if (latestData?.[0]?.Latitud !== undefined && latestData?.[0]?.Longitud !== undefined) {
                         const initialPosition = {
-                            lat: parseFloat(latestData[0].latitude),
-                            lng: parseFloat(latestData[0].longitude),
+                            lat: parseFloat(latestData[0].Latitud),
+                            lng: parseFloat(latestData[0].Longitud),
                         };
 
                         if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
@@ -52,17 +51,13 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             if (startDate && endDate) {
                 try {
                     const coordinates = await rutas(startDate, endDate);
-                    console.log("Respuesta de rutas():", coordinates);
+                    console.log("Ejemplo de datos recibidos:", coordinates[0]);
 
                     if (coordinates?.length > 0) {
-                        console.log("Ejemplo de datos recibidos:", coordinates[0]);
-
-                        const formattedCoordinates = coordinates.map(coord => {
-                            return {
-                                lat: parseFloat(coord.latitude),
-                                lng: parseFloat(coord.longitude),
-                            };
-                        }).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+                        const formattedCoordinates = coordinates.map(coord => ({
+                            lat: parseFloat(coord.Latitud),
+                            lng: parseFloat(coord.Longitud),
+                        })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
                         console.log("Coordenadas formateadas después del mapeo:", formattedCoordinates);
                         setPath(formattedCoordinates);
@@ -86,8 +81,10 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
+            {/* Marcador de la última ubicación o del lapso de tiempo */}
             <Marker position={lastPosition} />
 
+            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
