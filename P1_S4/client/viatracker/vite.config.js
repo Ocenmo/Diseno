@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://3.140.223.188:3000",
+      "/api": "http://3.129.70.68:3000",
     },
+    allowedHosts: ["trackingplaces.ddns.net"],
+    cors: true,
   },
 })
