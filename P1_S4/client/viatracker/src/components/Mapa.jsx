@@ -27,6 +27,7 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             const fetchLatestLocation = async () => {
                 try {
                     const latestData = await latestLocation();
+                    console.log("Última ubicación obtenida:", latestData);
                     if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
                         const initialPosition = {
                             lat: parseFloat(latestData[0].latitude),
@@ -51,19 +52,21 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
             if (startDate && endDate) {
                 try {
                     const coordinates = await rutas(startDate, endDate);
-                    console.log("Coordenadas en el intervalo:", coordinates);
+                    console.log("Respuesta de rutas():", coordinates);
 
                     if (coordinates?.length > 0) {
-                        const formattedCoordinates = coordinates.map(coord => ({
-                            lat: parseFloat(coord.latitude),
-                            lng: parseFloat(coord.longitude),
-                        })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+                        console.log("Ejemplo de datos recibidos:", coordinates[0]);
 
-                        console.log("Coordenadas formateadas:", formattedCoordinates);
+                        const formattedCoordinates = coordinates.map(coord => {
+                            return {
+                                lat: parseFloat(coord.latitude),
+                                lng: parseFloat(coord.longitude),
+                            };
+                        }).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                        setPath([...formattedCoordinates]);
-                    } else {
-                        console.log("No hay coordenadas en el intervalo.");
+                        console.log("Coordenadas formateadas después del mapeo:", formattedCoordinates);
+                        setPath(formattedCoordinates);
+                        console.log("Path actualizado en el estado:", formattedCoordinates);
                     }
                 } catch (error) {
                     console.error("Error obteniendo coordenadas:", error);
@@ -72,10 +75,6 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         };
         fetchCoordinatesInRange();
     }, [startDate, endDate]);
-
-    useEffect(() => {
-        console.log("Path actualizado en el estado:", path);
-    }, [path]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
@@ -89,17 +88,15 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         >
             <Marker position={lastPosition} />
 
-            {path.length > 1 ? (
+            {path.length > 1 && (
                 <Polyline
                     path={path}
                     options={{
-                        strokeColor: "#FF0000",
+                        strokeColor: "#2d6a4f",
                         strokeOpacity: 1,
-                        strokeWeight: 4,
+                        strokeWeight: 2
                     }}
                 />
-            ) : (
-                <p>No hay suficientes puntos para la polilínea</p>
             )}
         </GoogleMap>
     );
