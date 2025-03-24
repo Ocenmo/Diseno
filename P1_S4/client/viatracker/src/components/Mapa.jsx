@@ -9,9 +9,8 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         googleMapsApiKey: ApiKey,
     });
 
-    const [defaultPosition, setDefaultPosition] = useState({ lat: null, lng: null });
+    const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
-    const [realTimePath, setRealTimePath] = useState([]);
     const [markerPosition, setMarkerPosition] = useState(null);
 
     useEffect(() => {
@@ -24,9 +23,9 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
                         lng: parseFloat(latestData[0].Longitud),
                     };
 
-                    if (isFinite(initialPosition.lat) && isFinite(initialPosition.lng)) {
+                    if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                         setDefaultPosition(initialPosition);
-                        setRealTimePath([initialPosition]);
+                        setPath([initialPosition]); // Iniciar el camino con la última ubicación
                         setMarkerPosition(initialPosition);
                     }
                 }
@@ -41,75 +40,68 @@ const Map = ({ latitude, longitude, startDate, endDate }) => {
         if (latitude !== undefined && longitude !== undefined) {
             const newPoint = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
 
-            if (isFinite(newPoint.lat) && isFinite(newPoint.lng)) {
-                setRealTimePath((prevPath) => [...prevPath, newPoint]);
+            if (!isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
+                setPath((prevPath) => [...prevPath, newPoint]);
                 setMarkerPosition(newPoint);
             }
         }
     }, [latitude, longitude]);
 
+    // Nueva función para traer coordenadas del intervalo de tiempo
     useEffect(() => {
         const fetchPathByDateRange = async () => {
-            if (startDate && endDate) {
-                try {
-                    const routeData = await rutas(startDate, endDate);
-                    if (routeData.length > 0) {
-                        const formattedPath = routeData.map(coord => ({
-                            lat: parseFloat(coord.Latitud),
-                            lng: parseFloat(coord.Longitud),
-                        })).filter(point => isFinite(point.lat) && isFinite(point.lng));
+            if (!startDate || !endDate) return; // No buscar si no hay fechas seleccionadas
 
-                        if (formattedPath.length > 0) {
-                            setPath(formattedPath);
-                            setMarkerPosition(formattedPath[formattedPath.length - 1]); // Última coordenada
-                        }
+            try {
+                const routeData = await rutas(startDate, endDate);
+                console.log("Datos de rutas recibidos en Mapa.jsx:", routeData);
+
+                if (routeData && routeData.length > 0) {
+                    const formattedPath = routeData.map(item => ({
+                        lat: parseFloat(item.Latitud),
+                        lng: parseFloat(item.Longitud),
+                    })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+
+                    console.log("Coordenadas procesadas en Mapa.jsx:", formattedPath);
+
+                    if (formattedPath.length > 0) {
+                        setPath(formattedPath);
+                        setMarkerPosition(formattedPath[formattedPath.length - 1]); // Última coordenada
+
+                        console.log("Nueva ruta en el mapa:", formattedPath);
+                        console.log("Nueva posición del marcador:", formattedPath[formattedPath.length - 1]);
                     }
-                } catch (error) {
-                    console.error("Error fetching path data:", error);
                 }
+            } catch (error) {
+                console.error("Error al obtener las rutas:", error);
             }
         };
+
         fetchPathByDateRange();
     }, [startDate, endDate]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
-    // Definir posición segura para el centro del mapa
-    const mapCenter = markerPosition && isFinite(markerPosition.lat) && isFinite(markerPosition.lng)
-        ? markerPosition
-        : (defaultPosition && isFinite(defaultPosition.lat) && isFinite(defaultPosition.lng) ? defaultPosition : { lat: 0, lng: 0 });
+    const validLat = markerPosition?.lat || defaultPosition.lat;
+    const validLng = markerPosition?.lng || defaultPosition.lng;
 
     return (
         <GoogleMap
             zoom={15}
-            center={mapCenter}
+            center={{ lat: validLat, lng: validLng }}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
-            {/* Marker en la última posición válida */}
-            {markerPosition && isFinite(markerPosition.lat) && isFinite(markerPosition.lng) && (
-                <Marker position={markerPosition} />
-            )}
+            {/* Marcador en la última posición */}
+            {markerPosition && <Marker position={markerPosition} />}
 
-            {/* Polilínea en tiempo real */}
-            {path.length === 0 && realTimePath.length > 1 && (
-                <Polyline
-                    path={realTimePath}
-                    options={{
-                        strokeColor: "#2d6a4f",
-                        strokeOpacity: 1,
-                        strokeWeight: 2
-                    }}
-                />
-            )}
-
-            {/* Polilínea en el intervalo de tiempo seleccionado */}
+            {/* Línea de trayectoria */}
             {path.length > 1 && (
                 <Polyline
                     path={path}
                     options={{
-                        strokeColor: "#ff5733",
+                        strokeColor: "#2d6a4f",
                         strokeOpacity: 1,
-                        strokeWeight: 3
+                        strokeWeight: 2
                     }}
                 />
             )}
