@@ -1,122 +1,102 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { latestLocation } from "../services/api";
+import { latestLocation, rutas } from "../services/api";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
-const Map = ({ latitude, longitude, historicalData }) => {
+const Map = ({ latitude, longitude, startDate, endDate }) => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
     });
 
-    const [defaultPosition, setDefaultPosition] = useState(null);
-    const [realTimePath, setRealTimePath] = useState([]); // Ubicación en tiempo real
-    const [historicalPath, setHistoricalPath] = useState([]); // Historial de rutas
+    const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
+    const [path, setPath] = useState([]);
+    const [mapKey, setMapKey] = useState(Date.now()); // Nueva clave única para forzar el re-renderizado
 
-    // Efecto para establecer la posición inicial
     useEffect(() => {
-        const setInitialPosition = async () => {
-            if (latitude !== undefined && longitude !== undefined) {
-                const initialPosition = {
-                    lat: parseFloat(latitude),
-                    lng: parseFloat(longitude),
-                };
-                if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
-                    setDefaultPosition(initialPosition);
-                    setRealTimePath([initialPosition]);
-                }
-            } else {
+        if (latitude !== undefined && longitude !== undefined) {
+            const initialPosition = {
+                lat: parseFloat(latitude),
+                lng: parseFloat(longitude),
+            };
+
+            if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                setDefaultPosition(initialPosition);
+                setPath([initialPosition]);
+            }
+        } else {
+            const fetchLatestLocation = async () => {
                 try {
                     const latestData = await latestLocation();
-                    if (latestData?.[0]?.latitude && latestData?.[0]?.longitude) {
-                        const newPosition = {
+                    if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
+                        const initialPosition = {
                             lat: parseFloat(latestData[0].latitude),
                             lng: parseFloat(latestData[0].longitude),
                         };
-                        if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
-                            setDefaultPosition(newPosition);
-                            setRealTimePath([newPosition]);
+
+                        if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                            setDefaultPosition(initialPosition);
+                            setPath([initialPosition]);
                         }
                     }
                 } catch (error) {
                     console.error("Error fetching latest location:", error);
                 }
-            }
-        };
-        setInitialPosition();
+            };
+            fetchLatestLocation();
+        }
     }, [latitude, longitude]);
 
-    // Efecto para actualizar la ubicación en tiempo real
     useEffect(() => {
-        const fetchLatestLocation = async () => {
-            try {
-                const latestData = await latestLocation();
-                if (latestData?.[0]?.latitude && latestData?.[0]?.longitude) {
-                    const newPosition = {
-                        lat: parseFloat(latestData[0].latitude),
-                        lng: parseFloat(latestData[0].longitude),
-                    };
+        const fetchCoordinatesInRange = async () => {
+            if (startDate && endDate) {
+                try {
+                    const coordinates = await rutas(startDate, endDate);
+                    console.log("Coordenadas en el intervalo:", coordinates);
 
-                    if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
-                        setRealTimePath(prevPath => [...prevPath, newPosition]); // Mantener historial en tiempo real
+                    if (coordinates?.length > 0) {
+                        const formattedCoordinates = coordinates.map(coord => ({
+                            lat: parseFloat(coord.Latitud),
+                            lng: parseFloat(coord.Longitud),
+                        })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+
+                        console.log("Coordenadas formateadas:", formattedCoordinates);
+
+                        setPath([]); // Limpiar el path
+                        setTimeout(() => setPath(formattedCoordinates), 0); // Esperar un poco antes de actualizar
+                        setMapKey(Date.now()); // Cambiar la clave del mapa para forzar el re-renderizado
+                    } else {
+                        setPath([]); // Si no hay coordenadas, limpiar el path
+                        setMapKey(Date.now()); // También forzar el re-renderizado
                     }
+                } catch (error) {
+                    console.error("Error obteniendo coordenadas:", error);
                 }
-            } catch (error) {
-                console.error("Error fetching latest location:", error);
             }
         };
-
-        const interval = setInterval(fetchLatestLocation, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    // Efecto para actualizar el historial de rutas
-    useEffect(() => {
-        if (historicalData?.length > 0) {
-            const formattedCoordinates = historicalData.map(coord => ({
-                lat: parseFloat(coord.Latitud),
-                lng: parseFloat(coord.Longitud),
-            })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-            setHistoricalPath(formattedCoordinates);
-        } else {
-            setHistoricalPath([]);
-        }
-    }, [historicalData]);
+        fetchCoordinatesInRange();
+    }, [startDate, endDate]);
 
     if (!isLoaded) return <p>Cargando mapa...</p>;
-    if (!defaultPosition) return <p>Obteniendo ubicación...</p>;
 
-    const lastPosition = realTimePath.length > 0 ? realTimePath[realTimePath.length - 1] : defaultPosition;
+    const lastPosition = path.length > 0 ? path[path.length - 1] : defaultPosition;
 
     return (
         <GoogleMap
+            key={mapKey} // Agregar clave única para forzar el re-renderizado
             zoom={15}
             center={lastPosition}
             mapContainerStyle={{ width: "100%", height: "500px" }}
         >
             <Marker position={lastPosition} />
 
-            {/* Polilínea del historial de rutas */}
-            {historicalPath.length > 1 && (
+            {path.length > 1 && (
                 <Polyline
-                    path={historicalPath}
+                    path={path}
                     options={{
-                        strokeColor: "#1d3557",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                    }}
-                />
-            )}
-
-            {/* Polilínea en tiempo real */}
-            {realTimePath.length > 1 && (
-                <Polyline
-                    path={realTimePath}
-                    options={{
-                        strokeColor: "#e63946",
+                        strokeColor: "#2d6a4f",
                         strokeOpacity: 1,
-                        strokeWeight: 2,
+                        strokeWeight: 2
                     }}
                 />
             )}
