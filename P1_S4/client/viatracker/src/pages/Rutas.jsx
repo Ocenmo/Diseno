@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
-import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
+import Map from "../components/Mapa";
 import { rutas } from "../services/api";
 import "./Rutas.css";
 
-const ApiKey = import.meta.env.VITE_API_KEY;
-
 const Rutas = () => {
-    const { isLoaded } = useLoadScript({ googleMapsApiKey: ApiKey });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
-    const [path, setPath] = useState([]);
-    const [mapKey, setMapKey] = useState(Date.now());
+    const [rutasData, setRutasData] = useState([]);
 
     const handleSelectRange = async (startDate, endDate) => {
         setSelectedRange({ startDate, endDate });
+
+        console.log("Fechas seleccionadas:", { startDate, endDate });
 
         const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
@@ -22,44 +20,45 @@ const Rutas = () => {
         const data = await rutas(formattedStartDate, formattedEndDate);
 
         if (data) {
-            const formattedCoordinates = data
-                .map(coord => ({
-                    lat: parseFloat(coord.Latitud),
-                    lng: parseFloat(coord.Longitud),
-                }))
-                .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-            setPath(formattedCoordinates);
-            setMapKey(Date.now()); // Forzar re-renderizado del mapa
+            setRutasData(data);
         }
     };
 
-    if (!isLoaded) return <p>Cargando mapa...</p>;
+    // Determinar la última posición en el lapso de tiempo seleccionado
+    const lastPosition = rutasData.length > 0
+        ? { lat: parseFloat(rutasData[rutasData.length - 1].Latitud), lng: parseFloat(rutasData[rutasData.length - 1].Longitud) }
+        : undefined;
 
     return (
         <div>
             <h1>Historial de rutas</h1>
-            <button onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
+            <button
+                onClick={() => {
+                    console.log("Abriendo modal...");
+                    setIsModalOpen(true);
+                }}
+            >
+                Seleccionar rango
+            </button>
 
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
-            <GoogleMap
-                key={mapKey}
-                zoom={15}
-                center={path.length > 0 ? path[0] : { lat: 0, lng: 0 }}
-                mapContainerStyle={{ width: "100%", height: "500px" }}
-            >
-                {path.length > 1 && (
-                    <Polyline
-                        path={path}
-                        options={{ strokeColor: "#ff5733", strokeOpacity: 1, strokeWeight: 2 }}
-                    />
-                )}
-            </GoogleMap>
+            <Map
+                latitude={rutasData.length > 0 ? parseFloat(rutasData[0].Latitud) : undefined}
+                longitude={rutasData.length > 0 ? parseFloat(rutasData[0].Longitud) : undefined}
+                startDate={selectedRange ? selectedRange.startDate.toISOString().split("T")[0] + " 00:00:00" : null}
+                endDate={selectedRange ? selectedRange.endDate.toISOString().split("T")[0] + " 23:59:59" : null}
+                rutasData={rutasData} // Pasar las rutas completas al mapa
+                markerPosition={lastPosition} // Pasar la última ubicación al mapa
+            />
 
-            <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+            <DateRangeModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelectRange={handleSelectRange}
+            />
         </div>
     );
 };
