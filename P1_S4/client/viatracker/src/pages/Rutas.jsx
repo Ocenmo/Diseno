@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
-import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, Polyline, Marker, useLoadScript } from "@react-google-maps/api";
 import { rutas } from "../services/api";
 import "./Rutas.css";
 
@@ -11,6 +11,7 @@ const Rutas = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
     const [path, setPath] = useState([]);
+    const [lastPosition, setLastPosition] = useState(null);
     const [mapKey, setMapKey] = useState(Date.now());
 
     const handleSelectRange = async (startDate, endDate) => {
@@ -30,6 +31,7 @@ const Rutas = () => {
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
             setPath(formattedCoordinates);
+            setLastPosition(formattedCoordinates.length > 0 ? formattedCoordinates[formattedCoordinates.length - 1] : null);
             setMapKey(Date.now()); // Forzar re-renderizado del mapa
         }
     };
@@ -56,6 +58,10 @@ const Rutas = () => {
                         path={path}
                         options={{ strokeColor: "#ff5733", strokeOpacity: 1, strokeWeight: 2 }}
                     />
+                )}
+
+                {lastPosition && (
+                    <Marker position={lastPosition} />
                 )}
             </GoogleMap>
 
