@@ -1,70 +1,65 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
-import Map from "../components/Mapa";
+import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
 import { rutas } from "../services/api";
 import "./Rutas.css";
 
+const ApiKey = import.meta.env.VITE_API_KEY;
+
 const Rutas = () => {
+    const { isLoaded } = useLoadScript({ googleMapsApiKey: ApiKey });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
     const [path, setPath] = useState([]);
-    const [markerPosition, setMarkerPosition] = useState(null);
+    const [mapKey, setMapKey] = useState(Date.now());
 
     const handleSelectRange = async (startDate, endDate) => {
         setSelectedRange({ startDate, endDate });
 
-        console.log("Fechas seleccionadas:", { startDate, endDate });
-
-        // Formatear fechas correctamente en "YYYY-MM-DD HH:MM:SS"
         const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
-        try {
-            const data = await rutas(formattedStartDate, formattedEndDate);
-            if (data.length > 0) {
-                const formattedCoordinates = data.map(coord => ({
-                    lat: parseFloat(coord.Latitud),
-                    lng: parseFloat(coord.Longitud)
-                })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+        const data = await rutas(formattedStartDate, formattedEndDate);
 
-                setPath(formattedCoordinates);
-                setMarkerPosition(formattedCoordinates[formattedCoordinates.length - 1]); // Última posición
-            } else {
-                setPath([]);
-                setMarkerPosition(null);
-            }
-        } catch (error) {
-            console.error("Error obteniendo coordenadas:", error);
+        if (data) {
+            const formattedCoordinates = data
+                .map(coord => ({
+                    lat: parseFloat(coord.Latitud),
+                    lng: parseFloat(coord.Longitud),
+                }))
+                .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+
+            setPath(formattedCoordinates);
+            setMapKey(Date.now()); // Forzar re-renderizado del mapa
         }
     };
+
+    if (!isLoaded) return <p>Cargando mapa...</p>;
 
     return (
         <div>
             <h1>Historial de rutas</h1>
-            <button
-                onClick={() => {
-                    console.log("Abriendo modal...");
-                    setIsModalOpen(true);
-                }}
-            >
-                Seleccionar rango
-            </button>
+            <button onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
-            <Map
-                path={path} // Enviar la ruta seleccionada
-                markerPosition={markerPosition} // Última ubicación en el rango seleccionado
-            />
+            <GoogleMap
+                key={mapKey}
+                zoom={15}
+                center={path.length > 0 ? path[0] : { lat: 0, lng: 0 }}
+                mapContainerStyle={{ width: "100%", height: "500px" }}
+            >
+                {path.length > 1 && (
+                    <Polyline
+                        path={path}
+                        options={{ strokeColor: "#ff5733", strokeOpacity: 1, strokeWeight: 2 }}
+                    />
+                )}
+            </GoogleMap>
 
-            {/* Modal de selección de fechas */}
-            <DateRangeModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSelectRange={handleSelectRange}
-            />
+            <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
         </div>
     );
 };
