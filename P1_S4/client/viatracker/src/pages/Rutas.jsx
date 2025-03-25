@@ -1,65 +1,73 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
-import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
+import Map from "../components/Mapa";
 import { rutas } from "../services/api";
 import "./Rutas.css";
 
-const ApiKey = import.meta.env.VITE_API_KEY;
-
 const Rutas = () => {
-    const { isLoaded } = useLoadScript({ googleMapsApiKey: ApiKey });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
-    const [path, setPath] = useState([]);
-    const [mapKey, setMapKey] = useState(Date.now());
+    const [rutasData, setRutasData] = useState([]);
 
     const handleSelectRange = async (startDate, endDate) => {
         setSelectedRange({ startDate, endDate });
 
+        console.log("Fechas seleccionadas:", { startDate, endDate });
+
+        // Formatear fechas correctamente en "YYYY-MM-DD HH:MM:SS"
         const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
-        const data = await rutas(formattedStartDate, formattedEndDate);
-
-        if (data) {
-            const formattedCoordinates = data
-                .map(coord => ({
-                    lat: parseFloat(coord.Latitud),
-                    lng: parseFloat(coord.Longitud),
-                }))
-                .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-            setPath(formattedCoordinates);
-            setMapKey(Date.now()); // Forzar re-renderizado del mapa
+        try {
+            const data = await rutas(formattedStartDate, formattedEndDate);
+            if (data && data.length > 0) {
+                setRutasData(data);
+            } else {
+                setRutasData([]);
+            }
+        } catch (error) {
+            console.error("Error obteniendo coordenadas:", error);
+            setRutasData([]);
         }
     };
-
-    if (!isLoaded) return <p>Cargando mapa...</p>;
 
     return (
         <div>
             <h1>Historial de rutas</h1>
-            <button onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
+            <button
+                onClick={() => {
+                    console.log("Abriendo modal...");
+                    setIsModalOpen(true);
+                }}
+            >
+                Seleccionar rango
+            </button>
 
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
-            <GoogleMap
-                key={mapKey}
-                zoom={15}
-                center={path.length > 0 ? path[0] : { lat: 0, lng: 0 }}
-                mapContainerStyle={{ width: "100%", height: "500px" }}
-            >
-                {path.length > 1 && (
-                    <Polyline
-                        path={path}
-                        options={{ strokeColor: "#ff5733", strokeOpacity: 1, strokeWeight: 2 }}
-                    />
-                )}
-            </GoogleMap>
+            <Map
+                latitude={rutasData.length > 0 ? parseFloat(rutasData[0].Latitud) : undefined}
+                longitude={rutasData.length > 0 ? parseFloat(rutasData[0].Longitud) : undefined}
+                startDate={selectedRange ? selectedRange.startDate.toISOString().split("T")[0] + " 00:00:00" : null}
+                endDate={selectedRange ? selectedRange.endDate.toISOString().split("T")[0] + " 23:59:59" : null}
+                historicalPath={rutasData.map(coord => ({
+                    lat: parseFloat(coord.Latitud),
+                    lng: parseFloat(coord.Longitud)
+                })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng))}
+                lastPosition={rutasData.length > 0 ? {
+                    lat: parseFloat(rutasData[rutasData.length - 1].Latitud),
+                    lng: parseFloat(rutasData[rutasData.length - 1].Longitud)
+                } : undefined}
+            />
 
-            <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+            {/* Modal de selección de fechas */}
+            <DateRangeModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelectRange={handleSelectRange}
+            />
         </div>
     );
 };
