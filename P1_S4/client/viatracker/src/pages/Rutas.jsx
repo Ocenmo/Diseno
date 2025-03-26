@@ -75,7 +75,7 @@ const Rutas = () => {
                         min="0"
                         max={path.length - 1}
                         value={currentIndex}
-                        onChange={(e) => setCurrentIndex(Number(e.target.value))}
+                        //onChange={(e) => setCurrentIndex(Number(e.target.value))}
                     />
                     {console.log(currentIndex)}
                     <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
