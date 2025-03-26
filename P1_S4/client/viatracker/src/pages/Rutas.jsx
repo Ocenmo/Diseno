@@ -11,7 +11,8 @@ const Rutas = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
     const [path, setPath] = useState([]);
-    const [lastPosition, setLastPosition] = useState(null);
+    const [timestamps, setTimestamps] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const [mapKey, setMapKey] = useState(Date.now());
 
     const handleSelectRange = async (startDate, endDate) => {
@@ -27,11 +28,13 @@ const Rutas = () => {
                 .map(coord => ({
                     lat: parseFloat(coord.Latitud),
                     lng: parseFloat(coord.Longitud),
+                    timestamp: coord.Timestamp
                 }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-            setPath(formattedCoordinates);
-            setLastPosition(formattedCoordinates.length > 0 ? formattedCoordinates[formattedCoordinates.length - 1] : null);
+            setPath(formattedCoordinates.map(({ lat, lng }) => ({ lat, lng })));
+            setTimestamps(formattedCoordinates.map(({ timestamp }) => timestamp));
+            setCurrentIndex(0);
             setMapKey(Date.now()); // Forzar re-renderizado del mapa
         }
     };
@@ -60,10 +63,23 @@ const Rutas = () => {
                     />
                 )}
 
-                {lastPosition && (
-                    <Marker position={lastPosition} />
+                {path.length > 0 && (
+                    <Marker position={path[currentIndex]} />
                 )}
             </GoogleMap>
+
+            {path.length > 1 && (
+                <div className="slider-container">
+                    <input
+                        type="range"
+                        min="0"
+                        max={path.length - 1}
+                        value={currentIndex}
+                        onChange={(e) => setCurrentIndex(Number(e.target.value))}
+                    />
+                    <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                </div>
+            )}
 
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
         </div>
@@ -71,6 +87,3 @@ const Rutas = () => {
 };
 
 export default Rutas;
-
-
-//Funciona
