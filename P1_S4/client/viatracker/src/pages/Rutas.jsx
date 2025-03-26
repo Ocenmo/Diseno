@@ -78,8 +78,11 @@ const Rutas = () => {
                         onChange={(e) => setCurrentIndex(Number(e.target.value))}
                     />
                     {console.log(path)}
-                    <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
-                    <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                    <div>
+                        <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
+                        <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
+                        <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                    </div>
                 </div>
             )}
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
