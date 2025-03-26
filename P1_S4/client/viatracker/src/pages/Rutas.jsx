@@ -70,7 +70,7 @@ const Rutas = () => {
 
             {path.length > 1 && (
                 <div className="slider-container">
-                    <input
+                    <input className="slider"
                         type="range"
                         min="0"
                         max={path.length - 1}

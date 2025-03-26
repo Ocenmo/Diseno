@@ -20,7 +20,7 @@
 }
 
 .slider-container {
-    display: flex;
+    display: table-column;
     justify-content: center;
     align-items: center;
     margin: 0 auto;
@@ -29,3 +29,9 @@
     overflow: hidden;
     position: relative;
 }	
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease;
+    color: #2a324b;
+}
