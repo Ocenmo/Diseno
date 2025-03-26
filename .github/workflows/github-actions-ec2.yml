@@ -1,0 +1,29 @@
+name: Deploy a EC2
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando haces push a la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ���️ Checkout del código
+        uses: actions/checkout@v3
+
+      - name: ��� Configurar clave SSH
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+      - name: ��� Desplegar en EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd Diseno/  # Cambia esto por la ruta real de tu app en EC2
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart all || pm2 start npm --name "mi-app" -- start
+          EOF
