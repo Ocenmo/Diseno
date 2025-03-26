@@ -71,3 +71,6 @@ const Rutas = () => {
 };
 
 export default Rutas;
+
+
+//Funciona

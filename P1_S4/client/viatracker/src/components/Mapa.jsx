@@ -57,3 +57,5 @@ const Map = ({ latitude, longitude }) => {
 };
 
 export default Map;
+
+//Funciona
