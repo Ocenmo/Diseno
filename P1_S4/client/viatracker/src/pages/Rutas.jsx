@@ -77,10 +77,10 @@ const Rutas = () => {
                         value={currentIndex}
                         onChange={(e) => setCurrentIndex(Number(e.target.value))}
                     />
+                    {console.log(currentIndex)}
                     <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
                 </div>
             )}
-
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
         </div>
     );
