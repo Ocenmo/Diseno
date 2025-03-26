@@ -44,7 +44,7 @@ const Rutas = () => {
     return (
         <div>
             <h1>Historial de rutas</h1>
-            <button onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
+            <button className="buttonCalendario" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
