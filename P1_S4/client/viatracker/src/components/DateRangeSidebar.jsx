@@ -37,7 +37,7 @@ const DateRangeModal = ({ isOpen, onClose, onSelectRange }) => {
         <div className={`modal-overlay ${isOpen ? "show" : ""}`}>
         <div className="modal-content">
             <h2>Selecciona un rango de fechas</h2>
-            <DateRange
+            <DateRange className="date-range"
                 ranges={range}
                 onChange={(item) => setRange([item.selection])}
                 showSelectionPreview={true}
