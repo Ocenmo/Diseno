@@ -24,6 +24,11 @@ const Rutas = () => {
         const data = await rutas(formattedStartDate, formattedEndDate);
 
         if (data) {
+            console.log("Datos recibidos de la API:", data);
+            if (data.length > 0) {
+                console.log("Ejemplo de una coordenada recibida:", data[0]);
+            }
+
             const formattedCoordinates = data
                 .map(coord => ({
                     lat: parseFloat(coord.Latitud),
