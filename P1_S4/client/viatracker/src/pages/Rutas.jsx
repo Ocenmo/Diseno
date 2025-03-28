@@ -29,18 +29,18 @@ const Rutas = () => {
                 console.log("Ejemplo de una coordenada recibida:", data[0]);
             }
 
-            const formattedCoordinates = data
-                .map(coord => ({
-                    lat: parseFloat(coord.Latitud),
-                    lng: parseFloat(coord.Longitud),
-                    timestamp: coord.Timestamp
-                }))
+            const formattedCoordinates = data.map(coord => ({
+                lat: parseFloat(coord.Latitud),
+                lng: parseFloat(coord.Longitud),
+                timestamp: coord.TimeStamp // Corregido con la T mayúscula
+            }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-                const formattedTimestamps = formattedCoordinates.map(({ timestamp }) =>
-                    timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
-                );
-                setTimestamps(formattedTimestamps);
+            const formattedTimestamps = formattedCoordinates.map(({ timestamp }) =>
+                timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
+            );
+            setTimestamps(formattedTimestamps);
+            console.log("Datos formateados:", formattedTimestamps);
                 console.log("Datos formateados:", formattedTimestamps);
 
 
