@@ -36,7 +36,7 @@ const Rutas = () => {
                     timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
                 );
                 setTimestamps(formattedTimestamps);
-                console.log("Datos formateados:", formattedCoordinates);
+                console.log("Datos formateados:", formattedTimestamps);
 
 
             setPath(formattedCoordinates.map(({ lat, lng }) => ({ lat, lng })));
