@@ -33,6 +33,9 @@ const Rutas = () => {
                 }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
+            console.log("Formatted Coordinates", formattedCoordinates);
+            console.log("Data Length", formattedCoordinates.length);
+
             setPath(formattedCoordinates.map(({ lat, lng }) => ({ lat, lng })));
             setTimestamps(formattedCoordinates.map(({ timestamp }) => timestamp));
             setCurrentIndex(0);
@@ -78,8 +81,6 @@ const Rutas = () => {
                         value={currentIndex}
                         onChange={(e) => setCurrentIndex(Number(e.target.value))}
                     />
-                    {console.log(path)}
-                    {console.log("Timestamp", timestamps)}
                     <div>
                         <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
                         <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
