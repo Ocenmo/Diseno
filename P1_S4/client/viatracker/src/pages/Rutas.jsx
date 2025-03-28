@@ -78,7 +78,7 @@ const Rutas = () => {
                         onChange={(e) => setCurrentIndex(Number(e.target.value))}
                     />
                     {console.log(path)}
-                    {console.log(timestamps[currentIndex])}
+                    {console.log("Timestamp", timestamps)}
                     <div>
                         <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
                         <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
