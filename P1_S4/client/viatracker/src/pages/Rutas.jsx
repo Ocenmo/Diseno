@@ -22,7 +22,6 @@ const Rutas = () => {
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
         const data = await rutas(formattedStartDate, formattedEndDate);
-        console.log("Data", data);
 
         if (data) {
             const formattedCoordinates = data
