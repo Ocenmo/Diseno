@@ -32,11 +32,14 @@ const Rutas = () => {
                 }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-            console.log("Formatted Coordinates", formattedCoordinates);
-            console.log("Data Length", formattedCoordinates.length);
+                const formattedTimestamps = formattedCoordinates.map(({ timestamp }) =>
+                    timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
+                );
+                setTimestamps(formattedTimestamps);
+                console.log("Datos formateados:", formattedCoordinates);
+
 
             setPath(formattedCoordinates.map(({ lat, lng }) => ({ lat, lng })));
-            setTimestamps(formattedCoordinates.map(({ timestamp }) => timestamp));
             setCurrentIndex(0);
             setMapKey(Date.now()); // Forzar re-renderizado del mapa
         }
