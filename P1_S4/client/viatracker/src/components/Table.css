@@ -1,16 +1,16 @@
 table {
     display: block;
     justify-content: space-between;
-    width: 600px;
+    width: 105%;
     gap: 1em;
     margin: 2em 0;
     padding: 1em;
-    border: 1px solid #74c69d;
+    border: 1px solid #000000;
     border-radius: 99px;
-    background-color: #f9f9f9;
+    background-color: #14213d;
     box-shadow: 0 4px 8px #081c15;
     transition: transform 0.3s ease;
-
+    color: #ffffff;
 }
 
 tr {

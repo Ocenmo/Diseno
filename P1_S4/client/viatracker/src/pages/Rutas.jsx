@@ -14,25 +14,23 @@ const Rutas = () => {
     const [timestamps, setTimestamps] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [mapKey, setMapKey] = useState(Date.now());
+    const [noData, setNoData] = useState(false); // Estado para indicar si no hay datos
 
     const handleSelectRange = async (startDate, endDate) => {
         setSelectedRange({ startDate, endDate });
 
-        const formattedStartDate = startDate.toISOString().replace("T", " ").split(".")[0];
-        const formattedEndDate = endDate.toISOString().replace("T", " ").split(".")[0];
+        const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
+        const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
         const data = await rutas(formattedStartDate, formattedEndDate);
 
-        if (data) {
+        if (data && data.length > 0) {
+            setNoData(false); // Resetear si hay datos
             console.log("Datos recibidos de la API:", data);
-            if (data.length > 0) {
-                console.log("Ejemplo de una coordenada recibida:", data[0]);
-            }
-
             const formattedCoordinates = data.map(coord => ({
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
-                timestamp: coord.TimeStamp // Corregido con la T mayúscula
+                timestamp: coord.TimeStamp
             }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
@@ -40,13 +38,12 @@ const Rutas = () => {
                 timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
             );
             setTimestamps(formattedTimestamps);
-            console.log("Datos formateados:", formattedTimestamps);
-                console.log("Datos formateados:", formattedTimestamps);
-
 
             setPath(formattedCoordinates.map(({ lat, lng }) => ({ lat, lng })));
             setCurrentIndex(0);
             setMapKey(Date.now()); // Forzar re-renderizado del mapa
+        } else {
+            setNoData(true); // Indicar que no hay datos
         }
     };
 
@@ -58,11 +55,7 @@ const Rutas = () => {
             <button className="buttonCalendario" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 
             {selectedRange && (
-                <p>
-                Fechas seleccionadas:
-                {selectedRange?.startDate ? selectedRange.startDate.toLocaleString() : "No seleccionado"} -
-                {selectedRange?.endDate ? selectedRange.endDate.toLocaleString() : "No seleccionado"}
-                </p>
+                <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
             <GoogleMap
@@ -99,7 +92,18 @@ const Rutas = () => {
                     </div>
                 </div>
             )}
+
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+
+            {/* Modal de No Data */}
+            {noData && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>No hubo movimiento en el rango seleccionado</h2>
+                        <button onClick={() => setNoData(false)} className="close-button">Cerrar</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
