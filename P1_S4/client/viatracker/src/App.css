@@ -13,7 +13,7 @@ header {
 
 .MapaTitle {
   font-size: 180%;
-  margin: 2em 0 0.5em 2em;
+  margin: 10% 0 2% 12%;
   align-content: center;
   color: #14213d;
 }
@@ -32,9 +32,9 @@ section {
   flex-direction:row;
   align-items: center;
   justify-content: space-between;
-  margin: 2em 16em 0 10em;
+  margin: 2% 14% 0 9%;
   flex-wrap: wrap;
-  padding-bottom: 50px;
+  padding-bottom: 5%;
 }
 
 .Rutas {
