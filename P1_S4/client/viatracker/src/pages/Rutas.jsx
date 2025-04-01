@@ -18,8 +18,8 @@ const Rutas = () => {
     const handleSelectRange = async (startDate, endDate) => {
         setSelectedRange({ startDate, endDate });
 
-        const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
-        const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
+        const formattedStartDate = startDate.toISOString().replace("T", " ").split(".")[0];
+        const formattedEndDate = endDate.toISOString().replace("T", " ").split(".")[0];
 
         const data = await rutas(formattedStartDate, formattedEndDate);
 
@@ -58,7 +58,11 @@ const Rutas = () => {
             <button className="buttonCalendario" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 
             {selectedRange && (
-                <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
+                <p>
+                Fechas seleccionadas:
+                {selectedRange?.startDate ? selectedRange.startDate.toLocaleString() : "No seleccionado"} -
+                {selectedRange?.endDate ? selectedRange.endDate.toLocaleString() : "No seleccionado"}
+                </p>
             )}
 
             <GoogleMap

@@ -6,6 +6,13 @@ import DateRangeSidebar from "./components/DateRangeSidebar";
 import { latestLocation, rutas } from "./services/api";
 import { formatDateTime } from "./utils/utils";
 import Rutas from "./pages/Rutas";
+import { setOptions } from "@mobiscroll/react";
+
+setOptions ({
+    locale: "es",
+    theme: "ios",
+    themeVariant: "light"
+})
 
 function App() {
     const [data, setData] = useState(null);

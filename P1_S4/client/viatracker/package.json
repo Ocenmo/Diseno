@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.4.4",
+    "@mobiscroll/react": "npm:@mobiscroll/react-next-trial@^5.33.2",
     "@react-google-maps/api": "^2.20.6",
     "axios": "^1.8.2",
     "react": "^19.0.0",
