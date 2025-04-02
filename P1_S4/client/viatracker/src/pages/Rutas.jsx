@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
-import { GoogleMap, Polyline, Marker, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, Polyline, Marker } from "@react-google-maps/api";
 import { rutas } from "../services/api";
 import "./Rutas.css";
 
-const ApiKey = import.meta.env.VITE_API_KEY;
 
 const Rutas = () => {
-    const { isLoaded } = useLoadScript({ googleMapsApiKey: ApiKey });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
     const [path, setPath] = useState([]);
@@ -46,8 +44,6 @@ const Rutas = () => {
             setNoData(true); // Indicar que no hay datos
         }
     };
-
-    if (!isLoaded) return <p>Cargando mapa...</p>;
 
     return (
         <div>

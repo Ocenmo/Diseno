@@ -1,14 +1,9 @@
-import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import { latestLocation } from "../services/api";
 import Table from "./Table";
 
-const ApiKey = import.meta.env.VITE_API_KEY;
-
 const Map = ({ latitude, longitude }) => {
-    const { isLoaded } = useLoadScript({
-        googleMapsApiKey: ApiKey,
-    });
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 11.022092, lng: -74.851364 });
     const [path, setPath] = useState([]);
@@ -41,8 +36,6 @@ const Map = ({ latitude, longitude }) => {
             fetchLatestLocation();
         }
     }, [latitude, longitude]);
-
-    if (!isLoaded) return <p>Cargando mapa...</p>;
 
     return (
         <GoogleMap zoom={15} center={defaultPosition} mapContainerStyle={{ width: "100%", height: "500px" }}>
