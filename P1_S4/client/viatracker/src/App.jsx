@@ -29,6 +29,7 @@ function App() {
     const [selectedRange, setSelectedRange] = useState(null);
     const [routeData, setRouteData] = useState([]);
     const [activeMap, setActiveMap] = useState("realTimeMap"); // Estado para controlar el mapa activo
+    const [activeButton, setActiveButton] = useState("realTimeMap"); // Estado para rastrear el botón activo
 
     const wsRef = useRef(null);
 
@@ -84,7 +85,8 @@ function App() {
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
     const handleMapSwitch = (mapType) => {
-        setActiveMap(mapType); // Cambia el mapa activo
+        setActiveMap(mapType);
+        setActiveButton(mapType); // Actualiza el botón activo
     };
 
     return (
@@ -112,7 +114,7 @@ function App() {
                 </div>
 
                 {/* Mostrar el mapa según la selección */}
-                <div className="Mapa">
+                <div className={`Mapa ${activeButton}`}>
                     <h2 className="MapaTitle">Mapa</h2>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} />

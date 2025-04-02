@@ -27,9 +27,24 @@ header {
   overflow: hidden;
 }
 
+.Mapa.realTimeMap {
+  box-shadow: 0 4px 8px #14213d; /* Color para Mapa en Tiempo Real */
+  transition: .3s ease;
+}
+
+.Mapa.routeMap {
+  box-shadow: 0 4px 8px #96600a; /* Color para Histórico de Rutas */
+  transition: .3s ease;
+}
+
+.Mapa.circleMap {
+  box-shadow: 0 4px 8px #5b6080; /* Color para Radio de Búsqueda */
+  transition: .3s ease;
+}
+
 section {
   display: flex;
-  flex-direction:row;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   margin: 2% 14% 0 9%;
