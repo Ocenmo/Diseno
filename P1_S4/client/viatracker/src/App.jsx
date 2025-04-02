@@ -17,6 +17,7 @@ setOptions({
 });
 
 const ApiKey = import.meta.env.VITE_API_KEY;
+const googleMapsLibrary = ["geometry"];
 
 function App() {
     const [data, setData] = useState(null);
@@ -35,7 +36,7 @@ function App() {
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: ApiKey,
-        libraries: ["geometry"],
+        libraries: googleMapsLibrary,
     });
 
     useEffect(() => {
