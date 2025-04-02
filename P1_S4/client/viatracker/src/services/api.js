@@ -1,3 +1,4 @@
+// API para obtener datos de la ubicación y rutas
 export const latestLocation = async () => {
     const response = await fetch(`${import.meta.env.VITE_DATA_ENDPOINT}`);
     if (!response.ok) {
@@ -36,3 +37,21 @@ export const rutas = async (inicio, fin) => {
         return null;
     }
 };
+
+export const rutasCirculo = async (latitud_centro, longitud_centro, radio, inicio, fin) => {
+    if (!latitud_centro || !longitud_centro || !radio || !inicio || !fin) {
+        console.error("❌ Error: faltan parámetros requeridos");
+        return null;
+    }
+
+    try {
+        const response = await fetch(`${import.meta.env.VITE_CIRCLE_ROUTE_ENDPOINT}?latitud_centro=${latitud_centro}&longitud_centro=${longitud_centro}&radio=${radio}&inicio=${inicio}&fin=${fin}`);
+        if (!response.ok) {
+            throw new Error(`Error al obtener la ruta del círculo: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("❌ Error en la petición de rutas del círculo:", error);
+        return null;
+    }
+}

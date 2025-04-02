@@ -49,3 +49,74 @@ section {
   overflow: hidden;
   padding: 1%;
 }
+
+.Botones {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  padding: auto;
+}
+
+.ButtonB {
+  background-color: #fca311;
+  color: #000000;
+  border : 3px solid #9c650c;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.ButtonB:hover {
+  background-color: #9c650c;
+  color: #ffffff;
+  transform: scale(1.05);
+  transition: .3s ease;
+}
+
+.ButtonA {
+  background-color: #14213d;
+  color: #ffffff;
+  border : 3px solid #090f1b;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.ButtonA:hover {
+  background-color: #090f1b;
+  color: #ffffff;
+  transform: scale(1.05);
+  transition: .3s ease;
+}
+
+.ButtonC {
+  background-color: #989fce;
+  color: #000000;
+  border : 3px solid #5b6080;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.ButtonC:hover {
+  background-color: #5b6080;
+  color: #ffffff;
+  transform: scale(1.05);
+  transition: .3s ease;
+}

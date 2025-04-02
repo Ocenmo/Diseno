@@ -142,6 +142,33 @@ app.get('/rutas', (req, res) => {
     });
 });
 
+app.get('/rutas-circulo', (req, res) => {
+    const { latitud_centro, longitud_centro, radio, inicio, fin } = req.query;
+
+    if (!latitud_centro || !longitud_centro || !radio || !inicio || !fin) {
+        return res.status(400).json({ error: 'Faltan parámetros requeridos' });
+    }
+
+    const query = `
+        SELECT id, Latitud, Longitud, TimeStamp
+        FROM mensaje
+        WHERE TimeStamp BETWEEN ? AND ?
+        AND ST_Distance_Sphere(
+            point(Longitud, Latitud),
+            point(?, ?)
+        ) <= ?
+        ORDER BY TimeStamp`;
+
+    db.query(query, [inicio, fin, longitud_centro, latitud_centro, radio], (err, results) => {
+        if (err) {
+            console.error('❌ Error al obtener las rutas dentro del círculo:', err);
+            res.status(500).json({ error: 'Error al obtener las rutas dentro del círculo' });
+        } else {
+            res.json(results);
+        }
+    });
+});
+
 
 wss.on('connection', (ws, req) => {
     console.log('Cliente conectado desde', req.connection.remoteAddress);

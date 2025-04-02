@@ -34,6 +34,11 @@ const DateRangeModal = ({ isOpen, onClose, onSelectRange }) => {
                 <h2>Selecciona un rango de fechas</h2>
                 <Page>
                     <Datepicker
+                        display="anchored"
+                        touchUi={true}
+                        showRangeLabels={true}
+                        placeholder="Selecciona un rango"
+                        justifyContent="center"
                         select="range"
                         controls={["calendar", "time"]}
                         dateFormat="YYYY-MM-DD"

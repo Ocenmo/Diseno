@@ -61,7 +61,7 @@ const Rutas = () => {
             <GoogleMap
                 key={mapKey}
                 zoom={15}
-                center={path.length > 0 ? path[0] : { lat: 0, lng: 0 }}
+                center={path.length > 0 ? path[0] : { lat: 11.020082, lng: -74.850364 }}
                 mapContainerStyle={{ width: "100%", height: "500px" }}
             >
                 {path.length > 1 && (

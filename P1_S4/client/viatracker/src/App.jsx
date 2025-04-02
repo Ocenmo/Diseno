@@ -7,26 +7,35 @@ import { latestLocation, rutas } from "./services/api";
 import { formatDateTime } from "./utils/utils";
 import Rutas from "./pages/Rutas";
 import { setOptions } from "@mobiscroll/react";
+import MapWithCircle from "./pages/MapRadius";
+import { useLoadScript } from "@react-google-maps/api";
 
-setOptions ({
+setOptions({
     locale: "es",
     theme: "ios",
     themeVariant: "light"
-})
+});
+
+const ApiKey = import.meta.env.VITE_API_KEY;
 
 function App() {
     const [data, setData] = useState(null);
     const [latitude, setLatitude] = useState(() => {
-        return parseFloat(localStorage.getItem("latitude")) || -33.4372;
+        return parseFloat(localStorage.getItem("latitude")) || 11.020082;
     });
     const [longitude, setLongitude] = useState(() => {
-        return parseFloat(localStorage.getItem("longitude")) || -70.6506;
+        return parseFloat(localStorage.getItem("longitude")) || -74.850364;
     });
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
-    const [routeData, setRouteData] = useState([]); // Ruta obtenida según la fecha
+    const [routeData, setRouteData] = useState([]);
+    const [activeMap, setActiveMap] = useState("realTimeMap"); // Estado para controlar el mapa activo
 
     const wsRef = useRef(null);
+
+    const { isLoaded } = useLoadScript({
+        googleMapsApiKey: ApiKey,
+        libraries: ["geometry"],
+    });
 
     useEffect(() => {
         wsRef.current = connectWebSocket(updateLocation);
@@ -57,9 +66,8 @@ function App() {
         localStorage.setItem("longitude", newData.longitude);
     }
 
-    // Cuando `selectedRange` cambia, se obtiene la ruta del backend
     useEffect(() => {
-        if (!selectedRange) return; // Si no hay rango, no se hace la petición
+        if (!selectedRange) return;
         const fetchRoute = async () => {
             const inicio = selectedRange.startDate.toISOString();
             const fin = selectedRange.endDate.toISOString();
@@ -73,32 +81,43 @@ function App() {
         fetchRoute();
     }, [selectedRange]);
 
-    function handleApplyDateRange(range) {
-        setSelectedRange({
-            startDate: range[0].startDate,
-            endDate: range[0].endDate
-        });
-        setIsSidebarOpen(false);
-    }
+    if (!isLoaded) return <p>Cargando mapa...</p>;
+
+    const handleMapSwitch = (mapType) => {
+        setActiveMap(mapType); // Cambia el mapa activo
+    };
 
     return (
         <>
             <header>
                 <h1>ViaTracker</h1>
             </header>
+            <section className="Botones">
+                <button className="ButtonA" onClick={() => handleMapSwitch("realTimeMap")}>
+                    Mapa en Tiempo Real
+                </button>
+                <button className="ButtonB" onClick={() => handleMapSwitch("routeMap")}>
+                    Mapa de Rutas
+                </button>
+                <button className="ButtonC" onClick={() => handleMapSwitch("circleMap")}>
+                    Mapa con Círculo
+                </button>
+            </section>
             <section>
                 <div>
                     <Table data={data ? [data] : []} />
                 </div>
+
+                {/* Mostrar el mapa según la selección */}
                 <div className="Mapa">
                     <h2 className="MapaTitle">Mapa</h2>
-                    <Map latitude={latitude} longitude={longitude} routeData={routeData} />
+                    {activeMap === "realTimeMap" && (
+                        <Map latitude={latitude} longitude={longitude} routeData={routeData} />
+                    )}
+                    {activeMap === "routeMap" && <Rutas />}
+                    {activeMap === "circleMap" && <MapWithCircle />}
                 </div>
             </section>
-            <div className="Rutas">
-            <Rutas />
-            <DateRangeSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onApply={handleApplyDateRange} />
-            </div>
         </>
     );
 }

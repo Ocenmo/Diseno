@@ -1,6 +1,7 @@
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import { latestLocation } from "../services/api";
+import Table from "./Table";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 
@@ -9,7 +10,7 @@ const Map = ({ latitude, longitude }) => {
         googleMapsApiKey: ApiKey,
     });
 
-    const [defaultPosition, setDefaultPosition] = useState({ lat: 0, lng: 0 });
+    const [defaultPosition, setDefaultPosition] = useState({ lat: 11.022092, lng: -74.851364 });
     const [path, setPath] = useState([]);
 
     useEffect(() => {
