@@ -82,6 +82,7 @@ const MapWithCircle = () => {
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
         const data = await rutasCirculo(center.lat, center.lng, radius, formattedStartDate, formattedEndDate);
+        console.log("Datos recibidos de la API:", data);
 
         if (data && data.length > 0) {
             const filteredPath = data.filter(isCoordinateInCircle).map(coord => ({
@@ -113,6 +114,7 @@ const MapWithCircle = () => {
     return (
         <div>
             <button className="Reset" onClick={handleReset}>Resetear Mapa</button>
+            <button className="SelectRange" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
