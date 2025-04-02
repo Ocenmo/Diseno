@@ -25,6 +25,7 @@ header {
   transition: transform 0.3s ease;
   border-radius: 1%;
   overflow: hidden;
+  transform: matrix(1, 0, 0, 1, 0, 0);
 }
 
 .Mapa.realTimeMap {
