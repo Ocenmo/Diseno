@@ -1,17 +1,11 @@
-import { GoogleMap, Marker, Polyline, Circle, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline, Circle } from "@react-google-maps/api";
 import { useState, useRef, useEffect } from "react";
 import { rutasCirculo } from "../services/api";
 import DateRangeModal from "../components/DateRangeSidebar";
 import "./Radius.css";
 
-const ApiKey = import.meta.env.VITE_API_KEY;
-const googleMapsLibrary = ["geometry"];
 
 const MapWithCircle = () => {
-    const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: ApiKey,
-        libraries: googleMapsLibrary,
-    });
 
     const [center, setCenter] = useState(null);
     const [radius, setRadius] = useState(0);
@@ -111,8 +105,6 @@ const MapWithCircle = () => {
         setMapKey(Date.now());
     };
 
-    if (loadError) return <p>Error al cargar el mapa</p>;
-    if (!isLoaded) return <p>Cargando mapa...</p>;
 
     return (
         <div>
