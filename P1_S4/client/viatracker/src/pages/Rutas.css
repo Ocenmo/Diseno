@@ -58,7 +58,7 @@
     border-radius: 8px;
     text-align: center;
     width: 20%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px #96600a;
     background: white !important;
     opacity: 1 !important;
 }

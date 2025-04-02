@@ -116,6 +116,7 @@ const MapWithCircle = () => {
 
     return (
         <div>
+            <h1>Haga click para dibujar el radio de busqueda</h1>
             <button className="Reset" onClick={handleReset}>Resetear Mapa</button>
             <button className="SelectRange" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 

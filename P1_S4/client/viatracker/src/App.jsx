@@ -100,7 +100,7 @@ function App() {
                     Mapa de Rutas
                 </button>
                 <button className="ButtonC" onClick={() => handleMapSwitch("circleMap")}>
-                    Mapa con Círculo
+                    Radio de busqueda
                 </button>
             </section>
             <section>
