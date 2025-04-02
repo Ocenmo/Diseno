@@ -1,6 +1,8 @@
 import { GoogleMap, Marker, Polyline, Circle, useLoadScript } from "@react-google-maps/api";
 import { useState, useRef, useEffect } from "react";
 import { rutasCirculo } from "../services/api";
+import DateRangeModal from "../components/DateRangeSidebar";
+import "./Radius.css";
 
 const ApiKey = import.meta.env.VITE_API_KEY;
 const googleMapsLibrary = ["geometry"];
@@ -16,8 +18,11 @@ const MapWithCircle = () => {
     const [path, setPath] = useState([]);
     const [isDrawing, setIsDrawing] = useState(false);
     const [mapKey, setMapKey] = useState(Date.now());
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRange, setSelectedRange] = useState(null);
+    const [noData, setNoData] = useState(false);
 
-    const mapRef = useRef(null); // Referencia al mapa
+    const mapRef = useRef(null);
 
     useEffect(() => {
         const savedCenter = localStorage.getItem("center");
@@ -47,24 +52,46 @@ const MapWithCircle = () => {
         setRadius(newRadius);
     };
 
-    const handleClick = async (e) => {
+    const handleClick = (e) => {
         if (!center) {
             setCenter({ lat: e.latLng.lat(), lng: e.latLng.lng() });
             setRadius(0);
             setIsDrawing(true);
         } else if (isDrawing) {
             setIsDrawing(false);
+            setIsModalOpen(true);
+        }
+    };
 
-            const startDate = "2025-04-01";
-            const endDate = "2025-04-02";
-            const data = await rutasCirculo(center.lat, center.lng, radius, startDate, endDate);
+    const isCoordinateInCircle = (coordinate) => {
+        if (!center || radius === 0) return false;
 
-            if (data && data.length > 0) {
-                setPath(data.map(coord => ({
-                    lat: parseFloat(coord.Latitud),
-                    lng: parseFloat(coord.Longitud),
-                })));
-            }
+        const coordinateLatLng = new window.google.maps.LatLng(coordinate.Latitud, coordinate.Longitud);
+        const centerLatLng = new window.google.maps.LatLng(center.lat, center.lng);
+
+        const distance = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, coordinateLatLng);
+        return distance <= radius;
+    };
+
+    const handleSelectRange = async (startDate, endDate) => {
+        setSelectedRange({ startDate, endDate });
+
+        if (!center || radius === 0) return;
+
+        const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
+        const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
+
+        const data = await rutasCirculo(center.lat, center.lng, radius, formattedStartDate, formattedEndDate);
+
+        if (data && data.length > 0) {
+            const filteredPath = data.filter(isCoordinateInCircle).map(coord => ({
+                lat: parseFloat(coord.Latitud),
+                lng: parseFloat(coord.Longitud),
+            }));
+            setPath(filteredPath);
+            setNoData(filteredPath.length === 0);
+        } else {
+            setNoData(true);
         }
     };
 
@@ -72,21 +99,25 @@ const MapWithCircle = () => {
         setCenter(null);
         setRadius(0);
         setPath([]);
+        setSelectedRange(null);
+        setNoData(false);
         localStorage.removeItem("center");
         localStorage.removeItem("radius");
         localStorage.removeItem("path");
-        setMapKey(Date.now()); // Cambiar la key para forzar el recargue
+        setMapKey(Date.now());
     };
 
-    if (loadError) {
-        return <p>Error al cargar el mapa</p>;
-    }
-
+    if (loadError) return <p>Error al cargar el mapa</p>;
     if (!isLoaded) return <p>Cargando mapa...</p>;
 
     return (
         <div>
-            <button onClick={handleReset}>Resetear Mapa</button>
+            <button className="Reset" onClick={handleReset}>Resetear Mapa</button>
+
+            {selectedRange && (
+                <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
+            )}
+
             <GoogleMap
                 key={mapKey}
                 zoom={15}
@@ -127,6 +158,17 @@ const MapWithCircle = () => {
 
                 {center && <Marker position={center} />}
             </GoogleMap>
+
+            <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+
+            {noData && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>No hubo movimiento en el rango seleccionado</h2>
+                        <button onClick={() => setNoData(false)} className="close-button">Cerrar</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
