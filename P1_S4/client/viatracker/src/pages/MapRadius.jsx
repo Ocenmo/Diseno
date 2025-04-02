@@ -134,8 +134,8 @@ const MapWithCircle = () => {
                             fillColor: "#989fce",
                             fillOpacity: 0.25,
                             clickable: false,
-                            editable: true,
-                            draggable: true,
+                            editable: false,
+                            draggable: false,
                             zIndex: 1,
                         }}
                     />
