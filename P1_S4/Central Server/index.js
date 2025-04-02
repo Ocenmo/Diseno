@@ -142,11 +142,19 @@ app.get('/rutas', (req, res) => {
     });
 });
 
-app.get('/rutas-circulo', (req, res) => {
+app.get("/rutas-circulo", (req, res) => {
     const { latitud_centro, longitud_centro, radio, inicio, fin } = req.query;
 
+    console.log("📥 Parámetros recibidos:");
+    console.log("Latitud Centro:", latitud_centro);
+    console.log("Longitud Centro:", longitud_centro);
+    console.log("Radio:", radio);
+    console.log("Inicio:", inicio);
+    console.log("Fin:", fin);
+
     if (!latitud_centro || !longitud_centro || !radio || !inicio || !fin) {
-        return res.status(400).json({ error: 'Faltan parámetros requeridos' });
+        console.log("⚠️ Faltan parámetros");
+        return res.status(400).json({ error: "Faltan parámetros requeridos" });
     }
 
     const query = `
@@ -161,13 +169,15 @@ app.get('/rutas-circulo', (req, res) => {
 
     db.query(query, [inicio, fin, longitud_centro, latitud_centro, radio], (err, results) => {
         if (err) {
-            console.error('❌ Error al obtener las rutas dentro del círculo:', err);
-            res.status(500).json({ error: 'Error al obtener las rutas dentro del círculo' });
-        } else {
-            res.json(results);
+            console.error("❌ Error en la consulta SQL:", err);
+            return res.status(500).json({ error: "Error en la consulta SQL" });
         }
+
+        console.log("✅ Datos obtenidos:", results);
+        res.json(results);
     });
 });
+
 
 
 wss.on('connection', (ws, req) => {
