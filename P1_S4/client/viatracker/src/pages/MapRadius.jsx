@@ -108,7 +108,7 @@ const MapWithCircle = () => {
 
     return (
         <div>
-            <h1>Haga click para dibujar el radio de busqueda</h1>
+            <h1 className="titleRoutes">Haga click para dibujar el radio de busqueda</h1>
             <button className="Reset" onClick={handleReset}>Resetear Mapa</button>
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>

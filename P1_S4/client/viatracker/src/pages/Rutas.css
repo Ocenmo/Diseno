@@ -57,7 +57,7 @@
     padding: 1%;
     border-radius: 8px;
     text-align: center;
-    width: 20%;
+    width: auto;
     box-shadow: 0 4px 8px #96600a;
     background: white !important;
     opacity: 1 !important;
