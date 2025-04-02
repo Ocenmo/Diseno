@@ -81,6 +81,9 @@ const MapWithCircle = () => {
         const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
+        console.log("📍 Radio del círculo:", radius);
+        console.log("⏳ Lapso de tiempo seleccionado:", formattedStartDate, "a", formattedEndDate);
+
         const data = await rutasCirculo(center.lat, center.lng, radius, formattedStartDate, formattedEndDate);
         console.log("Datos recibidos de la API:", data);
 
