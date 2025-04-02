@@ -97,7 +97,7 @@ function App() {
                     Mapa en Tiempo Real
                 </button>
                 <button className="ButtonB" onClick={() => handleMapSwitch("routeMap")}>
-                    Mapa de Rutas
+                    Historico de Rutas
                 </button>
                 <button className="ButtonC" onClick={() => handleMapSwitch("circleMap")}>
                     Radio de busqueda
@@ -105,6 +105,9 @@ function App() {
             </section>
             <section>
                 <div>
+                    <h2 className="Title">
+                        Ultima Ubicación
+                    </h2>
                     <Table data={data ? [data] : []} />
                 </div>
 
