@@ -9,12 +9,16 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+const path = require('path');
 
 let isActive = true;
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '../client/viatracker/dist'))); // 📌 Servir archivos estáticos desde la carpeta public
 app.use(express.json()); // 📌 Habilita el manejo de JSON en las solicitudes
 app.use(cors()); // 📌 Habilita CORS para permitir acceso externo
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/viatracker/dist/index.html'));
+});
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
