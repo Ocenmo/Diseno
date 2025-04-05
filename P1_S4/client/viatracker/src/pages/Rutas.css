@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 .buttonCalendario {
     background-color: #fca311;
     color: #000000;

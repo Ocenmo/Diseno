@@ -1,3 +1,4 @@
+@import "tailwindcss";
 /* Fondo con blur cuando la modal está activa */
 .modal-overlay {
     position: fixed;
