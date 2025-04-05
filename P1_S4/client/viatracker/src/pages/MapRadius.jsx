@@ -4,12 +4,12 @@ import { rutasCirculo } from "../services/api";
 import DateRangeModal from "../components/DateRangeSidebar";
 import "./Radius.css";
 
-
 const MapWithCircle = () => {
-
     const [center, setCenter] = useState(null);
     const [radius, setRadius] = useState(0);
     const [path, setPath] = useState([]);
+    const [timestamps, setTimestamps] = useState([]); // Nuevo: timestamps
+    const [currentIndex, setCurrentIndex] = useState(0); // Nuevo: índice del punto actual
     const [isDrawing, setIsDrawing] = useState(false);
     const [mapKey, setMapKey] = useState(Date.now());
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,19 +75,23 @@ const MapWithCircle = () => {
         const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
         const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
 
-        console.log("📍 Radio del círculo:", radius);
-        console.log("⏳ Lapso de tiempo seleccionado:", formattedStartDate, "a", formattedEndDate);
-
         const data = await rutasCirculo(center.lat, center.lng, radius, formattedStartDate, formattedEndDate);
-        console.log("Datos recibidos de la API:", data);
 
         if (data && data.length > 0) {
-            const filteredPath = data.filter(isCoordinateInCircle).map(coord => ({
+            const filteredCoordinates = data.filter(isCoordinateInCircle).map(coord => ({
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
+                timestamp: coord.TimeStamp
             }));
-            setPath(filteredPath);
-            setNoData(filteredPath.length === 0);
+
+            const formattedTimestamps = filteredCoordinates.map(({ timestamp }) =>
+                timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
+            );
+
+            setPath(filteredCoordinates.map(({ lat, lng }) => ({ lat, lng })));
+            setTimestamps(formattedTimestamps);
+            setCurrentIndex(0);
+            setNoData(filteredCoordinates.length === 0);
         } else {
             setNoData(true);
         }
@@ -97,18 +101,19 @@ const MapWithCircle = () => {
         setCenter(null);
         setRadius(0);
         setPath([]);
+        setTimestamps([]);
         setSelectedRange(null);
         setNoData(false);
+        setCurrentIndex(0);
         localStorage.removeItem("center");
         localStorage.removeItem("radius");
         localStorage.removeItem("path");
         setMapKey(Date.now());
     };
 
-
     return (
         <div>
-            <h1 className="titleRoutes">Haga click para dibujar el radio de busqueda</h1>
+            <h1 className="titleRoutes">Haga click para dibujar el radio de búsqueda</h1>
             <button className="Reset" onClick={handleReset}>Resetear Mapa</button>
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
@@ -142,18 +147,40 @@ const MapWithCircle = () => {
                 )}
 
                 {path.length > 0 && (
-                    <Polyline
-                        path={path}
-                        options={{
-                            strokeColor: "#2d6a4f",
-                            strokeOpacity: 1,
-                            strokeWeight: 2,
-                        }}
-                    />
+                    <>
+                        <Polyline
+                            path={path}
+                            options={{
+                                strokeColor: "#2d6a4f",
+                                strokeOpacity: 1,
+                                strokeWeight: 2,
+                            }}
+                        />
+                        <Marker position={path[currentIndex]} />
+                    </>
                 )}
 
                 {center && <Marker position={center} />}
             </GoogleMap>
+
+            {/* Slider */}
+            {path.length > 1 && (
+                <div className="slider-container">
+                    <input
+                        className="slider"
+                        type="range"
+                        min="0"
+                        max={path.length - 1}
+                        value={currentIndex}
+                        onChange={(e) => setCurrentIndex(Number(e.target.value))}
+                    />
+                    <div>
+                        <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
+                        <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
+                        <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                    </div>
+                </div>
+            )}
 
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
 
