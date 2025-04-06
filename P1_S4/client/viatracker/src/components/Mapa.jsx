@@ -37,29 +37,21 @@ const Map = ({ latitude, longitude, data }) => {
         }
     }, [latitude, longitude]);
 
-
-
     return (
-        <>
         <div>
-            <h2 className="Title">
-            Última Ubicación
-        </h2>
-        <Table data={data ? [data] : []} />
+            <h2 className="Title">Última Ubicación</h2>
+            <Table data={data ? [data] : []} />
+            <GoogleMap zoom={15} center={defaultPosition} mapContainerStyle={{ width: "100%", height: "500px" }}>
+                <Marker position={defaultPosition} />
+                {path.length > 1 && (
+                    <Polyline
+                        path={path}
+                        options={{ strokeColor: "#2d6a4f", strokeOpacity: 1, strokeWeight: 2 }}
+                    />
+                )}
+            </GoogleMap>
         </div>
-        <GoogleMap zoom={15} center={defaultPosition} mapContainerStyle={{ width: "100%", height: "500px" }}>
-            <Marker position={defaultPosition} />
-            {path.length > 1 && (
-                <Polyline
-                    path={path}
-                    options={{ strokeColor: "#2d6a4f", strokeOpacity: 1, strokeWeight: 2 }}
-                />
-            )}
-        </GoogleMap>
-        </>
     );
 };
 
 export default Map;
-
-//Funciona
