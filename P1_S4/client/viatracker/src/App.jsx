@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { connectWebSocket } from "./services/WebSocketService";
 import Table from "./components/Table";
 import Map from "./components/Mapa";
-import DateRangeSidebar from "./components/DateRangeSidebar";
 import { latestLocation, rutas } from "./services/api";
 import { formatDateTime } from "./utils/utils";
 import Rutas from "./pages/Rutas";
 import { setOptions } from "@mobiscroll/react";
 import MapWithCircle from "./pages/MapRadius";
 import { useLoadScript } from "@react-google-maps/api";
+import "./App.css";
 
 setOptions({
     locale: "es",
@@ -20,7 +20,6 @@ const ApiKey = import.meta.env.VITE_API_KEY;
 const googleMapsLibrary = ["geometry"];
 
 function App() {
-    const [data, setData] = useState(null);
     const [latitude, setLatitude] = useState(() => {
         return parseFloat(localStorage.getItem("latitude")) || 11.020082;
     });
@@ -92,31 +91,24 @@ function App() {
 
     return (
         <>
-            <header>
+            <header className="bg-black min-h-[20%] flex flex-row items-center justify-center text-[130%] text-white rounded-full backdrop-blur-md">
                 <h1>ViaTracker</h1>
             </header>
-            <section className="Botones">
-                <button className="ButtonA" onClick={() => handleMapSwitch("realTimeMap")}>
+            <section className="flex flex-row justify-between items-center pb-[2%]">
+                <button className="bg-[#14213d] text-white border-[3px] border-[#090f1b] px-5 py-2 text-[16px] m-1 cursor-pointer rounded hover:bg-[#090f1b] hover:text-white hover:scale-105 transition duration-300 ease-in-out" onClick={() => handleMapSwitch("realTimeMap")}>
                     Mapa en Tiempo Real
                 </button>
-                <button className="ButtonB" onClick={() => handleMapSwitch("routeMap")}>
+                <button className="bg-[#fca311] text-black border-[3px] border-[#9c650c] px-5 py-2 text-[16px] m-1 cursor-pointer rounded hover:bg-[#9c650c] hover:text-white hover:scale-105 transition duration-300 ease-in-out" onClick={() => handleMapSwitch("routeMap")}>
                     Historico de Rutas
                 </button>
-                <button className="ButtonC" onClick={() => handleMapSwitch("circleMap")}>
+                <button className="bg-[#989fce] text-black border-[3px] border-[#5b6080] px-5 py-2 text-[16px] m-1 cursor-pointer rounded hover:bg-[#5b6080] hover:text-white hover:scale-105 transition duration-300 ease-in-out" onClick={() => handleMapSwitch("circleMap")}>
                     Radio de busqueda
                 </button>
             </section>
-            <section>
-                <div>
-                    <h2 className="Title">
-                        Ultima Ubicación
-                    </h2>
-                    <Table data={data ? [data] : []} />
-                </div>
-
+            <section className="flex flex-row items-center justify-between mx-[4%] mt-[2%] flex-wrap pb-[5%]">
                 {/* Mostrar el mapa según la selección */}
-                <div className={`Mapa ${activeButton}`}>
-                    <h2 className="MapaTitle">Mapa</h2>
+                <div className={`h-[80%] w-1/2 shadow-md transition-transform duration-300 ease-in-out rounded-[1%] overflow-hidden ${activeButton}`}>
+                    <h2 className="text-[180%] mt-[5%] mb-[2%] ml-[1%] text-[#14213d] text-center">Mapa</h2>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} />
                     )}

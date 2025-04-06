@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { latestLocation } from "../services/api";
 import Table from "./Table";
 
-const Map = ({ latitude, longitude }) => {
+const Map = ({ latitude, longitude, data }) => {
 
     const [defaultPosition, setDefaultPosition] = useState({ lat: 11.022092, lng: -74.851364 });
     const [path, setPath] = useState([]);
@@ -37,7 +37,16 @@ const Map = ({ latitude, longitude }) => {
         }
     }, [latitude, longitude]);
 
+
+
     return (
+        <>
+        <div>
+            <h2 className="Title">
+            Última Ubicación
+        </h2>
+        <Table data={data ? [data] : []} />
+        </div>
         <GoogleMap zoom={15} center={defaultPosition} mapContainerStyle={{ width: "100%", height: "500px" }}>
             <Marker position={defaultPosition} />
             {path.length > 1 && (
@@ -47,6 +56,7 @@ const Map = ({ latitude, longitude }) => {
                 />
             )}
         </GoogleMap>
+        </>
     );
 };
 
