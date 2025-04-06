@@ -16,9 +16,26 @@ let isActive = true;
 app.use(express.static(path.join(__dirname, '../client/viatracker/dist'))); // 📌 Servir archivos estáticos desde la carpeta public
 app.use(express.json()); // 📌 Habilita el manejo de JSON en las solicitudes
 app.use(cors()); // 📌 Habilita CORS para permitir acceso externo
-app.get("*", (req, res) => {
+
+
+// Esta línea debe ir al final de todas las rutas API:
+app.get("*", (req, res, next) => {
+    // Si la solicitud empieza por un endpoint de API, pasá al siguiente middleware (404)
+    if (
+        req.path.startsWith("/datos") ||
+        req.path.startsWith("/rango-fechas") ||
+        req.path.startsWith("/rutas") ||
+        req.path.startsWith("/rutas-circulo") ||
+        req.path.startsWith("/health")
+    ) {
+        return next();
+    }
+
+    // Si no, servir el frontend (SPA)
     res.sendFile(path.join(__dirname, '../client/viatracker/dist/index.html'));
 });
+
+
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
