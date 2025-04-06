@@ -38,10 +38,15 @@ const Map = ({ latitude, longitude, data }) => {
     }, [latitude, longitude]);
 
     return (
-        <div>
-            <h2 className="Title">Última Ubicación</h2>
-            <Table data={data ? [data] : []} />
-            <GoogleMap zoom={15} center={defaultPosition} mapContainerStyle={{ width: "100%", height: "500px" }}>
+        <div className="relative w-full h-[500px]">
+            <GoogleMap className="w-screen h-screen"
+            zoom={15}
+            center={defaultPosition}
+            mapContainerStyle={{ width: "100%", height: "1000px" }}
+            >
+            <div className="absolute bottom-40 left-230 z-10">
+                <Table data={data ? [data] : []} />
+            </div>
                 <Marker position={defaultPosition} />
                 {path.length > 1 && (
                     <Polyline

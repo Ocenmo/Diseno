@@ -48,18 +48,18 @@ const Rutas = () => {
     return (
         <div>
             <h1>Historial de rutas</h1>
-            <button className="buttonCalendario" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
 
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
 
-            <GoogleMap
+            <GoogleMap className="w-screen h-screen"
                 key={mapKey}
                 zoom={15}
                 center={path.length > 0 ? path[0] : { lat: 11.020082, lng: -74.850364 }}
-                mapContainerStyle={{ width: "100%", height: "500px" }}
+                mapContainerStyle={{ width: "100%", height: "1000px" }}
             >
+                <button className="absolute top-30 right-10 z-10 px-4 py-2 bg-[#52796f] border-3 border-[#2f3e46] rounded-md shadow-md hover:bg-[#354f52] transition-all duration-300 ease-in-out" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
                 {path.length > 1 && (
                     <Polyline
                         path={path}
@@ -73,7 +73,7 @@ const Rutas = () => {
             </GoogleMap>
 
             {path.length > 1 && (
-                <div className="slider-container">
+                <div className="absolute bottom-40 left-230 z-10">
                     <input className="slider"
                         type="range"
                         min="0"

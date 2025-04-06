@@ -91,25 +91,33 @@ function App() {
 
     return (
         <>
-            <header className="bg-black min-h-[20%] flex flex-row items-center justify-center text-[130%] text-white rounded-full backdrop-blur-md">
-                <h1>ViaTracker</h1>
-            </header>
-
-            <section className="flex flex-row justify-between items-center pb-[2%]">
-                <button className="bg-[#14213d] text-white border-[3px] border-[#090f1b] px-5 py-2 text-[16px] m-1 cursor-pointer rounded hover:bg-[#090f1b] hover:text-white hover:scale-105 transition duration-300 ease-in-out" onClick={() => handleMapSwitch("realTimeMap")}>
+            <nav className="fixed top-0 z-50 w-full px-6 text-white font-sans transition-all duration-300 ease-out lg:px-12 bg-black py-6 shadow-none mask-b-from-80%">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-2 sm:px-6 lg:px-8">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold">ViaTracker</h1>
+                    </div>
+                    <div className="hidden gap-6 lg:flex items-center">
+                    <button className="relative text-white h-fit w-fit" onClick={() => handleMapSwitch("realTimeMap")}>
                     Mapa en Tiempo Real
-                </button>
-                <button className="bg-[#fca311] text-black border-[3px] border-[#9c650c] px-5 py-2 text-[16px] m-1 cursor-pointer rounded hover:bg-[#9c650c] hover:text-white hover:scale-105 transition duration-300 ease-in-out" onClick={() => handleMapSwitch("routeMap")}>
+                    <span style={{ transform: activeButton === "realTimeMap" ? "scaleX(1)" : "scaleX(0)" }}
+                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"></span>
+                    </button>
+                    <button className="relative text-white h-fit w-fit" onClick={() => handleMapSwitch("routeMap")}>
                     Histórico de Rutas
-                </button>
-                <button className="bg-[#989fce] text-black border-[3px] border-[#5b6080] px-5 py-2 text-[16px] m-1 cursor-pointer rounded hover:bg-[#5b6080] hover:text-white hover:scale-105 transition duration-300 ease-in-out" onClick={() => handleMapSwitch("circleMap")}>
+                    <span style={{ transform: activeButton === "routeMap" ? "scaleX(1)" : "scaleX(0)" }}
+                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"></span>
+                    </button>
+                    <button className="relative text-white h-fit w-fit" onClick={() => handleMapSwitch("circleMap")}>
                     Radio de búsqueda
-                </button>
-            </section>
+                    <span style={{ transform: activeButton === "circleMap" ? "scaleX(1)" : "scaleX(0)" }}
+                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"></span>
+                    </button>
+                    </div>
+                </div>
+            </nav>
 
             <section className="flex flex-row items-center justify-between mx-[4%] mt-[2%] flex-wrap pb-[5%]">
-                <div className={`h-[80%] w-1/2 shadow-md transition-transform duration-300 ease-in-out rounded-[1%] overflow-hidden ${activeButton}`}>
-                    <h2 className="text-[180%] mt-[5%] mb-[2%] ml-[1%] text-[#14213d] text-center">Mapa</h2>
+                <div className={`absolute inset-0 z-0 bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} data={data} />
                     )}

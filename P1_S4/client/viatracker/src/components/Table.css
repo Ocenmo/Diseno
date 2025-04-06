@@ -1,26 +1,2 @@
 @import "tailwindcss";
 
-table {
-    display: block;
-    justify-content: space-between;
-    width: 105%;
-    gap: 1em;
-    margin: 2em 0;
-    padding: 1em;
-    border: 1px solid #000000;
-    border-radius: 99px;
-    background-color: #14213d;
-    box-shadow: 0 4px 8px #081c15;
-    transition: transform 0.3s ease;
-    color: #ffffff;
-}
-
-tr {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    gap: 3em;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
-    margin-left: 1.3em;
-}

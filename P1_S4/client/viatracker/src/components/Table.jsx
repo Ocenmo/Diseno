@@ -8,9 +8,9 @@ const Table = ({ data, error }) => {
                 <p style={{ color: "red" }}>{error}</p>
             ) : data.length > 0 ? (
                 <div className={`scrollable-table ${data.length > 6 ? "scroll" : ""}`}>
-                    <table>
+                    <table className="block justify-between w-[105%] gap-4 my-8 p-4 border border-black rounded-[99px] bg-[#14213d] shadow-[0_4px_8px_#081c15] transition-transform duration-300 ease-in-out text-white">
                         <thead>
-                            <tr>
+                            <tr className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5">
                                 <th>ID</th>
                                 <th>Latitud</th>
                                 <th>Longitud</th>

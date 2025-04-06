@@ -113,8 +113,6 @@ const MapWithCircle = () => {
 
     return (
         <div>
-            <h1 className="titleRoutes">Haga click para dibujar el radio de búsqueda</h1>
-            <button className="Reset" onClick={handleReset}>Resetear Mapa</button>
             {selectedRange && (
                 <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
             )}
@@ -123,11 +121,13 @@ const MapWithCircle = () => {
                 key={mapKey}
                 zoom={15}
                 center={center || { lat: 11.020082, lng: -74.850364 }}
-                mapContainerStyle={{ width: "100%", height: "500px" }}
+                mapContainerStyle={{ width: "100%", height: "1000px" }}
                 onClick={handleClick}
                 onMouseMove={handleMouseMove}
                 onLoad={(map) => (mapRef.current = map)}
             >
+            <button className="absolute top-30 right-10 z-10 px-4 py-2 bg-[#52796f] border-3 border-[#2f3e46] rounded-md shadow-md hover:bg-[#354f52] transition-all duration-300 ease-in-out" onClick={handleReset}>Resetear Mapa</button>
+
                 {center && (
                     <Circle
                         center={center}
@@ -165,7 +165,7 @@ const MapWithCircle = () => {
 
             {/* Slider */}
             {path.length > 1 && (
-                <div className="slider-container">
+                <div className="absolute bottom-40 left-230 z-10">
                     <input
                         className="slider"
                         type="range"
