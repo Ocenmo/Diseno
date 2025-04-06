@@ -44,7 +44,7 @@ const Map = ({ latitude, longitude, data }) => {
             center={defaultPosition}
             mapContainerStyle={{ width: "100%", height: "1000px" }}
             >
-            <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 bg-white/90 p-4 rounded-xl shadow-lg">
+            <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 p-4">
                 <Table data={data ? [data] : []} />
             </div>
                 <Marker position={defaultPosition} />
