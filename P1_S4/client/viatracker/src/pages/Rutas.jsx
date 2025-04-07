@@ -59,7 +59,9 @@ const Rutas = () => {
                 mapContainerStyle={{ width: "100%", height: "1000px" }}
             >
                 <div className="flex items-center justify-center md:w-1/3">
-                <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#52796f] border-3 border-[#2f3e46] rounded-xl shadow-md w-full md:w-auto hover:bg-[#354f52] transition-all duration-300 ease-in-out" onClick={() => setIsModalOpen(true)}>Seleccionar rango</button>
+                <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#00ABE4] text-[#14213d] border-3 border-[#a8dadc] rounded-xl shadow-md w-full md:w-auto hover:bg-[#a8dadc] hover:scale-x1.5 transition-all duration-300 ease-in-out" onClick={() => setIsModalOpen(true)}>
+                    Seleccionar
+                </button>
                 </div>
                 {path.length > 1 && (
                     <Polyline

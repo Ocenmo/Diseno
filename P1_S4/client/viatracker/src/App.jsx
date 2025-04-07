@@ -82,7 +82,7 @@ function App() {
         fetchRoute();
     }, [selectedRange]);
 
-    if (!isLoaded) return <p>Cargando mapa...</p>;
+    if (!isLoaded) return <p className="text-center text-lg py-20">Cargando mapa...</p>;
 
     const handleMapSwitch = (mapType) => {
         setActiveMap(mapType);
@@ -91,33 +91,35 @@ function App() {
 
     return (
         <>
-            <nav className="fixed top-0 z-50 w-full px-6 text-white font-sans transition-all duration-300 ease-out lg:px-12 bg-black py-6 shadow-none mask-b-from-80%">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-2 sm:px-6 lg:px-8">
+            <nav className="relative top-0 z-0 w-full px-4 sm:px-6 lg:px-12 py-4 bg-[#E9F1FA] text-[#14213d] font-sans transition-all duration-300 ease-out shadow-md mask-b-from-90% mask-b-to-100%">
+                <div className="mx-auto flex max-w-7xl items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold">ViaTracker</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold">ViaTracker</h1>
                     </div>
-                    <div className="hidden gap-6 lg:flex items-center">
-                    <button className="relative text-white h-fit w-fit" onClick={() => handleMapSwitch("realTimeMap")}>
-                    Mapa en Tiempo Real
-                    <span style={{ transform: activeButton === "realTimeMap" ? "scaleX(1)" : "scaleX(0)" }}
-                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"></span>
-                    </button>
-                    <button className="relative text-white h-fit w-fit" onClick={() => handleMapSwitch("routeMap")}>
-                    Histórico de Rutas
-                    <span style={{ transform: activeButton === "routeMap" ? "scaleX(1)" : "scaleX(0)" }}
-                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"></span>
-                    </button>
-                    <button className="relative text-white h-fit w-fit" onClick={() => handleMapSwitch("circleMap")}>
-                    Radio de búsqueda
-                    <span style={{ transform: activeButton === "circleMap" ? "scaleX(1)" : "scaleX(0)" }}
-                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"></span>
-                    </button>
+                    <div className="hidden lg:flex gap-4 sm:gap-6 items-center">
+                        {[
+                            { label: "Mapa en Tiempo Real", key: "realTimeMap" },
+                            { label: "Histórico de Rutas", key: "routeMap" },
+                            { label: "Radio de búsqueda", key: "circleMap" },
+                        ].map(({ label, key }) => (
+                            <button
+                                key={key}
+                                className="relative text-[#14213d] h-fit w-fit"
+                                onClick={() => handleMapSwitch(key)}
+                            >
+                                {label}
+                                <span
+                                    style={{ transform: activeButton === key ? "scaleX(1)" : "scaleX(0)" }}
+                                    className="absolute -bottom-2 -left-2 -right-2 h-1 origin-left rounded-full bg-indigo-500 transition-transform duration-300 ease-out"
+                                ></span>
+                            </button>
+                        ))}
                     </div>
                 </div>
             </nav>
 
-            <section className="flex flex-row items-center justify-between mx-[4%] mt-[2%] flex-wrap pb-[5%]">
-                <div className={`absolute inset-0 z-0 bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
+            <section className="relative -mt-0 z-0 w-full mask-t-from-95%">
+                <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} data={data} />
                     )}
