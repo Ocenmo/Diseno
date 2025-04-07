@@ -112,20 +112,20 @@ const MapWithCircle = () => {
     };
 
     return (
-        <div className="flex-1 h-64 md:h-96 lg:h-[1000px] relative">
+        <div className="flex-1 relative">
             <GoogleMap className="w-full h-full rounded-xl shadow-lg"
                 options={{ disableDefaultUI: true, zoomControl: true }}
                 key={mapKey}
                 zoom={15}
                 center={center || { lat: 11.020082, lng: -74.850364 }}
-                mapContainerStyle={{ width: "100%", height: "1000px" }}
+                mapContainerStyle={{ width: "100%", height: "905px" }}
                 onClick={handleClick}
                 onMouseMove={handleMouseMove}
                 onLoad={(map) => (mapRef.current = map)}
             >
 
             <div className="flex items-center justify-center md:w-1/3">
-            <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#52796f] border-3 border-[#2f3e46] rounded-xl shadow-md w-full md:w-auto hover:bg-[#354f52] transition-all duration-300 ease-in-out"
+            <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#780000] text-[#ffffff] border-3 border-[#c1121f] rounded-xl shadow-md w-full md:w-auto hover:bg-[#c1121f] hover:scale-110 hover:text-[#14213d] hover:animate-wiggle transition-all duration-300 ease-in-out"
             onClick={handleReset}
             >
                 Reiniciar Mapa

@@ -38,15 +38,15 @@ const Map = ({ latitude, longitude, data }) => {
     }, [latitude, longitude]);
 
     return (
-        <div className="flex-1 h-64 md:h-96 lg:h-[1000px] relative">
+        <div className="flex-1 relative">
             <GoogleMap className="w-full h-full rounded-xl shadow-lg"
             options={{ disableDefaultUI: true, zoomControl: true }}
             zoom={15}
             center={defaultPosition}
-            mapContainerStyle={{ width: "100%", height: "1000px" }}
+            mapContainerStyle={{ width: "100%", height: "905px" }}
             >
 
-            <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-[80%] md:max-w-3xl px-4">
+            <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-[80%] md:max-w-3xl px-4 ">
                 <Table data={data ? [data] : []} />
             </div>
                 <Marker position={defaultPosition} />

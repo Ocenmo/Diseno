@@ -91,7 +91,7 @@ function App() {
 
     return (
         <>
-            <nav className="relative top-0 z-0 w-full px-4 sm:px-6 lg:px-12 py-4 bg-[#E9F1FA] text-[#14213d] font-sans transition-all duration-300 ease-out shadow-md mask-b-from-90% mask-b-to-100%">
+            <nav className="relative top-0 z-0 w-full px-4 sm:px-6 lg:px-12 py-4 bg-[#E9F1FA] text-[#14213d] font-sans transition-all duration-300 ease-out shadow-md mask-b-from-95% mask-b-to-100%">
                 <div className="mx-auto flex max-w-7xl items-center justify-between">
                     <div className="flex items-center gap-2">
                         <h1 className="text-xl sm:text-2xl font-bold">ViaTracker</h1>
@@ -118,7 +118,7 @@ function App() {
                 </div>
             </nav>
 
-            <section className="relative -mt-0 z-0 w-full mask-t-from-95%">
+            <section className="relative -mt-3 z-0 w-full mask-t-from-80%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} data={data} />
