@@ -52,6 +52,7 @@ const Rutas = () => {
             )}
 
             <GoogleMap className="w-full h-full rounded-xl shadow-lg"
+                options={{ disableDefaultUI: true, zoomControl: true }}
                 key={mapKey}
                 zoom={15}
                 center={path.length > 0 ? path[0] : { lat: 11.020082, lng: -74.850364 }}
