@@ -56,10 +56,10 @@ const Rutas = () => {
                 key={mapKey}
                 zoom={15}
                 center={path.length > 0 ? path[0] : { lat: 11.020082, lng: -74.850364 }}
-                mapContainerStyle={{ width: "100%", height: "905px" }}
+                mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
             >
                 <div className="flex items-center justify-center md:w-1/3">
-                <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#00ABE4] text-[#14213d] border-3 border-[#a8dadc] rounded-xl shadow-md w-full md:w-auto hover:bg-[#a8dadc] hover:scale-110 transition-all duration-300 ease-in-out" onClick={() => setIsModalOpen(true)}>
+                <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#1d3557] text-[#ffffff] border-3 border-[#a8dadc] rounded-xl shadow-md w-full md:w-auto hover:bg-[#a8dadc] hover:scale-110 transition-all duration-300 ease-in-out" onClick={() => setIsModalOpen(true)}>
                     Seleccionar
                 </button>
                 </div>

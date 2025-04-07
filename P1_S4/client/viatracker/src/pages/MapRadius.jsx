@@ -118,7 +118,7 @@ const MapWithCircle = () => {
                 key={mapKey}
                 zoom={15}
                 center={center || { lat: 11.020082, lng: -74.850364 }}
-                mapContainerStyle={{ width: "100%", height: "905px" }}
+                mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
                 onClick={handleClick}
                 onMouseMove={handleMouseMove}
                 onLoad={(map) => (mapRef.current = map)}

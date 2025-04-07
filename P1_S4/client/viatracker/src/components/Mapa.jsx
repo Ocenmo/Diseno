@@ -43,7 +43,7 @@ const Map = ({ latitude, longitude, data }) => {
             options={{ disableDefaultUI: true, zoomControl: true }}
             zoom={15}
             center={defaultPosition}
-            mapContainerStyle={{ width: "100%", height: "905px" }}
+            mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
             >
 
             <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-[80%] md:max-w-3xl px-4 ">

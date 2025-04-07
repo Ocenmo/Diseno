@@ -118,7 +118,7 @@ function App() {
                 </div>
             </nav>
 
-            <section className="relative -mt-3 z-0 w-full mask-t-from-80%">
+            <section className="relative w-full h-screen -mt-3 mask-t-from-80%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} data={data} />
