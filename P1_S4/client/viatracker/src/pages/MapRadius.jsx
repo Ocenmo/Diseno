@@ -158,8 +158,6 @@ const MapWithCircle = () => {
                         <Marker position={path[currentIndex]} />
                     </>
                 )}
-
-                {center && <Marker position={center} />}
             </GoogleMap>
 
             {/* Slider */}
