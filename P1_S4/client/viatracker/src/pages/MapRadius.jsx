@@ -165,7 +165,7 @@ const MapWithCircle = () => {
 
             {/* Slider */}
             {path.length > 1 && (
-            <div className="absolute w-full max-w-[90%] h-fit bottom-40 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] p-4 overflow-hidden text-wrap break-words">
+            <div className="absolute w-fit max-w-[90%] h-fit bottom-40 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] p-4 overflow-hidden text-wrap break-words">
                 <input
                     className="slider w-full mb-2"
                     type="range"

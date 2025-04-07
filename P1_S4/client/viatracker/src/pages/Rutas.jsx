@@ -73,21 +73,22 @@ const Rutas = () => {
             </GoogleMap>
 
             {path.length > 1 && (
-                <div className="absolute bottom-40 left-230 z-10">
-                    <input className="slider"
-                        type="range"
-                        min="0"
-                        max={path.length - 1}
-                        value={currentIndex}
-                        onChange={(e) => setCurrentIndex(Number(e.target.value))}
-                    />
-                    <div>
-                        <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
-                        <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
-                        <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
-                    </div>
+            <div className="absolute w-fit max-w-[90%] h-fit bottom-40 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] p-4 overflow-hidden text-wrap break-words">
+                <input
+                    className="slider w-full mb-2"
+                    type="range"
+                    min="0"
+                    max={path.length - 1}
+                    value={currentIndex}
+                    onChange={(e) => setCurrentIndex(Number(e.target.value))}
+                />
+                <div className="text-center">
+                    <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
+                    <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
+                    <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
                 </div>
-            )}
+            </div>
+        )}
 
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
 
