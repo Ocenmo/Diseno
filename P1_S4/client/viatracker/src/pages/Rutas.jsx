@@ -47,10 +47,6 @@ const Rutas = () => {
 
     return (
         <div className="flex-1 relative">
-            {selectedRange && (
-                <p>Fechas seleccionadas: {selectedRange.startDate.toDateString()} - {selectedRange.endDate.toDateString()}</p>
-            )}
-
             <GoogleMap className="w-full h-full rounded-xl shadow-lg"
                 options={{ disableDefaultUI: true, zoomControl: true }}
                 key={mapKey}
