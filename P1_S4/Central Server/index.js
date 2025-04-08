@@ -12,8 +12,8 @@ const path = require('path');
 const app = express();
 
 // 🔒 Leer certificados SSL
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/trackingplaces.ddns.net/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/trackingplaces.ddns.net/fullchain.pem', 'utf8');
+const privateKey = fs.readFileSync(process.env.SSL_KEY_PATH, 'utf8');
+const certificate = fs.readFileSync(process.env.SSL_CERT_PATH, 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 // 🔐 Crear servidor HTTPS
