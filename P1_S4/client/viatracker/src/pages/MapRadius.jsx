@@ -85,7 +85,7 @@ const MapWithCircle = () => {
             }));
 
             const formattedTimestamps = filteredCoordinates.map(({ timestamp }) =>
-                timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
+                timestamp ? new Date(timestamp).toLocaleString("es-CO", {timeZone: "UTC"}) : "Fecha no disponible"
             );
 
             setPath(filteredCoordinates.map(({ lat, lng }) => ({ lat, lng })));
