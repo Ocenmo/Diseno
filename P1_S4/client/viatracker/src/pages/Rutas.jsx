@@ -3,7 +3,7 @@ import DateRangeModal from "../components/DateRangeSidebar";
 import { GoogleMap, Polyline, Marker } from "@react-google-maps/api";
 import { rutas } from "../services/api";
 import "./Rutas.css";
-import { Draggable } from "@mobiscroll/react";
+import { Draggable } from "react-draggable";
 
 
 const Rutas = () => {
