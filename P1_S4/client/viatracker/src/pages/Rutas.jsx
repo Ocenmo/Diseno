@@ -58,7 +58,6 @@ const Rutas = () => {
                         setPath([center]);
                     }
                 }}
-                onClick={() => setCurrentIndex(0)}
                 mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
             >
                 <div className="flex items-center justify-center md:w-1/3">
