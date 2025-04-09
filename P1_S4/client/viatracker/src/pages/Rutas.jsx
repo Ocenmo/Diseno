@@ -52,6 +52,13 @@ const Rutas = () => {
                 key={mapKey}
                 zoom={15}
                 center={path.length > 0 ? path[0] : { lat: 11.020082, lng: -74.850364 }}
+                onCenterChanged={() => {
+                    if (path.length > 0) {
+                        const center = path[currentIndex];
+                        setPath([center]);
+                    }
+                }}
+                onClick={() => setCurrentIndex(0)}
                 mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
             >
                 <div className="flex items-center justify-center md:w-1/3">
