@@ -3,6 +3,7 @@ import DateRangeModal from "../components/DateRangeSidebar";
 import { GoogleMap, Polyline, Marker } from "@react-google-maps/api";
 import { rutas } from "../services/api";
 import "./Rutas.css";
+import { Draggable } from "@mobiscroll/react";
 
 
 const Rutas = () => {
@@ -72,23 +73,25 @@ const Rutas = () => {
             </GoogleMap>
 
             {path.length > 1 && (
-                <div className="flex-1 relative">
-                <div className="resize absolute w-full max-w-[90%] md:max-w-md h-fit bottom-20 sm:bottom-24 md:bottom-32 lg:bottom-40 scale-90 sm:scale-95 md:scale-100 text-sx sm:text-sm md:text-base left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
-                    <input
-                        className="w-full mb-3 accent-yellow-400"
-                        type="range"
-                        min="0"
-                        max={path.length - 1}
-                        value={currentIndex}
-                        onChange={(e) => setCurrentIndex(Number(e.target.value))}
-                    />
-                    <div className="text-center text-sm sm:text-base">
-                        <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
-                        <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
-                        <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                <Draggable>
+                    <div className="flex-1 relative">
+                        <div className="resize absolute w-full max-w-[90%] md:max-w-md h-fit bottom-20 sm:bottom-24 md:bottom-32 lg:bottom-40 scale-90 sm:scale-95 md:scale-100 text-sx sm:text-sm md:text-base left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
+                            <input
+                                className="w-full mb-3 accent-yellow-400"
+                                type="range"
+                                min="0"
+                                max={path.length - 1}
+                                value={currentIndex}
+                                onChange={(e) => setCurrentIndex(Number(e.target.value))}
+                            />
+                            <div className="text-center text-sm sm:text-base">
+                                <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
+                                <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
+                                <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                </div>
+                </Draggable>
             )}
 
             <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
