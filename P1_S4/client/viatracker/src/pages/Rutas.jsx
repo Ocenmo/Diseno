@@ -51,7 +51,7 @@ const Rutas = () => {
                 options={{ disableDefaultUI: true, zoomControl: true }}
                 key={mapKey}
                 zoom={15}
-                center={path.length > 0 ? path[0] : { lat: 11.020082, lng: -74.850364 }}
+                center={path.length > 0 ? path[currentIndex] : { lat: 11.020082, lng: -74.850364 }}
                 onCenterChanged={() => {
                     if (path.length > 0) {
                         const center = path[currentIndex];
