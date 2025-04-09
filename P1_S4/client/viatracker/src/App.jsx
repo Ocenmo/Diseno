@@ -104,7 +104,7 @@ function App() {
                         ].map(({ label, key }) => (
                             <button
                                 key={key}
-                                className="relative text-[#14213d] h-fit w-fit"
+                                className="relative text-[#14213d] h-fit w-fit hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2 rounded-lg"
                                 onClick={() => handleMapSwitch(key)}
                             >
                                 {label}
