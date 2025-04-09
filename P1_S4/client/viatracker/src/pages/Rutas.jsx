@@ -34,7 +34,7 @@ const Rutas = () => {
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
             const formattedTimestamps = formattedCoordinates.map(({ timestamp }) =>
-                timestamp ? new Date(timestamp).toLocaleString() : "Fecha no disponible"
+                timestamp ? new Date(timestamp).toLocaleString("es-CO", {timeZone: "America/Bogota"}) : "Fecha no disponible"
             );
             setTimestamps(formattedTimestamps);
 
