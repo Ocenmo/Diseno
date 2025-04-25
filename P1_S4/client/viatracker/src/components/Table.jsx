@@ -15,16 +15,22 @@ const Table = ({ data, error }) => {
                                 <th>Latitud</th>
                                 <th>Longitud</th>
                                 <th>Timestamp</th>
+                                <th>Speed</th>
+                                <th>RPM</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.map((item, index) => (
-                                <tr className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
-                                key={index}>
+                                <tr
+                                    className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
+                                    key={index}
+                                >
                                     <td>{item.id}</td>
                                     <td>{item.latitude}</td>
                                     <td>{item.longitude}</td>
                                     <td>{item.timestamp}</td>
+                                    <td>{item.speed}</td>
+                                    <td>{item.rpm}</td>
                                 </tr>
                             ))}
                         </tbody>
