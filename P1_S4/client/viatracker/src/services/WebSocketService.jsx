@@ -12,10 +12,12 @@ export const connectWebSocket = (setDataCallback) => {
         ws.onmessage = (event) => {
             try {
                 const newData = JSON.parse(event.data);
-                console.log("Nuevo dato recibido:", newData);
+                console.log("Datos crudos del WebSocket:", newData); // Log detallado
 
                 if (isValidCoordinate(newData.latitude, newData.longitude)) {
                     setDataCallback(newData);
+                } else {
+                    console.warn("Coordenadas inválidas:", newData.latitude, newData.longitude);
                 }
             } catch (err) {
                 console.error("Error procesando mensaje WebSocket:", err);
