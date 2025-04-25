@@ -70,9 +70,12 @@ db.connect(err => {
 db.query(`
     CREATE TABLE IF NOT EXISTS mensaje (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    carId VARCHAR(50),
     Latitud DECIMAL(10, 7),
     Longitud DECIMAL(10, 7),
-    TimeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    TimeStamp TIMESTAMP,
+    speed DECIMAL(10, 2),
+    rpm INT
     )
 `, err => {
     if (err) {
@@ -101,28 +104,35 @@ udpServer.on('message', (msg, rinfo) => {
         console.log(`Remitente: ${rinfo.address}:${rinfo.port}`);
         console.log('Contenido:', msg.toString());
         console.log('========================\n');
-        
-        const { latitude, longitude, timestamp } = datos;
 
-        const query = 'INSERT INTO mensaje (Latitud, Longitud, TimeStamp) VALUES (?, ?, ?)';
-        db.query(query, [latitude, longitude, timestamp], (err, result) => {
-        if (err) {
-            console.error("❌ Error al guardar en MySQL:", err);
-            isActive = false;
-        } else {
-            const mensaje = JSON.stringify({
-            id: result.insertId,
-            latitude,
-            longitude,
-            timestamp
-            });
+        const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
 
-            wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(mensaje);
+        // Convertir timestamp de milisegundos a formato MySQL
+        const timestampDate = new Date(parseInt(timestamp));
+        const mysqlTimestamp = timestampDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
+        db.query(query, [carId, latitude, longitude, mysqlTimestamp, speed, rpm], (err, result) => {
+            if (err) {
+                console.error("❌ Error al guardar en MySQL:", err);
+                isActive = false;
+            } else {
+                const mensaje = JSON.stringify({
+                    id: result.insertId,
+                    carId,
+                    latitude,
+                    longitude,
+                    timestamp: mysqlTimestamp,
+                    speed,
+                    rpm
+                });
+
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(mensaje);
+                    }
+                });
             }
-            });
-        }
         });
     } catch (error) {
         console.error("❌ Error al procesar mensaje UDP:", error);
@@ -135,7 +145,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/datos', (req, res) => {
-    const query = 'SELECT id, Latitud, Longitud, TimeStamp FROM mensaje ORDER BY id DESC LIMIT 1';
+    const query = 'SELECT id, carId, Latitud, Longitud, TimeStamp, speed, rpm FROM mensaje ORDER BY id DESC LIMIT 1';
     db.query(query, (err, results) => {
         res.status(err ? 500 : 200).json(err ? { error: 'Error al obtener los datos' } : results);
     });
@@ -152,27 +162,27 @@ app.get('/rutas', (req, res) => {
     const { inicio, fin } = req.query;
     if (!inicio || !fin) return res.status(400).json({ error: 'Debe proporcionar inicio y fin' });
 
-    const query = 'SELECT id, Latitud, Longitud, TimeStamp FROM mensaje WHERE TimeStamp BETWEEN ? AND ? ORDER BY TimeStamp';
+    const query = 'SELECT id, carId, Latitud, Longitud, TimeStamp, speed, rpm FROM mensaje WHERE TimeStamp BETWEEN ? AND ? ORDER BY TimeStamp';
     db.query(query, [inicio, fin], (err, results) => {
-    res.status(err ? 500 : 200).json(err ? { error: 'Error al obtener la ruta' } : results);
+        res.status(err ? 500 : 200).json(err ? { error: 'Error al obtener la ruta' } : results);
     });
 });
 
 app.get("/rutas-circulo", (req, res) => {
     const { latitud_centro, longitud_centro, radio, inicio, fin } = req.query;
     if (!latitud_centro || !longitud_centro || !radio || !inicio || !fin) {
-    return res.status(400).json({ error: "Faltan parámetros requeridos" });
+        return res.status(400).json({ error: "Faltan parámetros requeridos" });
     }
 
     const query = `
-    SELECT id, Latitud, Longitud, TimeStamp
-    FROM mensaje
-    WHERE TimeStamp BETWEEN ? AND ?
-    AND ST_Distance_Sphere(point(Longitud, Latitud), point(?, ?)) <= ?
-    ORDER BY TimeStamp`;
+        SELECT id, carId, Latitud, Longitud, TimeStamp, speed, rpm
+        FROM mensaje
+        WHERE TimeStamp BETWEEN ? AND ?
+        AND ST_Distance_Sphere(point(Longitud, Latitud), point(?, ?)) <= ?
+        ORDER BY TimeStamp`;
 
     db.query(query, [inicio, fin, longitud_centro, latitud_centro, radio], (err, results) => {
-    res.status(err ? 500 : 200).json(err ? { error: "Error en la consulta SQL" } : results);
+        res.status(err ? 500 : 200).json(err ? { error: "Error en la consulta SQL" } : results);
     });
 });
 
