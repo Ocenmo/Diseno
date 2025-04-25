@@ -19,6 +19,7 @@ const Map = ({ latitude, longitude, data }) => {
             const fetchLatestLocation = async () => {
                 try {
                     const latestData = await latestLocation();
+                    console.log("Datos crudos de latestLocation:", latestData);
                     if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
                         const initialPosition = {
                             lat: parseFloat(latestData[0].latitude),
