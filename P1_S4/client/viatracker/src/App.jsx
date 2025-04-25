@@ -48,14 +48,15 @@ function App() {
     useEffect(() => {
         const getInitialData = async () => {
             const latestData = await latestLocation();
+            console.log("Datos iniciales de latestLocation:", latestData); // Log detallado
             if (latestData) {
                 let initialData = {
                     id: latestData[0].id,
                     latitude: latestData[0].Latitud,
                     longitude: latestData[0].Longitud,
                     timestamp: formatDateTime(latestData[0].TimeStamp),
-                    speed: latestData[0].Speed,
-                    rpm: latestData[0].RPM,
+                    speed: latestData[0].speed || 0,
+                    rpm: latestData[0].rpm || 0,
                 };
                 updateLocation(initialData);
             }
