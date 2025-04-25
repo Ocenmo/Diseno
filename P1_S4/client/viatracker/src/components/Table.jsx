@@ -2,6 +2,7 @@ import React from "react";
 import "./Table.css";
 
 const Table = ({ data, error }) => {
+    console.log("Datos recibidos en Table.jsx:", data);
     return (
         <div className="table-container">
             {error ? (
