@@ -14,8 +14,15 @@ export const connectWebSocket = (setDataCallback) => {
                 const newData = JSON.parse(event.data);
                 console.log("Datos crudos del WebSocket:", newData); // Log detallado
 
-                if (isValidCoordinate(newData.latitude, newData.longitude)) {
-                    setDataCallback(newData);
+                // Convertir latitude y longitude a números
+                const parsedData = {
+                    ...newData,
+                    latitude: parseFloat(newData.latitude),
+                    longitude: parseFloat(newData.longitude),
+                };
+
+                if (isValidCoordinate(parsedData.latitude, parsedData.longitude)) {
+                    setDataCallback(parsedData);
                 } else {
                     console.warn("Coordenadas inválidas:", newData.latitude, newData.longitude);
                 }
