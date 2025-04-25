@@ -21,19 +21,22 @@ const Table = ({ data, error }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {data.map((item, index) => (
-                                <tr
-                                    className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
-                                    key={index}
-                                >
-                                    <td>{item.id}</td>
-                                    <td>{item.latitude}</td>
-                                    <td>{item.longitude}</td>
-                                    <td>{item.timestamp}</td>
-                                    <td>{item.speed || "No disponible"}</td>
-                                    <td>{item.rpm || "No disponible"}</td>
-                                </tr>
-                            ))}
+                        {data.map((item, index) => {
+                            console.log("Valores de speed y rpm:", item.speed, item.rpm); // Agrega este log
+                            return (
+                            <tr
+                                className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
+                                key={index}
+                            >
+                                <td>{item.id}</td>
+                                <td>{item.latitude}</td>
+                                <td>{item.longitude}</td>
+                                <td>{item.timestamp}</td>
+                                <td>{item.speed || "No disponible"}</td> {/* Muestra fallback si es undefined */}
+                                <td>{item.rpm || "No disponible"}</td> {/* Muestra fallback si es undefined */}
+                            </tr>
+                            );
+                        })}
                         </tbody>
                     </table>
                 </div>
