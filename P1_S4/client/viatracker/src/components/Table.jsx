@@ -30,8 +30,8 @@ const Table = ({ data, error }) => {
                                     <td>{item.latitude}</td>
                                     <td>{item.longitude}</td>
                                     <td>{item.timestamp}</td>
-                                    <td>{item.speed}</td>
-                                    <td>{item.rpm}</td>
+                                    <td>{item.speed || "No disponible"}</td>
+                                    <td>{item.rpm || "No disponible"}</td>
                                 </tr>
                             ))}
                         </tbody>
