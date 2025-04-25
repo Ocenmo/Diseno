@@ -26,6 +26,8 @@ function App() {
     const [longitude, setLongitude] = useState(() => {
         return parseFloat(localStorage.getItem("longitude")) || -74.850364;
     });
+    const [rpm, setRpm] = useState(0);
+    const [speed, setSpeed] = useState(0);
     const [selectedRange, setSelectedRange] = useState(null);
     const [routeData, setRouteData] = useState([]);
     const [activeMap, setActiveMap] = useState("realTimeMap");
@@ -52,6 +54,8 @@ function App() {
                     latitude: latestData[0].Latitud,
                     longitude: latestData[0].Longitud,
                     timestamp: formatDateTime(latestData[0].TimeStamp),
+                    speed: latestData[0].Speed,
+                    rpm: latestData[0].RPM,
                 };
                 updateLocation(initialData);
             }
@@ -60,11 +64,16 @@ function App() {
     }, []);
 
     function updateLocation(newData) {
+        console.log("Datos recibidos del WebSocket:", newData); // Log detallado
         setData(newData);
         setLatitude(newData.latitude);
         setLongitude(newData.longitude);
+        setRpm(newData.rpm || 0);
+        setSpeed(newData.speed || 0);
         localStorage.setItem("latitude", newData.latitude);
         localStorage.setItem("longitude", newData.longitude);
+        localStorage.setItem("rpm", newData.rpm || 0);
+        localStorage.setItem("speed", newData.speed || 0);
     }
 
     useEffect(() => {
