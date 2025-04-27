@@ -16,7 +16,7 @@ const Table = ({ data, error }) => {
                                 <th>Latitud</th>
                                 <th>Longitud</th>
                                 <th>Timestamp</th>
-                                <th>Speed</th>
+                                <th>Speed (km/h)</th>
                                 <th>RPM</th>
                             </tr>
                         </thead>
