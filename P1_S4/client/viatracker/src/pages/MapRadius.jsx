@@ -81,7 +81,7 @@ const MapWithCircle = () => {
             const filteredCoordinates = data.filter(isCoordinateInCircle).map(coord => ({
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
-                timestamp: coord.TimeStamp
+                timestamp: coord.TimeStamp,
                 rpm: Number(coord.rpm) || 0,
                 speed: parseFloat(coord.speed) || 0,
             }));
