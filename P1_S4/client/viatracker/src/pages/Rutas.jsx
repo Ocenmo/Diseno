@@ -40,7 +40,7 @@ const Rutas = () => {
             );
             setTimestamps(formattedTimestamps);
 
-            setPath(formattedCoordinates.map(({ lat, lng }) => ({ lat, lng })));
+            setPath(formattedCoordinates.map(({ lat, lng, rpm, speed }) => ({ lat, lng, rpm, speed })));
             setCurrentIndex(0);
             setMapKey(Date.now()); // Forzar re-renderizado del mapa
         } else {
