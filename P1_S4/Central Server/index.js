@@ -131,7 +131,7 @@ udpServer.on('message', (msg, rinfo) => {
                     carId,
                     latitude,
                     longitude,
-                    timestamp: fecha, // también lo mandas formateado si quieres
+                    timestamp, // también lo mandas formateado si quieres
                     speed,
                     rpm
                 });
