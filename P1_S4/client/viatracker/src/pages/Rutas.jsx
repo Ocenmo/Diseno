@@ -29,7 +29,9 @@ const Rutas = () => {
             const formattedCoordinates = data.map(coord => ({
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
-                timestamp: coord.TimeStamp
+                timestamp: coord.TimeStamp,
+                rpm: coord.rpm || 0,
+                speed: coord.speed || 0,
             }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
@@ -86,6 +88,8 @@ const Rutas = () => {
                         <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
                         <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
                         <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                        <p>{path[currentIndex] ? `RPM: ${path[currentIndex].rpm}` : ""}</p>
+                        <p>{path[currentIndex] ? `Velocidad: ${path[currentIndex].speed}` : ""}</p>
                     </div>
                 </div>
             )}
