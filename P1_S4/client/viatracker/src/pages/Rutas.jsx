@@ -80,7 +80,7 @@ const Rutas = () => {
         onLoad={map => (mapRef.current = map)}
       >
         {/* Controles */}
-        <div className="absolute top-4 right-4 z-10 flex flex-col space-y-2">
+        <div className="absolute top-4 right-4 flex flex-col space-y-2 z-10">
           <button
             className="px-4 py-2 bg-[#1d3557] text-white rounded-xl shadow-md"
             onClick={() => setIsModalOpen(true)}
@@ -114,7 +114,7 @@ const Rutas = () => {
       </GoogleMap>
 
       {/* Tabla de datos bottom-left */}
-      <div className="absolute bottom-4 left-4 bg-white p-4 border border-gray-300 rounded-xl shadow-md">
+      <div className="absolute bottom-5 left-5 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md">
         {selectedCar === "car1" && pathCar1.length > 0 && (
           <div>
             <h3 className="font-bold mb-2">Carro 1</h3>
@@ -151,28 +151,28 @@ const Rutas = () => {
               <tbody>
                 <tr>
                   <td>Latitud</td>
-                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].lat : "N/A"}</td>
-                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].lat : "N/A"}</td>
+                  <td className="px-2">{pathCar1[pathCar1.length - 1]?.lat ?? "N/A"}</td>
+                  <td className="px-2">{pathCar2[pathCar2.length - 1]?.lat ?? "N/A"}</td>
                 </tr>
                 <tr>
                   <td>Longitud</td>
-                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].lng : "N/A"}</td>
-                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].lng : "N/A"}</td>
+                  <td className="px-2">{pathCar1[pathCar1.length - 1]?.lng ?? "N/A"}</td>
+                  <td className="px-2">{pathCar2[pathCar2.length - 1]?.lng ?? "N/A"}</td>
                 </tr>
                 <tr>
                   <td>RPM</td>
-                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].rpm : "N/A"}</td>
-                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].rpm : "N/A"}</td>
+                  <td className="px-2">{pathCar1[pathCar1.length - 1]?.rpm ?? "N/A"}</td>
+                  <td className="px-2">{pathCar2[pathCar2.length - 1]?.rpm ?? "N/A"}</td>
                 </tr>
                 <tr>
                   <td>Velocidad</td>
-                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].speed : "N/A"}</td>
-                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].speed : "N/A"}</td>
+                  <td className="px-2">{pathCar1[pathCar1.length - 1]?.speed ?? "N/A"}</td>
+                  <td className="px-2">{pathCar2[pathCar2.length - 1]?.speed ?? "N/A"}</td>
                 </tr>
                 <tr>
                   <td>Fecha y hora</td>
-                  <td className="px-2">{tsCar1.length > 0 ? tsCar1[tsCar1.length - 1] : "N/A"}</td>
-                  <td className="px-2">{tsCar2.length > 0 ? tsCar2[tsCar2.length - 1] : "N/A"}</td>
+                  <td className="px-2">{tsCar1[tsCar1.length - 1] ?? "N/A"}</td>
+                  <td className="px-2">{tsCar2[tsCar2.length - 1] ?? "N/A"}</td>
                 </tr>
               </tbody>
             </table>
@@ -180,7 +180,7 @@ const Rutas = () => {
         )}
       </div>
 
-      {/* Sliders */}
+      {/* Sliders para cada vehículo */}
       {(selectedCar === "car1" || selectedCar === "both") && pathCar1.length > 1 && (
         <div className="absolute w-full max-w-[90%] md:max-w-md h-fit bottom-40 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
           <input
@@ -192,21 +192,12 @@ const Rutas = () => {
             onChange={e => setIdxCar1(Number(e.target.value))}
           />
         </div>
-      )} (
-        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
-          <input
-            type="range"
-            min="0"
-            max={pathCar1.length - 1}
-            value={idxCar1}
-            onChange={e => setIdxCar1(Number(e.target.value))}
-          />
-        </div>
-      )
-      {(selectedCar === "car2" || selectedCar === "both") && pathCar2.length > 1 && (
+      )}
+
+{(selectedCar === "car2" || selectedCar === "both") && pathCar2.length > 1 && (
         <div className="absolute w-full max-w-[90%] md:max-w-md h-fit bottom-32 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
           <input
-            className="w-full mb-3 accent-yellow-400"
+            className="w-full mb-3 accent-red-500"
             type="range"
             min="0"
             max={pathCar2.length - 1}
@@ -214,24 +205,25 @@ const Rutas = () => {
             onChange={e => setIdxCar2(Number(e.target.value))}
           />
         </div>
-      )} (
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
-          <input
-            type="range"
-            min="0"
-            max={pathCar2.length - 1}
-            value={idxCar2}
-            onChange={e => setIdxCar2(Number(e.target.value))}
-          />
-        </div>
-      )
+      )}
 
-      <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+      {/* Modal de selección de fechas */}
+      {isModalOpen && (
+        <DateRangeModal
+          onClose={() => setIsModalOpen(false)}
+          onSelectRange={handleSelectRange}
+        />
+      )}
+
+      {/* Mensaje de no hay datos */}
       {noData && (
-        <div className="modal-overlay"><div className="modal-content"><h2>No hubo movimiento en el rango seleccionado</h2><button onClick={() => setNoData(false)} className="close-button">Cerrar</button></div></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-red-400 text-red-700 px-6 py-4 rounded-xl shadow-md z-50">
+          No se encontraron datos para el rango seleccionado.
+        </div>
       )}
     </div>
   );
 };
 
 export default Rutas;
+
