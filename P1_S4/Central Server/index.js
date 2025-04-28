@@ -6,7 +6,7 @@ const https = require('https');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
-const moment = require('moment-timezone'); // Importar moment-timezone
+// const moment = require('moment-timezone'); // Ya no necesitamos moment-timezone
 require('dotenv').config();
 const path = require('path');
 
@@ -115,13 +115,8 @@ udpServer.on('message', (msg, rinfo) => {
 
         const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
 
-        // Convertir el timestamp a UTC usando moment-timezone y registrar detalles
-        const originalTimestamp = parseInt(timestamp);
-        const mysqlTimestamp = moment(originalTimestamp).utc().format('YYYY-MM-DD HH:mm:ss');
-        const serverTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
-        console.log('Timestamp original recibido:', originalTimestamp);
-        console.log('Timestamp convertido para MySQL (UTC):', mysqlTimestamp);
-        console.log('Hora actual del servidor (UTC):', serverTime);
+        // Usar el timestamp directamente como cadena, igual que el código anterior
+        const mysqlTimestamp = timestamp; // Asumimos que timestamp ya viene como 'YYYY-MM-DD HH:MM:SS'
 
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
         db.query(query, [carId, latitude, longitude, mysqlTimestamp, speed, rpm], (err, result) => {
@@ -167,7 +162,7 @@ app.get('/datos', (req, res) => {
 app.get('/rango-fechas', (req, res) => {
     const query = 'SELECT MIN(TimeStamp) as inicio, MAX(TimeStamp) as fin FROM mensaje';
     db.query(query, (err, results) => {
-    res.status(err ? 500 : 200).json(err ? { error: 'Error al obtener el rango de fechas' } : results[0]);
+        res.status(err ? 500 : 200).json(err ? { error: 'Error al obtener el rango de fechas' } : results[0]);
     });
 });
 
@@ -204,11 +199,11 @@ wss.on('connection', (ws, req) => {
     console.log('✅ Cliente conectado vía WSS desde', req.connection.remoteAddress);
 
     ws.on('error', (error) => {
-    console.error('❌ Error en WebSocket:', error);
+        console.error('❌ Error en WebSocket:', error);
     });
 
     ws.on('close', () => {
-    console.log('❌ Conexión WebSocket cerrada');
+        console.log('❌ Conexión WebSocket cerrada');
     });
 });
 
@@ -221,9 +216,9 @@ httpsServer.listen(443, () => {
 process.on('SIGINT', () => {
     console.log("\n🛑 Cerrando el servidor...");
     db.end(err => {
-    if (err) console.error("❌ Error al cerrar MySQL:", err);
-    else console.log("✅ Conexión a MySQL cerrada correctamente");
-    process.exit(0);
+        if (err) console.error("❌ Error al cerrar MySQL:", err);
+        else console.log("✅ Conexión a MySQL cerrada correctamente");
+        process.exit(0);
     });
 });
 
