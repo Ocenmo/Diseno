@@ -110,10 +110,13 @@ udpServer.on('message', (msg, rinfo) => {
 
         // Convertir timestamp a formato MySQL (UTC)
         const timestampDate = new Date(parseInt(timestamp));
-        const mysqlTimestamp = new Date(timestampDate.getTime() - (timestampDate.getTimezoneOffset() * 60000))
-            .toISOString()
-            .slice(0, 19)
-            .replace('T', ' ');
+        const year = timestampDate.getUTCFullYear();
+        const month = ('0' + (timestampDate.getUTCMonth() + 1)).slice(-2);
+        const day = ('0' + timestampDate.getUTCDate()).slice(-2);
+        const hours = ('0' + timestampDate.getUTCHours()).slice(-2);
+        const minutes = ('0' + timestampDate.getUTCMinutes()).slice(-2);
+        const seconds = ('0' + timestampDate.getUTCSeconds()).slice(-2);
+        const mysqlTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         console.log('Timestamp para MySQL:', mysqlTimestamp);
 
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
