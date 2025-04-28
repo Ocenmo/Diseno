@@ -1,8 +1,9 @@
 import React from "react";
-import "./Table.css";
+import moment from "moment-timezone"; // Asegúrate de que esté importado
 
 const Table = ({ data, error }) => {
     console.log("Datos recibidos en Table.jsx:", data);
+
     return (
         <div className="table-container">
             {error ? (
@@ -21,22 +22,28 @@ const Table = ({ data, error }) => {
                             </tr>
                         </thead>
                         <tbody>
-                        {data.map((item, index) => {
-                            console.log("Valores de speed y rpm:", item.speed, item.rpm, item.timestamp); // Agrega este log
-                            return (
-                            <tr
-                                className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
-                                key={index}
-                            >
-                                <td>{item.id}</td>
-                                <td>{item.latitude}</td>
-                                <td>{item.longitude}</td>
-                                <td>{item.timestamp}</td>
-                                <td>{item.speed !== undefined ? item.speed : "No disponible"}</td>
-                                <td>{item.rpm !== undefined ? item.rpm : "No disponible"}</td>
-                            </tr>
-                            );
-                        })}
+                            {data.map((item, index) => {
+                                // Convierte el timestamp de UTC a la zona horaria local de Bogotá
+                                const localTimestamp = moment(item.timestamp)
+                                    .tz('America/Bogota') // Aquí estamos usando la zona horaria de Bogotá
+                                    .format('YYYY-MM-DD HH:mm:ss'); // Este es el formato final
+
+                                console.log("Timestamp local:", localTimestamp); // Ver el timestamp local
+
+                                return (
+                                    <tr
+                                        className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
+                                        key={index}
+                                    >
+                                        <td>{item.id}</td>
+                                        <td>{item.latitude}</td>
+                                        <td>{item.longitude}</td>
+                                        <td>{localTimestamp}</td> {/* Aquí usas el timestamp convertido */}
+                                        <td>{item.speed !== undefined ? item.speed : "No disponible"}</td>
+                                        <td>{item.rpm !== undefined ? item.rpm : "No disponible"}</td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
