@@ -25,8 +25,8 @@ const Rutas = () => {
 
   const mapRef = useRef(null);
 
-  const processData = (data, carId) => {
-    return data
+  const processData = (data, carId) =>
+    data
       .filter(c => c.carId === carId)
       .map(coord => ({
         lat: parseFloat(coord.Latitud),
@@ -36,7 +36,6 @@ const Rutas = () => {
         speed: parseFloat(coord.speed)
       }))
       .filter(p => !isNaN(p.lat) && !isNaN(p.lng));
-  };
 
   const handleSelectRange = async (startDate, endDate) => {
     setSelectedRange({ startDate, endDate });
@@ -57,8 +56,7 @@ const Rutas = () => {
       setIdxCar1(0);
       setIdxCar2(0);
       setMapKey(Date.now());
-      // centrar mapa si solo un carro seleccionado
-      if (selectedCar === "car1" && car1[0]) mapRef.current.panTo(car1[0]);
+      if ((selectedCar === "car1" || selectedCar === "both") && car1[0]) mapRef.current.panTo(car1[0]);
       if (selectedCar === "car2" && car2[0]) mapRef.current.panTo(car2[0]);
     } else {
       setNoData(true);
@@ -115,30 +113,71 @@ const Rutas = () => {
         )}
       </GoogleMap>
 
-      {/* Tabla bottom-left */}
-      <div className="absolute bottom-4 left-4 bg-white p-4 rounded-xl shadow-lg">
-        <table className="text-sm">
-          <thead>
-            <tr>
-              <th></th>
-              {(selectedCar === "car1" || selectedCar === "both") && <th>Carro 1</th>}
-              {(selectedCar === "car2" || selectedCar === "both") && <th>Carro 2</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {['Latitud','Longitud','RPM','Speed','Timestamp'].map(field => (
-              <tr key={field}>
-                <td className="font-semibold pr-4">{field}</td>
-                {(selectedCar === "car1" || selectedCar === "both") && (
-                  <td className="pr-4">{pathCar1[idxCar1]?.[field.toLowerCase()] ?? '-'}</td>
-                )}
-                {(selectedCar === "car2" || selectedCar === "both") && (
-                  <td>{pathCar2[idxCar2]?.[field.toLowerCase()] ?? '-'}</td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Tabla de datos bottom-left */}
+      <div className="absolute bottom-4 left-4 bg-white p-4 border border-gray-300 rounded-xl shadow-md">
+        {selectedCar === "car1" && pathCar1.length > 0 && (
+          <div>
+            <h3 className="font-bold mb-2">Carro 1</h3>
+            <p>Latitud: {pathCar1[idxCar1].lat}</p>
+            <p>Longitud: {pathCar1[idxCar1].lng}</p>
+            <p>RPM: {pathCar1[idxCar1].rpm}</p>
+            <p>Velocidad: {pathCar1[idxCar1].speed}</p>
+            <p>Fecha y hora: {tsCar1[idxCar1]}</p>
+          </div>
+        )}
+
+        {selectedCar === "car2" && pathCar2.length > 0 && (
+          <div>
+            <h3 className="font-bold mb-2">Carro 2</h3>
+            <p>Latitud: {pathCar2[idxCar2].lat}</p>
+            <p>Longitud: {pathCar2[idxCar2].lng}</p>
+            <p>RPM: {pathCar2[idxCar2].rpm}</p>
+            <p>Velocidad: {pathCar2[idxCar2].speed}</p>
+            <p>Fecha y hora: {tsCar2[idxCar2]}</p>
+          </div>
+        )}
+
+        {selectedCar === "both" && (
+          <div>
+            <h3 className="font-bold mb-2">Datos de los carros</h3>
+            <table className="table-auto">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th className="px-2">Carro 1</th>
+                  <th className="px-2">Carro 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Latitud</td>
+                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].lat : "N/A"}</td>
+                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].lat : "N/A"}</td>
+                </tr>
+                <tr>
+                  <td>Longitud</td>
+                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].lng : "N/A"}</td>
+                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].lng : "N/A"}</td>
+                </tr>
+                <tr>
+                  <td>RPM</td>
+                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].rpm : "N/A"}</td>
+                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].rpm : "N/A"}</td>
+                </tr>
+                <tr>
+                  <td>Velocidad</td>
+                  <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].speed : "N/A"}</td>
+                  <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].speed : "N/A"}</td>
+                </tr>
+                <tr>
+                  <td>Fecha y hora</td>
+                  <td className="px-2">{tsCar1.length > 0 ? tsCar1[tsCar1.length - 1] : "N/A"}</td>
+                  <td className="px-2">{tsCar2.length > 0 ? tsCar2[tsCar2.length - 1] : "N/A"}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Sliders */}
