@@ -10,20 +10,23 @@ const initialCenter = { lat: 11.020082, lng: -74.850364 };
 const Rutas = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRange, setSelectedRange] = useState(null);
+
+  // estados por vehículo
   const [pathCar1, setPathCar1] = useState([]);
   const [pathCar2, setPathCar2] = useState([]);
   const [tsCar1, setTsCar1] = useState([]);
   const [tsCar2, setTsCar2] = useState([]);
   const [idxCar1, setIdxCar1] = useState(0);
   const [idxCar2, setIdxCar2] = useState(0);
+  const [selectedCar, setSelectedCar] = useState("both");
+
   const [mapKey, setMapKey] = useState(Date.now());
   const [noData, setNoData] = useState(false);
-  const [selectedCar, setSelectedCar] = useState("both");
 
   const mapRef = useRef(null);
 
-  const processData = (data, carId) =>
-    data
+  const processData = (data, carId) => {
+    return data
       .filter(c => c.carId === carId)
       .map(coord => ({
         lat: parseFloat(coord.Latitud),
@@ -32,7 +35,8 @@ const Rutas = () => {
         rpm: Number(coord.rpm),
         speed: parseFloat(coord.speed)
       }))
-      .filter(pt => !isNaN(pt.lat) && !isNaN(pt.lng));
+      .filter(p => !isNaN(p.lat) && !isNaN(p.lng));
+  };
 
   const handleSelectRange = async (startDate, endDate) => {
     setSelectedRange({ startDate, endDate });
@@ -53,6 +57,7 @@ const Rutas = () => {
       setIdxCar1(0);
       setIdxCar2(0);
       setMapKey(Date.now());
+      // centrar mapa si solo un carro seleccionado
       if (selectedCar === "car1" && car1[0]) mapRef.current.panTo(car1[0]);
       if (selectedCar === "car2" && car2[0]) mapRef.current.panTo(car2[0]);
     } else {
@@ -76,16 +81,16 @@ const Rutas = () => {
         options={{ disableDefaultUI: true, zoomControl: true }}
         onLoad={map => (mapRef.current = map)}
       >
-        {/* Controls */}
-        <div className="absolute top-4 right-4 flex flex-col space-y-2 z-10">
+        {/* Controles */}
+        <div className="absolute top-4 right-4 z-10 flex flex-col space-y-2">
           <button
-            className="px-4 py-2 bg-blue-800 text-white rounded-xl"
+            className="px-4 py-2 bg-[#1d3557] text-white rounded-xl shadow-md"
             onClick={() => setIsModalOpen(true)}
           >
             Seleccionar Fechas
           </button>
           <select
-            className="px-4 py-2 bg-white rounded-xl"
+            className="px-4 py-2 bg-white rounded-xl shadow-md"
             value={selectedCar}
             onChange={e => setSelectedCar(e.target.value)}
           >
@@ -95,46 +100,40 @@ const Rutas = () => {
           </select>
         </div>
 
-        {/* Polylines & markers */}
-        {(selectedCar === "car1" || selectedCar === "both") && (
+        {/* Polilíneas y marcadores */}
+        {(selectedCar === "car1" || selectedCar === "both") && pathCar1.length > 0 && (
           <>
             <Polyline path={pathCar1} options={{ strokeColor: COLORS.car1, strokeWeight: 2 }} />
-            <Marker position={pathCar1[idxCar1]} />
+            {selectedCar === "car1" && <Marker position={pathCar1[idxCar1]} />}
           </>
         )}
-        {(selectedCar === "car2" || selectedCar === "both") && (
+        {(selectedCar === "car2" || selectedCar === "both") && pathCar2.length > 0 && (
           <>
             <Polyline path={pathCar2} options={{ strokeColor: COLORS.car2, strokeWeight: 2 }} />
-            <Marker position={pathCar2[idxCar2]} />
+            {selectedCar === "car2" && <Marker position={pathCar2[idxCar2]} />}
           </>
         )}
       </GoogleMap>
 
-      {/* Data table bottom-left */}
+      {/* Tabla bottom-left */}
       <div className="absolute bottom-4 left-4 bg-white p-4 rounded-xl shadow-lg">
         <table className="text-sm">
           <thead>
             <tr>
               <th></th>
-              {selectedCar !== "car2" && <th>Carro 1</th>}
-              {selectedCar !== "car1" && <th>Carro 2</th>}
+              {(selectedCar === "car1" || selectedCar === "both") && <th>Carro 1</th>}
+              {(selectedCar === "car2" || selectedCar === "both") && <th>Carro 2</th>}
             </tr>
           </thead>
           <tbody>
             {['Latitud','Longitud','RPM','Speed','Timestamp'].map(field => (
               <tr key={field}>
                 <td className="font-semibold pr-4">{field}</td>
-                {selectedCar !== "car2" && (
-                  <td className="pr-4">
-                    {pathCar1[idxCar1]?.[field.toLowerCase()] || '-'}
-                  </td>
+                {(selectedCar === "car1" || selectedCar === "both") && (
+                  <td className="pr-4">{pathCar1[idxCar1]?.[field.toLowerCase()] ?? '-'}</td>
                 )}
-                {selectedCar !== "car1" && (
-                  <td>
-                    {selectedCar === "both"
-                      ? pathCar2[idxCar2]?.[field.toLowerCase()] || '-'
-                      : pathCar2[idxCar2]?.[field.toLowerCase()] || '-'}
-                  </td>
+                {(selectedCar === "car2" || selectedCar === "both") && (
+                  <td>{pathCar2[idxCar2]?.[field.toLowerCase()] ?? '-'}</td>
                 )}
               </tr>
             ))}
@@ -143,8 +142,8 @@ const Rutas = () => {
       </div>
 
       {/* Sliders */}
-      {selectedCar !== "car2" && pathCar1.length > 1 && (
-        <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2">
+      {(selectedCar === "car1" || selectedCar === "both") && pathCar1.length > 1 && (
+        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
           <input
             type="range"
             min="0"
@@ -154,8 +153,8 @@ const Rutas = () => {
           />
         </div>
       )}
-      {selectedCar !== "car1" && pathCar2.length > 1 && (
-        <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2">
+      {(selectedCar === "car2" || selectedCar === "both") && pathCar2.length > 1 && (
+        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
           <input
             type="range"
             min="0"
@@ -168,7 +167,7 @@ const Rutas = () => {
 
       <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
       {noData && (
-        <div className="modal-overlay"><div className="modal-content"><h2>No hay datos</h2><button onClick={() => setNoData(false)}>Cerrar</button></div></div>
+        <div className="modal-overlay"><div className="modal-content"><h2>No hubo movimiento en el rango seleccionado</h2><button onClick={() => setNoData(false)} className="close-button">Cerrar</button></div></div>
       )}
     </div>
   );
