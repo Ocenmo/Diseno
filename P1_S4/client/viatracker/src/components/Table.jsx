@@ -23,10 +23,10 @@ const Table = ({ data, error }) => {
                         </thead>
                         <tbody>
                             {data.map((item, index) => {
-                                // Convierte el timestamp de UTC a la zona horaria local de Bogotá
-                                const localTimestamp = moment(item.timestamp)
-                                    .tz('America/Bogota') // Aquí estamos usando la zona horaria de Bogotá
-                                    .format('YYYY-MM-DD HH:mm:ss'); // Este es el formato final
+                                // Asegúrate de que el timestamp es tratado como UTC antes de convertirlo a la zona horaria de Bogotá
+                                const localTimestamp = moment.utc(item.timestamp) // Asegúrate de que se trata como UTC
+                                    .tz('America/Bogota', true) // Se convierte a Bogotá
+                                    .format('YYYY-MM-DD HH:mm:ss'); // Formato final
 
                                 console.log("Timestamp local:", localTimestamp); // Ver el timestamp local
 
