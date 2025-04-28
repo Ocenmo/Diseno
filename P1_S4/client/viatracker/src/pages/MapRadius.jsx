@@ -119,7 +119,8 @@ const MapWithCircle = () => {
                 options={{ disableDefaultUI: true, zoomControl: true }}
                 key={mapKey}
                 zoom={15}
-                center={path.length > 0 ? path[currentIndex] : { lat: 11.020082, lng: -74.850364 }}
+                defaultCenter={{ lat: 11.020082, lng: -74.850364 }}
+                center={path.length > 0 ? path[currentIndex] : undefined}
                 mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
                 onClick={handleClick}
                 onMouseMove={handleMouseMove}
