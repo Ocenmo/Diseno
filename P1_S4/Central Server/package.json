@@ -55,6 +55,7 @@
     "mime": "^1.6.0",
     "mime-db": "^1.52.0",
     "mime-types": "^2.1.35",
+    "moment-timezone": "^0.5.48",
     "ms": "^2.0.0",
     "mysql2": "^3.12.0",
     "named-placeholders": "^1.1.3",
