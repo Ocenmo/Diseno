@@ -30,7 +30,7 @@ const Rutas = () => {
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
                 timestamp: coord.TimeStamp,
-                rpm: parseFloat(coord.rpm) || 0,
+                rpm: Number(coord.rpm) || 0,
                 speed: parseFloat(coord.speed) || 0,
             }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
@@ -41,6 +41,7 @@ const Rutas = () => {
             setTimestamps(formattedTimestamps);
 
             setPath(formattedCoordinates.map(({ lat, lng, rpm, speed }) => ({ lat, lng, rpm, speed })));
+            console.log("Coordenadas formateadas:", formattedCoordinates);
             setCurrentIndex(0);
             setMapKey(Date.now()); // Forzar re-renderizado del mapa
         } else {
