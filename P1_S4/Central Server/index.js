@@ -6,6 +6,7 @@ const https = require('https');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
+const moment = require('moment-timezone'); // Importar moment-timezone
 require('dotenv').config();
 const path = require('path');
 
@@ -55,7 +56,8 @@ const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    timezone: 'UTC' // Forzar que MySQL use UTC
 });
 
 db.connect(err => {
@@ -64,6 +66,11 @@ db.connect(err => {
         isActive = false;
     } else {
         console.log("✅ Conectado a MySQL");
+        // Forzar la zona horaria de la sesión a UTC
+        db.query("SET time_zone = '+00:00';", (err) => {
+            if (err) console.error("❌ Error al configurar la zona horaria:", err);
+            else console.log("✅ Zona horaria de MySQL configurada a UTC");
+        });
     }
 });
 
@@ -108,16 +115,13 @@ udpServer.on('message', (msg, rinfo) => {
 
         const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
 
-        // Convertir timestamp a formato MySQL (UTC)
-        const timestampDate = new Date(parseInt(timestamp));
-        const year = timestampDate.getUTCFullYear();
-        const month = ('0' + (timestampDate.getUTCMonth() + 1)).slice(-2);
-        const day = ('0' + timestampDate.getUTCDate()).slice(-2);
-        const hours = ('0' + timestampDate.getUTCHours()).slice(-2);
-        const minutes = ('0' + timestampDate.getUTCMinutes()).slice(-2);
-        const seconds = ('0' + timestampDate.getUTCSeconds()).slice(-2);
-        const mysqlTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        console.log('Timestamp para MySQL:', mysqlTimestamp);
+        // Convertir el timestamp a UTC usando moment-timezone y registrar detalles
+        const originalTimestamp = parseInt(timestamp);
+        const mysqlTimestamp = moment(originalTimestamp).utc().format('YYYY-MM-DD HH:mm:ss');
+        const serverTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
+        console.log('Timestamp original recibido:', originalTimestamp);
+        console.log('Timestamp convertido para MySQL (UTC):', mysqlTimestamp);
+        console.log('Hora actual del servidor (UTC):', serverTime);
 
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
         db.query(query, [carId, latitude, longitude, mysqlTimestamp, speed, rpm], (err, result) => {
