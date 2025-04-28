@@ -82,8 +82,8 @@ const MapWithCircle = () => {
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
                 timestamp: coord.TimeStamp,
-                rpm: Number(coord.rpm) || 0,
-                speed: parseFloat(coord.speed) || 0,
+                rpm: Number(coord.rpm),
+                speed: parseFloat(coord.speed),
             }));
 
             const formattedTimestamps = filteredCoordinates.map(({ timestamp }) =>
