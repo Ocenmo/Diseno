@@ -49,6 +49,7 @@ const MapWithCircle = () => {
     const handleClick = (e) => {
         if (!center) {
             setCenter({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+            mapRef.current.panTo(setCenter);
             setRadius(0);
             setIsDrawing(true);
         } else if (isDrawing) {
