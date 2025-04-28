@@ -103,13 +103,18 @@ udpServer.on('message', (msg, rinfo) => {
         console.log('\n=== Mensaje UDP Recibido ===');
         console.log(`Remitente: ${rinfo.address}:${rinfo.port}`);
         console.log('Contenido:', msg.toString());
+        console.log('Datos parseados:', datos);
         console.log('========================\n');
 
         const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
 
-        // Convertir timestamp de milisegundos a formato MySQL
+        // Convertir timestamp a formato MySQL (UTC)
         const timestampDate = new Date(parseInt(timestamp));
-        const mysqlTimestamp = timestampDate.toISOString().slice(0, 19).replace('T', ' ');
+        const mysqlTimestamp = new Date(timestampDate.getTime() - (timestampDate.getTimezoneOffset() * 60000))
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' ');
+        console.log('Timestamp para MySQL:', mysqlTimestamp);
 
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
         db.query(query, [carId, latitude, longitude, mysqlTimestamp, speed, rpm], (err, result) => {
@@ -127,6 +132,7 @@ udpServer.on('message', (msg, rinfo) => {
                     rpm
                 });
 
+                console.log('Enviando por WebSocket:', mensaje);
                 wss.clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(mensaje);
