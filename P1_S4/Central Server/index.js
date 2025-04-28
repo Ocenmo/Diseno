@@ -116,7 +116,6 @@ udpServer.on('message', (msg, rinfo) => {
         const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
 
         // Usar el timestamp directamente como cadena, igual que el código anterior
-        const mysqlTimestamp = timestamp; // Asumimos que timestamp ya viene como 'YYYY-MM-DD HH:MM:SS'
 
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
         db.query(query, [carId, latitude, longitude, mysqlTimestamp, speed, rpm], (err, result) => {
@@ -129,7 +128,7 @@ udpServer.on('message', (msg, rinfo) => {
                     carId,
                     latitude,
                     longitude,
-                    timestamp: mysqlTimestamp,
+                    timestamp,
                     speed,
                     rpm
                 });
