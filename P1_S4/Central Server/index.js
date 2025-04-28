@@ -117,8 +117,8 @@ udpServer.on('message', (msg, rinfo) => {
 
         // Usar el timestamp directamente como cadena, igual que el código anterior
 
-        const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
-        db.query(query, [carId, latitude, longitude, mysqlTimestamp, speed, rpm], (err, result) => {
+        const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, DEFAULT, ?, ?)';
+        db.query(query, [carId, latitude, longitude, timestamp, speed, rpm], (err, result) => {
             if (err) {
                 console.error("❌ Error al guardar en MySQL:", err);
                 isActive = false;
