@@ -117,8 +117,8 @@ udpServer.on('message', (msg, rinfo) => {
 
         // Usar el timestamp directamente como cadena, igual que el código anterior
 
-        const fecha = moment(timestamp, 'YYYY-MM-DD HH:mm:ss')
-        .tz('America/Bogota')
+        const fecha = moment.tz(timestamp, 'YYYY-MM-DD HH:mm:ss')
+        .utc()
         .format('YYYY-MM-DD HH:mm:ss');
         console.log("👉 Insertando en MySQL:", fecha);
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
