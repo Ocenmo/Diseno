@@ -121,7 +121,7 @@ udpServer.on('message', (msg, rinfo) => {
         .tz('America/Bogota')
         .format('YYYY-MM-DD HH:mm:ss');
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
-        db.query(query, [carId, latitude, longitude, fecha, speed, rpm], (err, result) => {
+        db.query(query, [carId, latitude, longitude, timestamp, speed, rpm], (err, result) => {
             if (err) {
                 console.error("❌ Error al guardar en MySQL:", err);
                 isActive = false;
