@@ -1,113 +1,177 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
 import { GoogleMap, Polyline, Marker } from "@react-google-maps/api";
 import { rutas } from "../services/api";
 import "./Rutas.css";
-import { Draggable } from "react-draggable";
 
+const COLORS = { car1: "#2d6a4f", car2: "#ff5733" };
+const initialCenter = { lat: 11.020082, lng: -74.850364 };
 
 const Rutas = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRange, setSelectedRange] = useState(null);
-    const [path, setPath] = useState([]);
-    const [timestamps, setTimestamps] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [mapKey, setMapKey] = useState(Date.now());
-    const [noData, setNoData] = useState(false); // Estado para indicar si no hay datos
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRange, setSelectedRange] = useState(null);
+  const [pathCar1, setPathCar1] = useState([]);
+  const [pathCar2, setPathCar2] = useState([]);
+  const [tsCar1, setTsCar1] = useState([]);
+  const [tsCar2, setTsCar2] = useState([]);
+  const [idxCar1, setIdxCar1] = useState(0);
+  const [idxCar2, setIdxCar2] = useState(0);
+  const [mapKey, setMapKey] = useState(Date.now());
+  const [noData, setNoData] = useState(false);
+  const [selectedCar, setSelectedCar] = useState("both");
 
-    const handleSelectRange = async (startDate, endDate) => {
-        setSelectedRange({ startDate, endDate });
+  const mapRef = useRef(null);
 
-        const formattedStartDate = startDate.toISOString().split("T")[0] + " 00:00:00";
-        const formattedEndDate = endDate.toISOString().split("T")[0] + " 23:59:59";
+  const processData = (data, carId) =>
+    data
+      .filter(c => c.carId === carId)
+      .map(coord => ({
+        lat: parseFloat(coord.Latitud),
+        lng: parseFloat(coord.Longitud),
+        timestamp: coord.TimeStamp,
+        rpm: Number(coord.rpm),
+        speed: parseFloat(coord.speed)
+      }))
+      .filter(pt => !isNaN(pt.lat) && !isNaN(pt.lng));
 
-        const data = await rutas(formattedStartDate, formattedEndDate);
-
-        if (data && data.length > 0) {
-            setNoData(false); // Resetear si hay datos
-            console.log("Datos recibidos de la API:", data);
-            const formattedCoordinates = data.map(coord => ({
-                lat: parseFloat(coord.Latitud),
-                lng: parseFloat(coord.Longitud),
-                timestamp: coord.TimeStamp,
-                rpm: Number(coord.rpm) || 0,
-                speed: parseFloat(coord.speed) || 0,
-            }))
-                .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-            const formattedTimestamps = formattedCoordinates.map(({ timestamp }) =>
-                timestamp ? new Date(timestamp).toLocaleString("es-CO", {timeZone: "UTC"}) : "Fecha no disponible"
-            );
-            setTimestamps(formattedTimestamps);
-
-            setPath(formattedCoordinates.map(({ lat, lng, rpm, speed }) => ({ lat, lng, rpm, speed })));
-            console.log("Coordenadas formateadas:", formattedCoordinates);
-            setCurrentIndex(0);
-            setMapKey(Date.now()); // Forzar re-renderizado del mapa
-        } else {
-            setNoData(true); // Indicar que no hay datos
-        }
-    };
-
-    return (
-        <div className="flex-1 relative">
-            <GoogleMap className="w-full h-full rounded-xl shadow-lg"
-                options={{ disableDefaultUI: true, zoomControl: true }}
-                key={mapKey}
-                zoom={15}
-                center={path.length > 0 ? path[currentIndex] : { lat: 11.020082, lng: -74.850364 }}
-                mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
-            >
-                <div className="flex items-center justify-center md:w-1/3">
-                <button className="absolute top-30 right-10 z-10 px-6 py-2 bg-[#1d3557] text-[#ffffff] border-3 border-[#a8dadc] rounded-xl shadow-md w-full md:w-auto hover:bg-[#a8dadc] hover:scale-110 transition-all duration-300 ease-in-out" onClick={() => setIsModalOpen(true)}>
-                    Seleccionar
-                </button>
-                </div>
-                {path.length > 1 && (
-                    <Polyline
-                        path={path}
-                        options={{ strokeColor: "#ff5733", strokeOpacity: 1, strokeWeight: 2 }}
-                    />
-                )}
-
-                {path.length > 0 && (
-                    <Marker position={path[currentIndex]} />
-                )}
-            </GoogleMap>
-
-            {path.length > 1 && (
-                <div className="absolute w-full max-w-[90%] md:max-w-md h-fit sm:bottom-24 md:bottom-32 lg:bottom-40 scale-90 sm:scale-95 md:scale-100 text-sx sm:text-sm md:text-base left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
-                    <input
-                        className="w-full mb-3 accent-yellow-400"
-                        type="range"
-                        min="0"
-                        max={path.length - 1}
-                        value={currentIndex}
-                        onChange={(e) => setCurrentIndex(Number(e.target.value))}
-                    />
-                    <div className="text-center text-sm sm:text-base">
-                        <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
-                        <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
-                        <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
-                        <p>{path[currentIndex] ? `RPM: ${path[currentIndex].rpm}` : ""}</p>
-                        <p>{path[currentIndex] ? `Velocidad: ${path[currentIndex].speed}` : ""}</p>
-                    </div>
-                </div>
-            )}
-
-            <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
-
-            {/* Modal de No Data */}
-            {noData && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>No hubo movimiento en el rango seleccionado</h2>
-                        <button onClick={() => setNoData(false)} className="close-button">Cerrar</button>
-                    </div>
-                </div>
-            )}
-        </div>
+  const handleSelectRange = async (startDate, endDate) => {
+    setSelectedRange({ startDate, endDate });
+    const fmt = d => d.toISOString().split("T")[0];
+    const data = await rutas(
+      `${fmt(startDate)} 00:00:00`,
+      `${fmt(endDate)} 23:59:59`
     );
+
+    if (data && data.length > 0) {
+      setNoData(false);
+      const car1 = processData(data, "car1");
+      const car2 = processData(data, "car2");
+      setPathCar1(car1);
+      setPathCar2(car2);
+      setTsCar1(car1.map(p => new Date(p.timestamp).toLocaleString("es-CO", { timeZone: "UTC" })));
+      setTsCar2(car2.map(p => new Date(p.timestamp).toLocaleString("es-CO", { timeZone: "UTC" })));
+      setIdxCar1(0);
+      setIdxCar2(0);
+      setMapKey(Date.now());
+      if (selectedCar === "car1" && car1[0]) mapRef.current.panTo(car1[0]);
+      if (selectedCar === "car2" && car2[0]) mapRef.current.panTo(car2[0]);
+    } else {
+      setNoData(true);
+    }
+  };
+
+  return (
+    <div className="flex-1 relative">
+      <GoogleMap
+        key={mapKey}
+        zoom={15}
+        center={
+          selectedCar === "car1"
+            ? pathCar1[idxCar1] || initialCenter
+            : selectedCar === "car2"
+            ? pathCar2[idxCar2] || initialCenter
+            : initialCenter
+        }
+        mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
+        options={{ disableDefaultUI: true, zoomControl: true }}
+        onLoad={map => (mapRef.current = map)}
+      >
+        {/* Controls */}
+        <div className="absolute top-4 right-4 flex flex-col space-y-2 z-10">
+          <button
+            className="px-4 py-2 bg-blue-800 text-white rounded-xl"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Seleccionar Fechas
+          </button>
+          <select
+            className="px-4 py-2 bg-white rounded-xl"
+            value={selectedCar}
+            onChange={e => setSelectedCar(e.target.value)}
+          >
+            <option value="car1">Carro 1</option>
+            <option value="car2">Carro 2</option>
+            <option value="both">Ambos</option>
+          </select>
+        </div>
+
+        {/* Polylines & markers */}
+        {(selectedCar === "car1" || selectedCar === "both") && (
+          <>
+            <Polyline path={pathCar1} options={{ strokeColor: COLORS.car1, strokeWeight: 2 }} />
+            <Marker position={pathCar1[idxCar1]} />
+          </>
+        )}
+        {(selectedCar === "car2" || selectedCar === "both") && (
+          <>
+            <Polyline path={pathCar2} options={{ strokeColor: COLORS.car2, strokeWeight: 2 }} />
+            <Marker position={pathCar2[idxCar2]} />
+          </>
+        )}
+      </GoogleMap>
+
+      {/* Data table bottom-left */}
+      <div className="absolute bottom-4 left-4 bg-white p-4 rounded-xl shadow-lg">
+        <table className="text-sm">
+          <thead>
+            <tr>
+              <th></th>
+              {selectedCar !== "car2" && <th>Carro 1</th>}
+              {selectedCar !== "car1" && <th>Carro 2</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {['Latitud','Longitud','RPM','Speed','Timestamp'].map(field => (
+              <tr key={field}>
+                <td className="font-semibold pr-4">{field}</td>
+                {selectedCar !== "car2" && (
+                  <td className="pr-4">
+                    {pathCar1[idxCar1]?.[field.toLowerCase()] || '-'}
+                  </td>
+                )}
+                {selectedCar !== "car1" && (
+                  <td>
+                    {selectedCar === "both"
+                      ? pathCar2[idxCar2]?.[field.toLowerCase()] || '-'
+                      : pathCar2[idxCar2]?.[field.toLowerCase()] || '-'}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Sliders */}
+      {selectedCar !== "car2" && pathCar1.length > 1 && (
+        <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2">
+          <input
+            type="range"
+            min="0"
+            max={pathCar1.length - 1}
+            value={idxCar1}
+            onChange={e => setIdxCar1(Number(e.target.value))}
+          />
+        </div>
+      )}
+      {selectedCar !== "car1" && pathCar2.length > 1 && (
+        <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2">
+          <input
+            type="range"
+            min="0"
+            max={pathCar2.length - 1}
+            value={idxCar2}
+            onChange={e => setIdxCar2(Number(e.target.value))}
+          />
+        </div>
+      )}
+
+      <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+      {noData && (
+        <div className="modal-overlay"><div className="modal-content"><h2>No hay datos</h2><button onClick={() => setNoData(false)}>Cerrar</button></div></div>
+      )}
+    </div>
+  );
 };
 
 export default Rutas;
