@@ -6,7 +6,7 @@ const https = require('https');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
-// const moment = require('moment-timezone'); // Ya no necesitamos moment-timezone
+const moment = require('moment-timezone');
 require('dotenv').config();
 const path = require('path');
 
@@ -117,7 +117,9 @@ udpServer.on('message', (msg, rinfo) => {
 
         // Usar el timestamp directamente como cadena, igual que el código anterior
 
-        const fecha = new Date(timestamp).toISOString().slice(0, 19).replace('T', ' ');
+        const fecha = moment(Number(timestamp))
+        .tz('America/Bogota')
+        .format('YYYY-MM-DD HH:mm:ss');
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
         db.query(query, [carId, latitude, longitude, fecha, speed, rpm], (err, result) => {
             if (err) {
