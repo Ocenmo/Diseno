@@ -56,8 +56,7 @@ const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    timezone: 'UTC' // Forzar que MySQL use UTC
+    database: process.env.DB_NAME // Forzar que MySQL use UTC
 });
 
 db.connect(err => {
