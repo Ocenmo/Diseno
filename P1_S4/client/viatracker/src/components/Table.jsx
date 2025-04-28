@@ -22,7 +22,7 @@ const Table = ({ data, error }) => {
                         </thead>
                         <tbody>
                         {data.map((item, index) => {
-                            console.log("Valores de speed y rpm:", item.speed, item.rpm); // Agrega este log
+                            console.log("Valores de speed y rpm:", item.speed, item.rpm, item.timestamp); // Agrega este log
                             return (
                             <tr
                                 className="flex justify-between w-full gap-12 items-center border-b border-gray-300 ml-5"
