@@ -49,7 +49,6 @@ const MapWithCircle = () => {
     const handleClick = (e) => {
         if (!center) {
             setCenter({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-            mapRef.current.panTo(setCenter);
             setRadius(0);
             setIsDrawing(true);
         } else if (isDrawing) {
@@ -121,7 +120,7 @@ const MapWithCircle = () => {
                 key={mapKey}
                 zoom={15}
                 defaultCenter={{ lat: 11.020082, lng: -74.850364 }}
-                center={path.length > 0 ? path[currentIndex] : { lat: 11.020082, lng: -74.850364 }}
+                center={path.length > 0 ? path[currentIndex] : undefined}
                 mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
                 onClick={handleClick}
                 onMouseMove={handleMouseMove}
