@@ -182,6 +182,17 @@ const Rutas = () => {
 
       {/* Sliders */}
       {(selectedCar === "car1" || selectedCar === "both") && pathCar1.length > 1 && (
+        <div className="absolute w-full max-w-[90%] md:max-w-md h-fit bottom-40 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
+          <input
+            className="w-full mb-3 accent-yellow-400"
+            type="range"
+            min="0"
+            max={pathCar1.length - 1}
+            value={idxCar1}
+            onChange={e => setIdxCar1(Number(e.target.value))}
+          />
+        </div>
+      )} (
         <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
           <input
             type="range"
@@ -191,8 +202,19 @@ const Rutas = () => {
             onChange={e => setIdxCar1(Number(e.target.value))}
           />
         </div>
-      )}
+      )
       {(selectedCar === "car2" || selectedCar === "both") && pathCar2.length > 1 && (
+        <div className="absolute w-full max-w-[90%] md:max-w-md h-fit bottom-32 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center justify-center border border-black rounded-[99px] bg-[#14213d] text-white shadow-[0_4px_8px_#081c15] px-4 py-3 overflow-hidden text-wrap break-words">
+          <input
+            className="w-full mb-3 accent-yellow-400"
+            type="range"
+            min="0"
+            max={pathCar2.length - 1}
+            value={idxCar2}
+            onChange={e => setIdxCar2(Number(e.target.value))}
+          />
+        </div>
+      )} (
         <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
           <input
             type="range"
@@ -202,7 +224,7 @@ const Rutas = () => {
             onChange={e => setIdxCar2(Number(e.target.value))}
           />
         </div>
-      )}
+      )
 
       <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
       {noData && (
