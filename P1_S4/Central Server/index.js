@@ -9,6 +9,7 @@ const cors = require('cors');
 const moment = require('moment-timezone');
 require('dotenv').config();
 const path = require('path');
+const { time } = require('console');
 
 const app = express();
 
@@ -116,9 +117,7 @@ udpServer.on('message', (msg, rinfo) => {
 
         // Usar el timestamp directamente como cadena, igual que el código anterior
 
-        const fecha = moment.tz(timestamp, 'YYYY-MM-DD HH:mm:ss')
-        .utc()
-        .format('YYYY-MM-DD HH:mm:ss');
+        const fecha = timestamp;
         console.log("👉 Insertando en MySQL:", fecha);
         const query = 'INSERT INTO mensaje (carId, Latitud, Longitud, TimeStamp, speed, rpm) VALUES (?, ?, ?, ?, ?, ?)';
         db.query(query, [carId, latitude, longitude, fecha, speed, rpm], (err, result) => {
