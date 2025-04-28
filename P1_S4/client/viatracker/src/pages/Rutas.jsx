@@ -30,8 +30,8 @@ const Rutas = () => {
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
                 timestamp: coord.TimeStamp,
-                rpm: coord.rpm || 0,
-                speed: coord.speed || 0,
+                rpm: parseFloat(coord.rpm) || 0,
+                speed: parseFloat(coord.speed) || 0,
             }))
                 .filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
 
