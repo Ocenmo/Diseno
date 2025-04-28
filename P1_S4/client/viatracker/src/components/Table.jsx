@@ -1,5 +1,6 @@
 import React from "react";
 import "./Table.css";
+import { formatDateTime } from "../utils/utils";
 
 const Table = ({ data, error }) => {
     console.log("Datos recibidos en Table.jsx:", data);
@@ -31,7 +32,7 @@ const Table = ({ data, error }) => {
                                 <td>{item.id}</td>
                                 <td>{item.latitude}</td>
                                 <td>{item.longitude}</td>
-                                <td>{item.timestamp}</td>
+                                <td>{formatDateTime(item.timestamp)}</td>
                                 <td>{item.speed !== undefined ? item.speed : "No disponible"}</td>
                                 <td>{item.rpm !== undefined ? item.rpm : "No disponible"}</td>
                             </tr>

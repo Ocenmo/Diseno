@@ -80,7 +80,7 @@ db.query(`
     carId VARCHAR(50),
     Latitud DECIMAL(10, 7),
     Longitud DECIMAL(10, 7),
-    TimeStamp TIMESTAMP,
+    TimeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     speed DECIMAL(10, 2),
     rpm INT
     )
