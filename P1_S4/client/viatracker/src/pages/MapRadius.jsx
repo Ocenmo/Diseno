@@ -82,13 +82,15 @@ const MapWithCircle = () => {
                 lat: parseFloat(coord.Latitud),
                 lng: parseFloat(coord.Longitud),
                 timestamp: coord.TimeStamp
+                rpm: Number(coord.rpm) || 0,
+                speed: parseFloat(coord.speed) || 0,
             }));
 
             const formattedTimestamps = filteredCoordinates.map(({ timestamp }) =>
                 timestamp ? new Date(timestamp).toLocaleString("es-CO", {timeZone: "UTC"}) : "Fecha no disponible"
             );
 
-            setPath(filteredCoordinates.map(({ lat, lng }) => ({ lat, lng })));
+            setPath(filteredCoordinates.map(({ lat, lng, rpm, speed }) => ({ lat, lng, rpm, speed })));
             setTimestamps(formattedTimestamps);
             setCurrentIndex(0);
             setNoData(filteredCoordinates.length === 0);
@@ -179,6 +181,8 @@ const MapWithCircle = () => {
                     <p>{path[currentIndex] ? `Latitud: ${path[currentIndex].lat}` : ""}</p>
                     <p>{path[currentIndex] ? `Longitud: ${path[currentIndex].lng}` : ""}</p>
                     <p>{timestamps[currentIndex] ? `Fecha y hora: ${timestamps[currentIndex]}` : ""}</p>
+                    <p>{path[currentIndex] ? `RPM: ${path[currentIndex].rpm}` : ""}</p>
+                    <p>{path[currentIndex] ? `Velocidad: ${path[currentIndex].speed}` : ""}</p>
                 </div>
             </div>
         )}
