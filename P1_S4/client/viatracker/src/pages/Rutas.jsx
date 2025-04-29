@@ -42,7 +42,7 @@ const Rutas = () => {
           .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
       };
 
-      const filteredCar1 = processData("car1");
+      const filteredCar1 = processData("car1" || "001");
       const filteredCar2 = processData("car2");
 
       setPathCar1(filteredCar1);
