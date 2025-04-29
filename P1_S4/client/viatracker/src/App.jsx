@@ -54,7 +54,7 @@ function App() {
                     id: latestData[0].id,
                     latitude: latestData[0].Latitud,
                     longitude: latestData[0].Longitud,
-                    timestamp: formatDateTime(latestData[0].TimeStamp),
+                    timestamp: latestData[0].TimeStamp,
                     speed: latestData[0].speed || 0,
                     rpm: latestData[0].rpm || 0,
                 };
