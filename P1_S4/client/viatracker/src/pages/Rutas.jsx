@@ -43,8 +43,8 @@ const Rutas = () => {
       };
 
       const filteredCar1 = processData("car1");
-      if (processData("001")) {
-        filteredCar1.push({
+      if (coord) {
+        processData("001") && filteredCar1.push({
           lat: parseFloat(coord.Latitud),
           lng: parseFloat(coord.Longitud),
           timestamp: coord.TimeStamp,
