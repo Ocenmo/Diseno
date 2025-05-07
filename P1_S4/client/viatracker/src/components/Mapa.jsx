@@ -41,7 +41,7 @@ const Map = ({ dataCar1, dataCar2 }) => {
 
         if (!dataCar1) fetchInitialPosition("car1", setPathCar1);
         if (!dataCar2) fetchInitialPosition("car2", setPathCar2);
-    }, []);
+    }, [dataCar1, dataCar2]);
 
     // Actualizar trayectorias cuando cambian los datos
     useEffect(() => {
