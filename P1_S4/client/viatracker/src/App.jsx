@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { connectWebSocket } from "./services/WebSocketService";
 import Map from "./components/Mapa";
 import { latestLocation, rutas } from "./services/api";
-import { formatDateTime } from "./utils/utils";
+//import { formatDateTime } from "./utils/utils";
 import Rutas from "./pages/Rutas";
 import { setOptions } from "@mobiscroll/react";
 import MapWithCircle from "./pages/MapRadius";
+import HeatMap from "./pages/HeatMap"; // Importar el componente
 import { useLoadScript } from "@react-google-maps/api";
 import "./App.css";
 
@@ -16,7 +17,7 @@ setOptions({
 });
 
 const ApiKey = import.meta.env.VITE_API_KEY;
-const googleMapsLibrary = ["geometry"];
+const googleMapsLibrary = ["geometry", "visualization"]; // Añadir 'visualization' para el mapa de calor
 
 function App() {
     const [data, setData] = useState(null);
@@ -107,6 +108,7 @@ function App() {
                             { label: "Mapa en Tiempo Real", key: "realTimeMap" },
                             { label: "Histórico de Rutas", key: "routeMap" },
                             { label: "Radio de búsqueda", key: "circleMap" },
+                            { label: "Mapa de Calor", key: "heatmap" }, // Botón añadido
                         ].map(({ label, key }) => (
                             <button
                                 key={key}
@@ -131,6 +133,7 @@ function App() {
                     )}
                     {activeMap === "routeMap" && <Rutas />}
                     {activeMap === "circleMap" && <MapWithCircle />}
+                    {activeMap === "heatmap" && <HeatMap />} {/* Renderizar el mapa de calor */}
                 </div>
             </section>
         </>
