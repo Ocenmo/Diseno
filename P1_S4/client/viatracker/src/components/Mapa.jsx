@@ -1,217 +1,63 @@
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import { latestLocation } from "../services/api";
+import Table from "./Table";
 
-const Map = ({ dataCar1, dataCar2 }) => {
-    // Estados para las trayectorias de los carros
-    const [pathCar1, setPathCar1] = useState([]);
-    const [pathCar2, setPathCar2] = useState([]);
-    const [selectedCar, setSelectedCar] = useState("both");
-    const [mapCenter, setMapCenter] = useState({ lat: 11.022092, lng: -74.851364 });
+const Map = ({ latitude, longitude, data }) => {
 
-    // Función para procesar un solo dato (similar a rutas.jsx pero para un objeto)
-    const processData = (data) => {
-        if (data && data.latitude !== undefined && data.longitude !== undefined) {
-        return {
-            lat: parseFloat(data.latitude),
-            lng: parseFloat(data.longitude),
-            rpm: Number(data.rpm) || 0,
-            speed: parseFloat(data.speed) || 0,
-            timestamp: data.timestamp,
-        };
-        }
-        return null;
-    };
+    const [defaultPosition, setDefaultPosition] = useState({ lat: 11.022092, lng: -74.851364 });
+    const [path, setPath] = useState([]);
 
-    // Cargar posiciones iniciales si no hay datos
     useEffect(() => {
-        const fetchInitialPosition = async (carId, setPath) => {
-        try {
-            const latestData = await latestLocation(carId);
-            if (latestData?.[0]) {
-            const initialPosition = processData(latestData[0]);
-            if (initialPosition && !isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
-                setPath([initialPosition]);
+        if (latitude !== undefined && longitude !== undefined) {
+            const newPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+            if (!isNaN(newPosition.lat) && !isNaN(newPosition.lng)) {
+                setDefaultPosition(newPosition);
+                setPath((prevPath) => [...prevPath, newPosition]); // Construye la polilínea en tiempo real
             }
-            }
-        } catch (error) {
-            console.error(`Error al obtener la ubicación inicial para ${carId}:`, error);
+        } else {
+            const fetchLatestLocation = async () => {
+                try {
+                    const latestData = await latestLocation();
+                    console.log("Datos crudos de latestLocation:", latestData);
+                    if (latestData?.[0]?.latitude !== undefined && latestData?.[0]?.longitude !== undefined) {
+                        const initialPosition = {
+                            lat: parseFloat(latestData[0].latitude),
+                            lng: parseFloat(latestData[0].longitude),
+                        };
+                        if (!isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
+                            setDefaultPosition(initialPosition);
+                            setPath([initialPosition]);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching latest location:", error);
+                }
+            };
+            fetchLatestLocation();
         }
-        };
-
-        if (pathCar1.length === 0) fetchInitialPosition("car1", setPathCar1);
-        if (pathCar2.length === 0) fetchInitialPosition("car2", setPathCar2);
-    }, [pathCar1.length, pathCar2.length]);
-
-    // Actualizar trayectorias cuando llegan nuevos datos para Carro 1
-    useEffect(() => {
-        if (dataCar1) {
-        const newPoint = processData(dataCar1);
-        if (newPoint && !isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
-            setPathCar1((prevPath) => [...prevPath, newPoint]);
-        }
-        }
-    }, [dataCar1]);
-
-    // Actualizar trayectorias cuando llegan nuevos datos para Carro 2
-    useEffect(() => {
-        if (dataCar2) {
-        const newPoint = processData(dataCar2);
-        if (newPoint && !isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
-            setPathCar2((prevPath) => [...prevPath, newPoint]);
-        }
-        }
-    }, [dataCar2]);
-
-    // Ajustar el centro del mapa según la selección
-    useEffect(() => {
-        const lastPointCar1 = pathCar1.length > 0 ? pathCar1[pathCar1.length - 1] : null;
-        const lastPointCar2 = pathCar2.length > 0 ? pathCar2[pathCar2.length - 1] : null;
-
-        if (selectedCar === "car1" && lastPointCar1) {
-        setMapCenter({ lat: lastPointCar1.lat, lng: lastPointCar1.lng });
-        } else if (selectedCar === "car2" && lastPointCar2) {
-        setMapCenter({ lat: lastPointCar2.lat, lng: lastPointCar2.lng });
-        } else if (selectedCar === "both") {
-        if (lastPointCar1 && lastPointCar2) {
-            const avgLat = (lastPointCar1.lat + lastPointCar2.lat) / 2;
-            const avgLng = (lastPointCar1.lng + lastPointCar2.lng) / 2;
-            setMapCenter({ lat: avgLat, lng: avgLng });
-        } else if (lastPointCar1) {
-            setMapCenter({ lat: lastPointCar1.lat, lng: lastPointCar1.lng });
-        } else if (lastPointCar2) {
-            setMapCenter({ lat: lastPointCar2.lat, lng: lastPointCar2.lng });
-        }
-        }
-    }, [selectedCar, pathCar1, pathCar2]);
-
-    // Últimas posiciones para marcadores y tabla
-    const lastPointCar1 = pathCar1.length > 0 ? pathCar1[pathCar1.length - 1] : null;
-    const lastPointCar2 = pathCar2.length > 0 ? pathCar2[pathCar2.length - 1] : null;
+    }, [latitude, longitude]);
 
     return (
         <div className="flex-1 relative">
-        <GoogleMap
-            className="w-full h-full rounded-xl shadow-lg"
+            <GoogleMap className="w-full h-full rounded-xl shadow-lg"
             options={{ disableDefaultUI: true, zoomControl: true }}
             zoom={15}
-            center={mapCenter}
+            center={defaultPosition}
             mapContainerStyle={{ width: "100%", height: "calc(100vh - 60px)" }}
-        >
-            {/* Selector de vehículos */}
-            <div className="absolute top-10 right-10 z-10">
-            <select
-                value={selectedCar}
-                onChange={(e) => setSelectedCar(e.target.value)}
-                className="px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-                <option value="car1">Carro 1</option>
-                <option value="car2">Carro 2</option>
-                <option value="both">Ambos</option>
-            </select>
-            </div>
 
-            {/* Marcadores */}
-            {(selectedCar === "car1" || selectedCar === "both") && lastPointCar1 && (
-            <Marker
-                position={{ lat: lastPointCar1.lat, lng: lastPointCar1.lng }}
-                icon="https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-            />
-            )}
-            {(selectedCar === "car2" || selectedCar === "both") && lastPointCar2 && (
-            <Marker
-                position={{ lat: lastPointCar2.lat, lng: lastPointCar2.lng }}
-                icon="https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-            />
-            )}
-
-            {/* Polilíneas */}
-            {(selectedCar === "car1" || selectedCar === "both") && pathCar1.length > 1 && (
-            <Polyline
-                path={pathCar1.map((point) => ({ lat: point.lat, lng: point.lng }))}
-                options={{ strokeColor: "#2d6a4f", strokeOpacity: 1, strokeWeight: 2 }}
-            />
-            )}
-            {(selectedCar === "car2" || selectedCar === "both") && pathCar2.length > 1 && (
-            <Polyline
-                path={pathCar2.map((point) => ({ lat: point.lat, lng: point.lng }))}
-                options={{ strokeColor: "#b56576", strokeOpacity: 1, strokeWeight: 2 }}
-            />
-            )}
-        </GoogleMap>
-
-        {/* Tabla de datos */}
-        <div className="absolute bottom-5 left-5 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md">
-            {selectedCar === "car1" && lastPointCar1 && (
-            <div>
-                <h3 className="font-bold mb-2">Carro 1</h3>
-                <p>Latitud: {lastPointCar1.lat}</p>
-                <p>Longitud: {lastPointCar1.lng}</p>
-                <p>RPM: {lastPointCar1.rpm}</p>
-                <p>Velocidad: {lastPointCar1.speed}</p>
-                <p>Fecha y hora: {new Date(lastPointCar1.timestamp).toLocaleString("es-CO", { timeZone: "UTC" })}</p>
+            <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-[80%] md:max-w-3xl px-4 ">
+                <Table data={data ? [data] : []} />
             </div>
-            )}
-            {selectedCar === "car2" && lastPointCar2 && (
-            <div>
-                <h3 className="font-bold mb-2">Carro 2</h3>
-                <p>Latitud: {lastPointCar2.lat}</p>
-                <p>Longitud: {lastPointCar2.lng}</p>
-                <p>RPM: {lastPointCar2.rpm}</p>
-                <p>Velocidad: {lastPointCar2.speed}</p>
-                <p>Fecha y hora: {new Date(lastPointCar2.timestamp).toLocaleString("es-CO", { timeZone: "UTC" })}</p>
-            </div>
-            )}
-            {selectedCar === "both" && (
-            <div>
-                <h3 className="font-bold mb-2">Datos de los carros</h3>
-                <table className="table-auto">
-                <thead>
-                    <tr>
-                    <th></th>
-                    <th className="px-2">Carro 1</th>
-                    <th className="px-2">Carro 2</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                    <td>Latitud</td>
-                    <td className="px-2">{lastPointCar1?.lat || "N/A"}</td>
-                    <td className="px-2">{lastPointCar2?.lat || "N/A"}</td>
-                    </tr>
-                    <tr>
-                    <td>Longitud</td>
-                    <td className="px-2">{lastPointCar1?.lng || "N/A"}</td>
-                    <td className="px-2">{lastPointCar2?.lng || "N/A"}</td>
-                    </tr>
-                    <tr>
-                    <td>RPM</td>
-                    <td className="px-2">{lastPointCar1?.rpm || "N/A"}</td>
-                    <td className="px-2">{lastPointCar2?.rpm || "N/A"}</td>
-                    </tr>
-                    <tr>
-                    <td>Velocidad</td>
-                    <td className="px-2">{lastPointCar1?.speed || "N/A"}</td>
-                    <td className="px-2">{lastPointCar2?.speed || "N/A"}</td>
-                    </tr>
-                    <tr>
-                    <td>Fecha y hora</td>
-                    <td className="px-2">
-                        {lastPointCar1?.timestamp
-                        ? new Date(lastPointCar1.timestamp).toLocaleString("es-CO", { timeZone: "UTC" })
-                        : "N/A"}
-                    </td>
-                    <td className="px-2">
-                        {lastPointCar2?.timestamp
-                        ? new Date(lastPointCar2.timestamp).toLocaleString("es-CO", { timeZone: "UTC" })
-                        : "N/A"}
-                    </td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
-            )}
-        </div>
+                <Marker position={defaultPosition} />
+                {path.length > 1 && (
+                    <Polyline
+                        path={path}
+                        options={{ strokeColor: "#2d6a4f", strokeOpacity: 1, strokeWeight: 2 }}
+                    />
+                )}
+            </GoogleMap>
         </div>
     );
 };
