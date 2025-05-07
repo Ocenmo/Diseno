@@ -9,7 +9,7 @@ const Map = ({ dataCar1, dataCar2 }) => {
     const [selectedCar, setSelectedCar] = useState("both");
     const [mapCenter, setMapCenter] = useState({ lat: 11.022092, lng: -74.851364 });
 
-    // Función para procesar datos como en rutas.jsx
+    // Función para procesar un solo dato (similar a rutas.jsx pero para un objeto)
     const processData = (data) => {
         if (data && data.latitude !== undefined && data.longitude !== undefined) {
         return {
@@ -23,38 +23,45 @@ const Map = ({ dataCar1, dataCar2 }) => {
         return null;
     };
 
-    // Obtener posiciones iniciales si no se pasan datos
+    // Cargar posiciones iniciales si no hay datos
     useEffect(() => {
         const fetchInitialPosition = async (carId, setPath) => {
         try {
             const latestData = await latestLocation(carId);
-            if (latestData?.[0]?.latitude && latestData?.[0]?.longitude) {
+            if (latestData?.[0]) {
             const initialPosition = processData(latestData[0]);
             if (initialPosition && !isNaN(initialPosition.lat) && !isNaN(initialPosition.lng)) {
                 setPath([initialPosition]);
             }
             }
         } catch (error) {
-            console.error(`Error fetching initial location for ${carId}:`, error);
+            console.error(`Error al obtener la ubicación inicial para ${carId}:`, error);
         }
         };
 
-        if (!dataCar1) fetchInitialPosition("car1", setPathCar1);
-        if (!dataCar2) fetchInitialPosition("car2", setPathCar2);
-    }, [dataCar1, dataCar2]);
+        if (pathCar1.length === 0) fetchInitialPosition("car1", setPathCar1);
+        if (pathCar2.length === 0) fetchInitialPosition("car2", setPathCar2);
+    }, [pathCar1.length, pathCar2.length]);
 
-    // Actualizar trayectorias cuando cambian los datos
+    // Actualizar trayectorias cuando llegan nuevos datos para Carro 1
     useEffect(() => {
-        const updatePath = (data, setPath) => {
-        const processedData = processData(data);
-        if (processedData && !isNaN(processedData.lat) && !isNaN(processedData.lng)) {
-            setPath((prevPath) => [...prevPath, processedData]);
+        if (dataCar1) {
+        const newPoint = processData(dataCar1);
+        if (newPoint && !isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
+            setPathCar1((prevPath) => [...prevPath, newPoint]);
         }
-        };
+        }
+    }, [dataCar1]);
 
-        if (dataCar1) updatePath(dataCar1, setPathCar1);
-        if (dataCar2) updatePath(dataCar2, setPathCar2);
-    }, [dataCar1, dataCar2]);
+    // Actualizar trayectorias cuando llegan nuevos datos para Carro 2
+    useEffect(() => {
+        if (dataCar2) {
+        const newPoint = processData(dataCar2);
+        if (newPoint && !isNaN(newPoint.lat) && !isNaN(newPoint.lng)) {
+            setPathCar2((prevPath) => [...prevPath, newPoint]);
+        }
+        }
+    }, [dataCar2]);
 
     // Ajustar el centro del mapa según la selección
     useEffect(() => {
@@ -78,7 +85,7 @@ const Map = ({ dataCar1, dataCar2 }) => {
         }
     }, [selectedCar, pathCar1, pathCar2]);
 
-    // Obtener la última posición para usar en marcadores y tabla
+    // Últimas posiciones para marcadores y tabla
     const lastPointCar1 = pathCar1.length > 0 ? pathCar1[pathCar1.length - 1] : null;
     const lastPointCar2 = pathCar2.length > 0 ? pathCar2[pathCar2.length - 1] : null;
 
@@ -104,7 +111,7 @@ const Map = ({ dataCar1, dataCar2 }) => {
             </select>
             </div>
 
-            {/* Marcadores con colores diferentes */}
+            {/* Marcadores */}
             {(selectedCar === "car1" || selectedCar === "both") && lastPointCar1 && (
             <Marker
                 position={{ lat: lastPointCar1.lat, lng: lastPointCar1.lng }}
