@@ -17,6 +17,15 @@ const Rutas = () => {
   const [noData, setNoData] = useState(false);
   const [selectedCar, setSelectedCar] = useState("both"); // Para seleccionar el vehículo
 
+  // Definir íconos para los marcadores de cada vehículo
+  const iconCar1 = {
+    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+  };
+
+  const iconCar2 = {
+    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+  };
+
   const handleSelectRange = async (startDate, endDate) => {
     setSelectedRange({ startDate, endDate });
 
@@ -115,7 +124,7 @@ const Rutas = () => {
                 strokeWeight: 2,
               }}
             />
-            {selectedCar === "car1" && <Marker position={pathCar1[currentIndexCar1]} />}
+            {selectedCar === "car1" && <Marker position={pathCar1[currentIndexCar1]} icon={iconCar1} />}
           </>
         )}
 
@@ -129,14 +138,14 @@ const Rutas = () => {
                 strokeWeight: 2,
               }}
             />
-            {selectedCar === "car2" && <Marker position={pathCar2[currentIndexCar2]} />}
+            {selectedCar === "car2" && <Marker position={pathCar2[currentIndexCar2]} icon={iconCar2} />}
           </>
         )}
 
         {selectedCar === "both" && (
           <>
-            {pathCar1.length > 0 && <Marker position={pathCar1[pathCar1.length - 1]} />}
-            {pathCar2.length > 0 && <Marker position={pathCar2[pathCar2.length - 1]} />}
+            {pathCar1.length > 0 && <Marker position={pathCar1[pathCar1.length - 1]} icon={iconCar1} />}
+            {pathCar2.length > 0 && <Marker position={pathCar2[pathCar2.length - 1]} icon={iconCar2} />}
           </>
         )}
       </GoogleMap>
