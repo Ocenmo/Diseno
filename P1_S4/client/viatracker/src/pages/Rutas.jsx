@@ -43,15 +43,6 @@ const Rutas = () => {
       };
 
       const filteredCar1 = processData("car1");
-      if (coord) {
-        processData("001") && filteredCar1.push({
-          lat: parseFloat(coord.Latitud),
-          lng: parseFloat(coord.Longitud),
-          timestamp: coord.TimeStamp,
-          rpm: Number(coord.rpm) || 0,
-          speed: parseFloat(coord.speed) || 0,
-        });
-      }
       const filteredCar2 = processData("car2");
 
       setPathCar1(filteredCar1);
