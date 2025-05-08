@@ -96,7 +96,7 @@ const Rutas = () => {
             className="absolute top-10 right-10 z-10 px-6 py-2 bg-[#1d3557] text-[#ffffff] border-3 border-[#a8dadc] rounded-xl shadow-md w-full md:w-auto hover:bg-[#a8dadc] hover:scale-110 transition-all duration-300 ease-in-out"
             onClick={() => setIsModalOpen(true)}
           >
-            Seleccionar
+            Seleccionar rango de fechas
           </button>
         </div>
 
