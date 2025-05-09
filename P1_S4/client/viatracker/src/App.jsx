@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { connectWebSocket } from "./services/WebSocketService";
 import Map from "./components/Mapa";
 import { latestLocation, rutas } from "./services/api";
-//import { formatDateTime } from "./utils/utils";
 import Rutas from "./pages/Rutas";
 import { setOptions } from "@mobiscroll/react";
 import MapWithCircle from "./pages/MapRadius";
-import HeatMap from "./pages/HeatMap"; // Importar el componente
+import HeatMap from "./pages/HeatMap";
 import { useLoadScript } from "@react-google-maps/api";
 import "./App.css";
 
@@ -17,7 +16,7 @@ setOptions({
 });
 
 const ApiKey = import.meta.env.VITE_API_KEY;
-const googleMapsLibrary = ["geometry", "visualization"]; // Añadir 'visualization' para el mapa de calor
+const googleMapsLibrary = ["geometry", "visualization"];
 
 function App() {
     const [data, setData] = useState(null);
@@ -31,6 +30,7 @@ function App() {
     const [routeData, setRouteData] = useState([]);
     const [activeMap, setActiveMap] = useState("realTimeMap");
     const [activeButton, setActiveButton] = useState("realTimeMap");
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú desplegable
 
     const wsRef = useRef(null);
 
@@ -47,7 +47,7 @@ function App() {
     useEffect(() => {
         const getInitialData = async () => {
             const latestData = await latestLocation();
-            console.log("Datos iniciales de latestLocation:", latestData); // Log detallado
+            console.log("Datos iniciales de latestLocation:", latestData);
             if (latestData) {
                 let initialData = {
                     id: latestData[0].id,
@@ -64,7 +64,7 @@ function App() {
     }, []);
 
     function updateLocation(newData) {
-        console.log("Datos recibidos del WebSocket:", newData); // Log detallado
+        console.log("Datos recibidos del WebSocket:", newData);
         setData(newData);
         setLatitude(newData.latitude);
         setLongitude(newData.longitude);
@@ -94,11 +94,12 @@ function App() {
     const handleMapSwitch = (mapType) => {
         setActiveMap(mapType);
         setActiveButton(mapType);
+        setIsMenuOpen(false); // Cerrar el menú al seleccionar una opción
     };
 
     return (
         <>
-            <nav className="relative top-0 z-0 w-full px-4 sm:px-6 lg:px-12 py-4 bg-[#E9F1FA] text-[#14213d] font-sans transition-all duration-300 ease-out shadow-md mask-b-from-95% mask-b-to-100%">
+            <nav className="relative top-0 z-10 w-full px-4 sm:px-6 lg:px-12 py-4 bg-[#E9F1FA] text-[#14213d] font-sans transition-all duration-300 ease-out shadow-md mask-b-from-90%">
                 <div className="mx-auto flex max-w-7xl items-center justify-between">
                     <div className="flex items-center gap-2">
                         <h1 className="text-xl sm:text-2xl font-bold">ViaTracker</h1>
@@ -108,7 +109,7 @@ function App() {
                             { label: "Mapa en Tiempo Real", key: "realTimeMap" },
                             { label: "Histórico de Rutas", key: "routeMap" },
                             { label: "Radio de búsqueda", key: "circleMap" },
-                            { label: "Mapa de Calor", key: "heatmap" }, // Botón añadido
+                            { label: "Mapa de Calor", key: "heatmap" },
                         ].map(({ label, key }) => (
                             <button
                                 key={key}
@@ -123,17 +124,44 @@ function App() {
                             </button>
                         ))}
                     </div>
+                    {/* Botón de hamburguesa para pantallas pequeñas */}
+                    <div className="lg:hidden">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-[#14213d] focus:outline-none">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {/* Menú desplegable para pantallas pequeñas con animación */}
+                <div className={`lg:hidden absolute top-16 left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out transform ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
+                    <div className="flex flex-col items-center py-4">
+                        {[
+                            { label: "Mapa en Tiempo Real", key: "realTimeMap" },
+                            { label: "Histórico de Rutas", key: "routeMap" },
+                            { label: "Radio de búsqueda", key: "circleMap" },
+                            { label: "Mapa de Calor", key: "heatmap" },
+                        ].map(({ label, key }) => (
+                            <button
+                                key={key}
+                                className="text-[#14213d] hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2"
+                                onClick={() => handleMapSwitch(key)}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </nav>
 
-            <section className="relative w-full h-screen -mt-3 mask-t-from-80%">
+            <section className="relative w-full h-screen -mt-3 mask-t-from-95%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
                     {activeMap === "realTimeMap" && (
                         <Map latitude={latitude} longitude={longitude} routeData={routeData} data={data} />
                     )}
                     {activeMap === "routeMap" && <Rutas />}
                     {activeMap === "circleMap" && <MapWithCircle />}
-                    {activeMap === "heatmap" && <HeatMap />} {/* Renderizar el mapa de calor */}
+                    {activeMap === "heatmap" && <HeatMap />}
                 </div>
             </section>
         </>
