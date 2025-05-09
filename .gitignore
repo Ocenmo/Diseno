@@ -9,3 +9,4 @@ coverage/
 .env.local  # local env variables
 *.log
 .npmrc
+.dist
