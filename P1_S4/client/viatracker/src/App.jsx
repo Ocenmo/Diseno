@@ -133,26 +133,27 @@ function App() {
                         </button>
                     </div>
                 </div>
-                {/* Menú desplegable para pantallas pequeñas con animación */}
-                <div className={`lg:hidden absolute top-16 left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out transform ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
-                    <div className="flex flex-col items-center py-4">
-                        {[
-                            { label: "Mapa en Tiempo Real", key: "realTimeMap" },
-                            { label: "Histórico de Rutas", key: "routeMap" },
-                            { label: "Radio de búsqueda", key: "circleMap" },
-                            { label: "Mapa de Calor", key: "heatmap" },
-                        ].map(({ label, key }) => (
-                            <button
-                                key={key}
-                                className="text-[#14213d] hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2"
-                                onClick={() => handleMapSwitch(key)}
-                            >
-                                {label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
             </nav>
+
+            {/* Menú desplegable para pantallas pequeñas con animación */}
+            <div className={`lg:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out transform ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
+                <div className="flex flex-col items-center py-4">
+                    {[
+                        { label: "Mapa en Tiempo Real", key: "realTimeMap" },
+                        { label: "Histórico de Rutas", key: "routeMap" },
+                        { label: "Radio de búsqueda", key: "circleMap" },
+                        { label: "Mapa de Calor", key: "heatmap" },
+                    ].map(({ label, key }) => (
+                        <button
+                            key={key}
+                            className="text-[#14213d] hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2"
+                            onClick={() => handleMapSwitch(key)}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             <section className="relative w-full h-screen -mt-3 mask-t-from-95%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
