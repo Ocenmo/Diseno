@@ -128,7 +128,6 @@ const HeatMap = () => {
         currentIndexCar2,
         pathCar1,
         pathCar2,
-        heatmapLayer
     ]);
 
     return (
