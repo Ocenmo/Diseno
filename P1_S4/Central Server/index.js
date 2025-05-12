@@ -166,13 +166,13 @@ if (isDev) {
     const credentials = { key: privateKey, cert: certificate };
     httpsServer = https.createServer(credentials, app);
     wss = new WebSocket.Server({ server: httpsServer });
-    wss.on('connection', (ws) => {
+    wss.on('connection', (ws, req) => {
         console.log("🔗 Cliente WebSocket conectado desde", req.connection.remoteAddress);
 
         ws.on("error", (error) => {
             console.error("❌ Error en WebSocket:", error);
         });
-        
+
         ws.on('close', () => console.log("🔌 Cliente WebSocket desconectado"));
     });
 
