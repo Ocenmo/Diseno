@@ -166,6 +166,15 @@ if (isDev) {
     const credentials = { key: privateKey, cert: certificate };
     httpsServer = https.createServer(credentials, app);
     wss = new WebSocket.Server({ server: httpsServer });
+    wss.on('connection', (ws) => {
+        console.log("🔗 Cliente WebSocket conectado desde", req.connection.remoteAddress);
+
+        ws.on("error", (error) => {
+            console.error("❌ Error en WebSocket:", error);
+        });
+        
+        ws.on('close', () => console.log("🔌 Cliente WebSocket desconectado"));
+    });
 
     httpsServer.listen(443, () => console.log("🔒 Servidor HTTPS escuchando en puerto 443"));
     http.createServer((req, res) => {
