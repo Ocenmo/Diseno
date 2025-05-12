@@ -85,6 +85,13 @@ udpServer.bind(process.env.UDP_PORT, () => {
 udpServer.on('message', (msg, rinfo) => {
     try {
         const datos = JSON.parse(msg.toString());
+
+        console.log('\n=== Mensaje UDP Recibido ===');
+        console.log(`Remitente: ${rinfo.address}:${rinfo.port}`);
+        console.log('Contenido:', msg.toString());
+        console.log('Datos parseados:', datos);
+        console.log('========================\n');
+
         const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
         const fecha = timestamp;
         db.query(
