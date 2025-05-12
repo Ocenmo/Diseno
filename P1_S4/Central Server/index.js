@@ -79,9 +79,10 @@ db.query(`
 const udpServer = dgram.createSocket('udp4');
 udpServer.bind(process.env.UDP_PORT, () => {
     console.log("✅ Servidor Central UDP escuchando en puerto", process.env.UDP_PORT);
+    console.log("🚧 Iniciando servidor. NODE_ENV=", process.env.NODE_ENV, "– isDev=", isDev);
+    console.log("🛠️  Servidor en modo", isDev ? "desarrollo" : "producción");
 });
 udpServer.on('message', (msg, rinfo) => {
-    if (!isActive) return console.log("❌ Servidor inactivo, ignorando mensaje");
     try {
         const datos = JSON.parse(msg.toString());
         const { carId, latitude, longitude, timestamp, speed, rpm } = datos;
@@ -92,7 +93,6 @@ udpServer.on('message', (msg, rinfo) => {
         (err, result) => {
             if (err) {
             console.error("❌ Error al guardar en MySQL:", err);
-            isActive = false;
             } else {
             const mensaje = JSON.stringify({ id: result.insertId, carId, latitude, longitude, timestamp, speed, rpm });
             wss?.clients.forEach(client => {
