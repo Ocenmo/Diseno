@@ -10,3 +10,4 @@ coverage/
 *.log
 .npmrc
 .dist
+P1_S4/client/viatracker/dist/index.html
