@@ -54,7 +54,7 @@ function App() {
                         lng: parseFloat(data.Longitud),
                         rpm: Number(data.rpm) || 0,
                         speed: parseFloat(data.speed) || 0,
-                        timestamp: formatDateTime(data.TimeStamp),
+                        timestamp: data.TimeStamp,
                     };
                     if (data.carId === "car1") {
                         setPositionCar1(newPosition);
