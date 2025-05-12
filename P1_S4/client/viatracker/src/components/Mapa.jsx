@@ -38,7 +38,7 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
                 {/* Marcadores y polilíneas */}
                 {selectedCar !== "car2" && positionCar1 && (
                     <>
-                        <Marker position={positionCar1} icon={{ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" }} />
+                        <Marker position={positionCar1} icon={{ url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" }} />
                         {pathCar1.length > 1 && (
                             <Polyline
                                 path={pathCar1}
@@ -50,7 +50,7 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
 
                 {selectedCar !== "car1" && positionCar2 && (
                     <>
-                        <Marker position={positionCar2} icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }} />
+                        <Marker position={positionCar2} icon={{ url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" }} />
                         {pathCar2.length > 1 && (
                             <Polyline
                                 path={pathCar2}
