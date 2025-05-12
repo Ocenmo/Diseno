@@ -8,6 +8,7 @@ import MapWithCircle from "./pages/MapRadius";
 import HeatMap from "./pages/HeatMap";
 import { useLoadScript } from "@react-google-maps/api";
 import "./App.css";
+import { formatDateTime } from "./utils/utils";
 
 setOptions({
     locale: "es",
@@ -19,18 +20,16 @@ const ApiKey = import.meta.env.VITE_API_KEY;
 const googleMapsLibrary = ["geometry", "visualization"];
 
 function App() {
-    const [data, setData] = useState(null);
-    const [latitude, setLatitude] = useState(() => {
-        return parseFloat(localStorage.getItem("latitude")) || 11.020082;
-    });
-    const [longitude, setLongitude] = useState(() => {
-        return parseFloat(localStorage.getItem("longitude")) || -74.850364;
-    });
+    const [positionCar1, setPositionCar1] = useState(null);
+    const [positionCar2, setPositionCar2] = useState(null);
+    const [pathCar1, setPathCar1] = useState([]);
+    const [pathCar2, setPathCar2] = useState([]);
     const [selectedRange, setSelectedRange] = useState(null);
     const [routeData, setRouteData] = useState([]);
     const [activeMap, setActiveMap] = useState("realTimeMap");
     const [activeButton, setActiveButton] = useState("realTimeMap");
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú desplegable
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [selectedCar, setSelectedCar] = useState("both");
 
     const wsRef = useRef(null);
 
@@ -48,16 +47,23 @@ function App() {
         const getInitialData = async () => {
             const latestData = await latestLocation();
             console.log("Datos iniciales de latestLocation:", latestData);
-            if (latestData) {
-                let initialData = {
-                    id: latestData[0].id,
-                    latitude: latestData[0].Latitud,
-                    longitude: latestData[0].Longitud,
-                    timestamp: latestData[0].TimeStamp,
-                    speed: latestData[0].speed || 0,
-                    rpm: latestData[0].rpm || 0,
-                };
-                updateLocation(initialData);
+            if (latestData && latestData.length > 0) {
+                latestData.forEach((data) => {
+                    const newPosition = {
+                        lat: parseFloat(data.Latitud),
+                        lng: parseFloat(data.Longitud),
+                        rpm: Number(data.rpm) || 0,
+                        speed: parseFloat(data.speed) || 0,
+                        timestamp: formatDateTime(data.TimeStamp),
+                    };
+                    if (data.carId === "car1") {
+                        setPositionCar1(newPosition);
+                        setPathCar1([newPosition]);
+                    } else if (data.carId === "car2") {
+                        setPositionCar2(newPosition);
+                        setPathCar2([newPosition]);
+                    }
+                });
             }
         };
         getInitialData();
@@ -65,13 +71,20 @@ function App() {
 
     function updateLocation(newData) {
         console.log("Datos recibidos del WebSocket:", newData);
-        setData(newData);
-        setLatitude(newData.latitude);
-        setLongitude(newData.longitude);
-        localStorage.setItem("latitude", newData.latitude);
-        localStorage.setItem("longitude", newData.longitude);
-        localStorage.setItem("rpm", newData.rpm || 0);
-        localStorage.setItem("speed", newData.speed || 0);
+        const newPosition = {
+            lat: parseFloat(newData.latitude),
+            lng: parseFloat(newData.longitude),
+            rpm: Number(newData.rpm) || 0,
+            speed: parseFloat(newData.speed) || 0,
+            timestamp: newData.TimeStamp,
+        };
+        if (newData.carId === "car1") {
+            setPositionCar1(newPosition);
+            setPathCar1((prev) => [...prev, newPosition]);
+        } else if (newData.carId === "car2") {
+            setPositionCar2(newPosition);
+            setPathCar2((prev) => [...prev, newPosition]);
+        }
     }
 
     useEffect(() => {
@@ -94,7 +107,7 @@ function App() {
     const handleMapSwitch = (mapType) => {
         setActiveMap(mapType);
         setActiveButton(mapType);
-        setIsMenuOpen(false); // Cerrar el menú al seleccionar una opción
+        setIsMenuOpen(false);
     };
 
     return (
@@ -124,7 +137,6 @@ function App() {
                             </button>
                         ))}
                     </div>
-                    {/* Botón de hamburguesa para pantallas pequeñas */}
                     <div className="lg:hidden">
                         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-[#14213d] focus:outline-none">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -135,7 +147,6 @@ function App() {
                 </div>
             </nav>
 
-            {/* Menú desplegable para pantallas pequeñas con animación */}
             <div className={`lg:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out transform ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
                 <div className="flex flex-col items-center py-4">
                     {[
@@ -158,7 +169,14 @@ function App() {
             <section className="relative w-full h-screen -mt-3 mask-t-from-95%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
                     {activeMap === "realTimeMap" && (
-                        <Map latitude={latitude} longitude={longitude} routeData={routeData} data={data} />
+                        <Map
+                            positionCar1={positionCar1}
+                            positionCar2={positionCar2}
+                            pathCar1={pathCar1}
+                            pathCar2={pathCar2}
+                            selectedCar={selectedCar}
+                            onSelectedCarChange={setSelectedCar}
+                        />
                     )}
                     {activeMap === "routeMap" && <Rutas />}
                     {activeMap === "circleMap" && <MapWithCircle />}
