@@ -54,7 +54,7 @@ const HeatMap = () => {
                         speed: parseFloat(coord.speed) || 0,
                     }))
                     .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng))
-                    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Ordenar por timestamp
+                    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             };
 
             const filteredCar1 = processData("car1");
@@ -90,9 +90,9 @@ const HeatMap = () => {
             let pointsToUse = [];
 
             if (selectedCar === "car1") {
-                pointsToUse = pathCar1.slice(0, currentIndexCar1 + 1); // Acumular hasta el índice actual
+                pointsToUse = pathCar1.slice(0, currentIndexCar1 + 1);
             } else if (selectedCar === "car2") {
-                pointsToUse = pathCar2.slice(0, currentIndexCar2 + 1); // Acumular hasta el índice actual
+                pointsToUse = pathCar2.slice(0, currentIndexCar2 + 1);
             } else {
                 pointsToUse = [
                     ...pathCar1.slice(0, currentIndexCar1 + 1),
@@ -105,18 +105,29 @@ const HeatMap = () => {
                     (point) => new google.maps.LatLng(point.lat, point.lng)
                 );
             } else if (heatmapType === "speed") {
-                const maxSpeed = Math.max(...pointsToUse.map((point) => point.speed || 0));
-                heatmapData = pointsToUse.map((point) => ({
-                    location: new google.maps.LatLng(point.lat, point.lng),
-                    weight: maxSpeed > 0 ? point.speed / maxSpeed : 0,
-                }));
+                // Filtrar puntos con velocidad mayor a 0
+                const movingPoints = pointsToUse.filter((point) => point.speed > 0);
+                if (movingPoints.length > 0) {
+                    const maxSpeed = Math.max(...movingPoints.map((point) => point.speed));
+                    heatmapData = movingPoints.map((point) => {
+                        // Calcular el peso usando una función no lineal (elevado al cuadrado)
+                        const normalizedSpeed = point.speed / maxSpeed;
+                        const weight = Math.pow(normalizedSpeed, 2);
+                        return {
+                            location: new google.maps.LatLng(point.lat, point.lng),
+                            weight: weight,
+                        };
+                    });
+                } else {
+                    heatmapData = [];
+                }
             }
 
             const newHeatmapLayer = new google.maps.visualization.HeatmapLayer({
                 data: heatmapData,
                 map: map,
-                radius: 30,
-                opacity: 0.8,
+                radius: 25,
+                opacity: 0.7,
                 gradient: [
                     'rgba(0, 255, 255, 0)',
                     'rgba(0, 255, 255, 1)',
@@ -222,7 +233,7 @@ const HeatMap = () => {
                         <p className="text-xs sm:text-sm">Latitud: {pathCar1[currentIndexCar1].lat}</p>
                         <p className="text-xs sm:text-sm">Longitud: {pathCar1[currentIndexCar1].lng}</p>
                         <p className="text-xs sm:text-sm">RPM: {pathCar1[currentIndexCar1].rpm}</p>
-                        <p className="text-xs sm:text-sm">Velocidad: {pathCar1[currentIndexCar1].speed}</p>
+                        <p className="text-xs sm:text-sm">Velocidad: {pathCar1[currentIndexCar1].speed} km/h</p>
                         <p className="text-xs sm:text-sm">Fecha y hora: {timestampsCar1[currentIndexCar1]}</p>
                     </div>
                 )}
@@ -233,7 +244,7 @@ const HeatMap = () => {
                         <p className="text-xs sm:text-sm">Latitud: {pathCar2[currentIndexCar2].lat}</p>
                         <p className="text-xs sm:text-sm">Longitud: {pathCar2[currentIndexCar2].lng}</p>
                         <p className="text-xs sm:text-sm">RPM: {pathCar2[currentIndexCar2].rpm}</p>
-                        <p className="text-xs sm:text-sm">Velocidad: {pathCar2[currentIndexCar2].speed}</p>
+                        <p className="text-xs sm:text-sm">Velocidad: {pathCar2[currentIndexCar2].speed} km/h</p>
                         <p className="text-xs sm:text-sm">Fecha y hora: {timestampsCar2[currentIndexCar2]}</p>
                     </div>
                 )}
@@ -267,8 +278,8 @@ const HeatMap = () => {
                                 </tr>
                                 <tr>
                                     <td className="px-2">Velocidad</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].speed : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].speed : "N/A"}</td>
+                                    <td className="px-2">{pathCar1.length > 0 ? `${pathCar1[currentIndexCar1].speed} km/h` : "N/A"}</td>
+                                    <td className="px-2">{pathCar2.length > 0 ? `${pathCar2[currentIndexCar2].speed} km/h` : "N/A"}</td>
                                 </tr>
                                 <tr>
                                     <td className="px-2">Fecha y hora</td>
