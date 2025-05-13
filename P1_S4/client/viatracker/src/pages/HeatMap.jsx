@@ -53,7 +53,8 @@ const HeatMap = () => {
                         rpm: Number(coord.rpm) || 0,
                         speed: parseFloat(coord.speed) || 0,
                     }))
-                    .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
+                    .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng))
+                    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Ordenar por timestamp
             };
 
             const filteredCar1 = processData("car1");
@@ -89,9 +90,9 @@ const HeatMap = () => {
             let pointsToUse = [];
 
             if (selectedCar === "car1") {
-                pointsToUse = pathCar1.slice(0, currentIndexCar1 + 1);
+                pointsToUse = pathCar1.slice(0, currentIndexCar1 + 1); // Acumular hasta el índice actual
             } else if (selectedCar === "car2") {
-                pointsToUse = pathCar2.slice(0, currentIndexCar2 + 1);
+                pointsToUse = pathCar2.slice(0, currentIndexCar2 + 1); // Acumular hasta el índice actual
             } else {
                 pointsToUse = [
                     ...pathCar1.slice(0, currentIndexCar1 + 1),
@@ -114,8 +115,24 @@ const HeatMap = () => {
             const newHeatmapLayer = new google.maps.visualization.HeatmapLayer({
                 data: heatmapData,
                 map: map,
-                radius: 20,
-                opacity: 0.7,
+                radius: 30,
+                opacity: 0.8,
+                gradient: [
+                    'rgba(0, 255, 255, 0)',
+                    'rgba(0, 255, 255, 1)',
+                    'rgba(0, 191, 255, 1)',
+                    'rgba(0, 127, 255, 1)',
+                    'rgba(0, 63, 255, 1)',
+                    'rgba(0, 0, 255, 1)',
+                    'rgba(0, 0, 223, 1)',
+                    'rgba(0, 0, 191, 1)',
+                    'rgba(0, 0, 159, 1)',
+                    'rgba(0, 0, 127, 1)',
+                    'rgba(63, 0, 91, 1)',
+                    'rgba(127, 0, 63, 1)',
+                    'rgba(191, 0, 31, 1)',
+                    'rgba(255, 0, 0, 1)'
+                ]
             });
 
             setHeatmapLayer(newHeatmapLayer);
@@ -191,8 +208,8 @@ const HeatMap = () => {
                 )}
                 {selectedCar === "both" && (
                     <>
-                        {pathCar1.length > 0 && <Marker position={pathCar1[pathCar1.length - 1]} icon={iconCar1} />}
-                        {pathCar2.length > 0 && <Marker position={pathCar2[pathCar2.length - 1]} icon={iconCar2} />}
+                        {pathCar1.length > 0 && <Marker position={pathCar1[currentIndexCar1]} icon={iconCar1} />}
+                        {pathCar2.length > 0 && <Marker position={pathCar2[currentIndexCar2]} icon={iconCar2} />}
                     </>
                 )}
             </GoogleMap>
@@ -235,28 +252,28 @@ const HeatMap = () => {
                             <tbody>
                                 <tr>
                                     <td className="px-2">Latitud</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].lat : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].lat : "N/A"}</td>
+                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].lat : "N/A"}</td>
+                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].lat : "N/A"}</td>
                                 </tr>
                                 <tr>
                                     <td className="px-2">Longitud</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].lng : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].lng : "N/A"}</td>
+                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].lng : "N/A"}</td>
+                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].lng : "N/A"}</td>
                                 </tr>
                                 <tr>
                                     <td className="px-2">RPM</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].rpm : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].rpm : "N/A"}</td>
+                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].rpm : "N/A"}</td>
+                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].rpm : "N/A"}</td>
                                 </tr>
                                 <tr>
                                     <td className="px-2">Velocidad</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[pathCar1.length - 1].speed : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[pathCar2.length - 1].speed : "N/A"}</td>
+                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].speed : "N/A"}</td>
+                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].speed : "N/A"}</td>
                                 </tr>
                                 <tr>
                                     <td className="px-2">Fecha y hora</td>
-                                    <td className="px-2">{timestampsCar1.length > 0 ? timestampsCar1[timestampsCar1.length - 1] : "N/A"}</td>
-                                    <td className="px-2">{timestampsCar2.length > 0 ? timestampsCar2[timestampsCar2.length - 1] : "N/A"}</td>
+                                    <td className="px-2">{timestampsCar1.length > 0 ? timestampsCar1[currentIndexCar1] : "N/A"}</td>
+                                    <td className="px-2">{timestampsCar2.length > 0 ? timestampsCar2[currentIndexCar2] : "N/A"}</td>
                                 </tr>
                             </tbody>
                         </table>
