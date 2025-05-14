@@ -19,6 +19,13 @@ setOptions({
 const ApiKey = import.meta.env.VITE_API_KEY;
 const googleMapsLibrary = ["geometry", "visualization"];
 
+const navItems = [
+    { label: "Mapa en Tiempo Real", key: "realTimeMap", description: "Muestra la ubicación actual de los vehículos en tiempo real." },
+    { label: "Histórico de Rutas", key: "routeMap", description: "Visualiza las rutas recorridas por los vehículos en un rango de fechas seleccionado." },
+    { label: "Radio de búsqueda", key: "circleMap", description: "Permite definir un radio de busqueda estableciendo un centro con un primer click y el tamaño con el segundo click" },
+    { label: "Mapa de Calor", key: "heatmap", description: "Muestra un mapa de calor basado en la densidad de datos de ubicación." },
+];
+
 function App() {
     const [positionCar1, setPositionCar1] = useState(null);
     const [positionCar2, setPositionCar2] = useState(null);
@@ -30,6 +37,9 @@ function App() {
     const [activeButton, setActiveButton] = useState("realTimeMap");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedCar, setSelectedCar] = useState("both");
+    const [visitedSections, setVisitedSections] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState("");
 
     const wsRef = useRef(null);
 
@@ -112,6 +122,16 @@ function App() {
         setActiveMap(mapType);
         setActiveButton(mapType);
         setIsMenuOpen(false);
+
+        // Verificar si es la primera visita
+        if (!visitedSections.includes(mapType)) {
+            const section = navItems.find(item => item.key === mapType);
+            if (section) {
+                setModalContent(section.description);
+                setIsModalOpen(true);
+                setVisitedSections(prev => [...prev, mapType]);
+            }
+        }
     };
 
     return (
@@ -122,12 +142,7 @@ function App() {
                         <h1 className="text-xl sm:text-2xl font-bold">ViaTracker</h1>
                     </div>
                     <div className="hidden lg:flex gap-4 sm:gap-6 items-center">
-                        {[
-                            { label: "Mapa en Tiempo Real", key: "realTimeMap" },
-                            { label: "Histórico de Rutas", key: "routeMap" },
-                            { label: "Radio de búsqueda", key: "circleMap" },
-                            { label: "Mapa de Calor", key: "heatmap" },
-                        ].map(({ label, key }) => (
+                        {navItems.map(({ label, key }) => (
                             <button
                                 key={key}
                                 className="relative text-[#14213d] h-fit w-fit hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2 rounded-lg"
@@ -153,12 +168,7 @@ function App() {
 
             <div className={`lg:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out transform ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
                 <div className="flex flex-col items-center py-4">
-                    {[
-                        { label: "Mapa en Tiempo Real", key: "realTimeMap" },
-                        { label: "Histórico de Rutas", key: "routeMap" },
-                        { label: "Radio de búsqueda", key: "circleMap" },
-                        { label: "Mapa de Calor", key: "heatmap" },
-                    ].map(({ label, key }) => (
+                    {navItems.map(({ label, key }) => (
                         <button
                             key={key}
                             className="text-[#14213d] hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2"
@@ -169,6 +179,21 @@ function App() {
                     ))}
                 </div>
             </div>
+
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                        <h2 className="text-lg font-semibold mb-4">Información</h2>
+                        <p>{modalContent}</p>
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <section className="relative w-full h-screen -mt-3 mask-t-from-95%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
