@@ -118,9 +118,21 @@ app.get('/health', (req, res) => {
     res.status(isActive ? 200 : 503).json({ status: isActive ? 'ok' : 'inactive' });
 });
 app.get('/datos', (req, res) => {
-    db.query('SELECT id, carId, Latitud, Longitud, TimeStamp, speed, rpm FROM mensaje ORDER BY id DESC LIMIT 1',
-        (err, results) => res.status(err ? 500 : 200).json(err ? { error: 'Error al obtener los datos' } : results)
-    );
+    db.query(`
+        SELECT m1.id, m1.carId, m1.Latitud, m1.Longitud, m1.TimeStamp, m1.speed, m1.rpm
+        FROM mensaje m1
+        JOIN (
+            SELECT carId, MAX(id) as max_id
+            FROM mensaje
+            GROUP BY carId
+        ) m2 ON m1.carId = m2.carId AND m1.id = m2.max_id
+    `, (err, results) => {
+        if (err) {
+            res.status(500).json({ error: 'Error al obtener los datos' });
+        } else {
+            res.status(200).json(results);
+        }
+    });
 });
 app.get('/rango-fechas', (req, res) => {
     db.query('SELECT MIN(TimeStamp) as inicio, MAX(TimeStamp) as fin FROM mensaje',

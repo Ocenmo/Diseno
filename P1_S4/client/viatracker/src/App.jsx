@@ -45,25 +45,29 @@ function App() {
 
     useEffect(() => {
         const getInitialData = async () => {
-            const latestData = await latestLocation();
-            console.log("Datos iniciales de latestLocation:", latestData);
-            if (latestData && latestData.length > 0) {
-                latestData.forEach((data) => {
-                    const newPosition = {
-                        lat: parseFloat(data.Latitud),
-                        lng: parseFloat(data.Longitud),
-                        rpm: Number(data.rpm) || 0,
-                        speed: parseFloat(data.speed) || 0,
-                        timestamp: data.TimeStamp,
-                    };
-                    if (data.carId === "car1") {
-                        setPositionCar1(newPosition);
-                        setPathCar1([newPosition]);
-                    } else if (data.carId === "car2") {
-                        setPositionCar2(newPosition);
-                        setPathCar2([newPosition]);
-                    }
-                });
+            try {
+                const latestData = await latestLocation();
+                console.log("Datos iniciales de latestLocation:", latestData);
+                if (latestData && latestData.length > 0) {
+                    latestData.forEach((data) => {
+                        const newPosition = {
+                            lat: parseFloat(data.Latitud),
+                            lng: parseFloat(data.Longitud),
+                            rpm: Number(data.rpm) || 0,
+                            speed: parseFloat(data.speed) || 0,
+                            timestamp: data.TimeStamp,
+                        };
+                        if (data.carId === "car1") {
+                            setPositionCar1(newPosition);
+                            setPathCar1([newPosition]);
+                        } else if (data.carId === "car2") {
+                            setPositionCar2(newPosition);
+                            setPathCar2([newPosition]);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error al obtener datos iniciales:", error);
             }
         };
         getInitialData();

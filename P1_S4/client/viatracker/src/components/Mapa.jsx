@@ -35,7 +35,9 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
                     </select>
                 </div>
 
-                {/* Marcadores y polilíneas */}
+                {/* Marc
+
+adores y polilíneas */}
                 {selectedCar !== "car2" && positionCar1 && (
                     <>
                         <Marker position={positionCar1} icon={{ url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" }} />
