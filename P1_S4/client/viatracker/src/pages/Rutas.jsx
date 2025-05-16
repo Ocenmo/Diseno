@@ -174,7 +174,8 @@ const Rutas = () => {
         )}
       </GoogleMap>
 
-      <div className="absolute bottom-16 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[90%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
+      {/* Tabla dinámica - Ajustada para ser webresponsiva */}
+      <div className="absolute bottom-20 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[95%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
         {selectedCar === "car1" && indexCar1 >= 0 && (
           <div>
             <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 1</h3>
@@ -240,10 +241,11 @@ const Rutas = () => {
         )}
       </div>
 
+      {/* Slider ajustado para ser webresponsivo */}
       {selectedCar === "car1" && pathCar1.length > 1 && (
-        <div className="absolute w-full max-w-[90%] sm:max-w-md bottom-20 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
+        <div className="absolute w-full max-w-[95%] sm:max-w-md bottom-24 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
           <input
-            className="w-full accent-yellow-400"
+            className="w-full accent-yellow-400 h-8"
             type="range"
             min="0"
             max={pathCar1.length - 1}
@@ -254,9 +256,9 @@ const Rutas = () => {
       )}
 
       {selectedCar === "car2" && pathCar2.length > 1 && (
-        <div className="absolute w-full max-w-[90%] sm:max-w-md bottom-20 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
+        <div className="absolute w-full max-w-[95%] sm:max-w-md bottom-24 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
           <input
-            className="w-full accent-yellow-400"
+            className="w-full accent-yellow-400 h-8"
             type="range"
             min="0"
             max={pathCar2.length - 1}
@@ -267,9 +269,9 @@ const Rutas = () => {
       )}
 
       {selectedCar === "both" && allTimestamps.length > 1 && (
-        <div className="absolute w-full max-w-[90%] sm:max-w-md bottom-20 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
+        <div className="absolute w-full max-w-[95%] sm:max-w-md bottom-24 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
           <input
-            className="w-full accent-yellow-400"
+            className="w-full accent-yellow-400 h-8"
             type="range"
             min="0"
             max={allTimestamps.length - 1}

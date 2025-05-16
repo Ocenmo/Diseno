@@ -35,9 +35,7 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
                     </select>
                 </div>
 
-                {/* Marc
-
-adores y polilíneas */}
+                {/* Marcadores y polilíneas */}
                 {selectedCar !== "car2" && positionCar1 && (
                     <>
                         <Marker position={positionCar1} icon={{ url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" }} />
@@ -63,8 +61,8 @@ adores y polilíneas */}
                 )}
             </GoogleMap>
 
-            {/* Tabla dinámica */}
-            <div className="absolute bottom-16 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[90%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
+            {/* Tabla dinámica - Ajustada para ser webresponsiva */}
+            <div className="absolute bottom-20 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[95%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
                 {selectedCar === "car1" && positionCar1 && (
                     <div>
                         <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 1</h3>
