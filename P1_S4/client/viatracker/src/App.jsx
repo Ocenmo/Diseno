@@ -22,7 +22,7 @@ const googleMapsLibrary = ["geometry", "visualization"];
 const navItems = [
     { label: "Mapa en Tiempo Real", key: "realTimeMap", description: "Muestra la ubicación actual de los vehículos en tiempo real." },
     { label: "Histórico de Rutas", key: "routeMap", description: "Visualiza las rutas recorridas por los vehículos en un rango de fechas seleccionado." },
-    { label: "Radio de búsqueda", key: "circleMap", description: "Permite definir un radio de busqueda estableciendo un centro con un primer click y el tamaño con el segundo click" },
+    { label: "Radio de búsqueda", key: "circleMap", description: "Permite definir un radio de búsqueda alrededor de un punto en el mapa." },
     { label: "Mapa de Calor", key: "heatmap", description: "Muestra un mapa de calor basado en la densidad de datos de ubicación." },
 ];
 
@@ -37,7 +37,6 @@ function App() {
     const [activeButton, setActiveButton] = useState("realTimeMap");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedCar, setSelectedCar] = useState("both");
-    const [visitedSections, setVisitedSections] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState("");
 
@@ -65,7 +64,7 @@ function App() {
                             lng: parseFloat(data.Longitud),
                             rpm: Number(data.rpm) || 0,
                             speed: parseFloat(data.speed) || 0,
-                            timestamp: formatDateTime(data.TimeStamp),
+                            timestamp: data.TimeStamp,
                         };
                         if (data.carId === "car1") {
                             setPositionCar1(newPosition);
@@ -122,16 +121,11 @@ function App() {
         setActiveMap(mapType);
         setActiveButton(mapType);
         setIsMenuOpen(false);
+    };
 
-        // Verificar si es la primera visita
-        if (!visitedSections.includes(mapType)) {
-            const section = navItems.find(item => item.key === mapType);
-            if (section) {
-                setModalContent(section.description);
-                setIsModalOpen(true);
-                setVisitedSections(prev => [...prev, mapType]);
-            }
-        }
+    const openModal = (description) => {
+        setModalContent(description);
+        setIsModalOpen(true);
     };
 
     return (
@@ -156,7 +150,7 @@ function App() {
                             </button>
                         ))}
                     </div>
-                    <div className="lg:hidden">
+                    <div className="lg:hidden ">
                         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-[#14213d] focus:outline-none">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -168,14 +162,23 @@ function App() {
 
             <div className={`lg:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out transform ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
                 <div className="flex flex-col items-center py-4">
-                    {navItems.map(({ label, key }) => (
-                        <button
-                            key={key}
-                            className="text-[#14213d] hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base px-4 py-2"
-                            onClick={() => handleMapSwitch(key)}
-                        >
-                            {label}
-                        </button>
+                    {navItems.map(({ label, key, description }) => (
+                        <div key={key} className="flex items-center justify-between w-full px-4 py-2">
+                            <button
+                                className="text-[#14213d] hover:animate-wiggle hover:scale-110 transition-all duration-300 ease-out font-semibold text-sm sm:text-base"
+                                onClick={() => handleMapSwitch(key)}
+                            >
+                                {label}
+                            </button>
+                            <button
+                                onClick={() => openModal(description)}
+                                className="text-[#14213d] focus:outline-none ml-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
+                        </div>
                     ))}
                 </div>
             </div>
@@ -197,6 +200,14 @@ function App() {
 
             <section className="relative w-full h-screen -mt-3 mask-t-from-95%">
                 <div className={`relative z-0 w-full h-full bg-gradient-to-b from-neutral-950/90 to-neutral-950/0 ${activeButton}`}>
+                    <button
+                        onClick={() => openModal(navItems.find(item => item.key === activeMap).description)}
+                        className="absolute top-4 left-4 z-10 bg-white text-[#14213d] rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
                     {activeMap === "realTimeMap" && (
                         <Map
                             positionCar1={positionCar1}
