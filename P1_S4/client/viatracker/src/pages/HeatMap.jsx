@@ -1,3 +1,5 @@
+/* global google */
+
 import React, { useState, useEffect, useCallback } from "react";
 import DateRangeModal from "../components/DateRangeSidebar";
 import { GoogleMap, Marker } from "@react-google-maps/api";
@@ -8,10 +10,6 @@ const HeatMap = () => {
     const [selectedRange, setSelectedRange] = useState(null);
     const [pathCar1, setPathCar1] = useState([]);
     const [pathCar2, setPathCar2] = useState([]);
-    const [timestampsCar1, setTimestampsCar1] = useState([]);
-    const [timestampsCar2, setTimestampsCar2] = useState([]);
-    const [currentIndexCar1, setCurrentIndexCar1] = useState(0);
-    const [currentIndexCar2, setCurrentIndexCar2] = useState(0);
     const [mapKey, setMapKey] = useState(Date.now());
     const [noData, setNoData] = useState(false);
     const [selectedCar, setSelectedCar] = useState("both");
@@ -62,18 +60,6 @@ const HeatMap = () => {
 
             setPathCar1(filteredCar1);
             setPathCar2(filteredCar2);
-
-            const timestampsCar1 = filteredCar1.map(({ timestamp }) =>
-                timestamp ? new Date(timestamp).toLocaleString("es-CO", { timeZone: "UTC" }) : "Fecha no disponible"
-            );
-            const timestampsCar2 = filteredCar2.map(({ timestamp }) =>
-                timestamp ? new Date(timestamp).toLocaleString("es-CO", { timeZone: "UTC" }) : "Fecha no disponible"
-            );
-
-            setTimestampsCar1(timestampsCar1);
-            setTimestampsCar2(timestampsCar2);
-            setCurrentIndexCar1(0);
-            setCurrentIndexCar2(0);
             setMapKey(Date.now());
         } else {
             setNoData(true);
@@ -90,14 +76,11 @@ const HeatMap = () => {
             let pointsToUse = [];
 
             if (selectedCar === "car1") {
-                pointsToUse = pathCar1.slice(0, currentIndexCar1 + 1);
+                pointsToUse = pathCar1;
             } else if (selectedCar === "car2") {
-                pointsToUse = pathCar2.slice(0, currentIndexCar2 + 1);
+                pointsToUse = pathCar2;
             } else {
-                pointsToUse = [
-                    ...pathCar1.slice(0, currentIndexCar1 + 1),
-                    ...pathCar2.slice(0, currentIndexCar2 + 1),
-                ];
+                pointsToUse = [...pathCar1, ...pathCar2];
             }
 
             if (heatmapType === "frequency") {
@@ -105,14 +88,12 @@ const HeatMap = () => {
                     (point) => new google.maps.LatLng(point.lat, point.lng)
                 );
             } else if (heatmapType === "speed") {
-                // Filtrar puntos con velocidad mayor a 0
                 const movingPoints = pointsToUse.filter((point) => point.speed > 0);
                 if (movingPoints.length > 0) {
                     const maxSpeed = Math.max(...movingPoints.map((point) => point.speed));
                     heatmapData = movingPoints.map((point) => {
-                        // Calcular el peso usando una función no lineal (elevado al cuadrado)
                         const normalizedSpeed = point.speed / maxSpeed;
-                        const weight = Math.pow(normalizedSpeed, 2);
+                        const weight = Math.pow(normalizedSpeed, 3);
                         return {
                             location: new google.maps.LatLng(point.lat, point.lng),
                             weight: weight,
@@ -148,15 +129,7 @@ const HeatMap = () => {
 
             setHeatmapLayer(newHeatmapLayer);
         }
-    }, [
-        map,
-        selectedCar,
-        heatmapType,
-        currentIndexCar1,
-        currentIndexCar2,
-        pathCar1,
-        pathCar2,
-    ]);
+    }, [map, selectedCar, heatmapType, pathCar1, pathCar2]);
 
     return (
         <div className="relative flex-1 h-screen">
@@ -164,12 +137,12 @@ const HeatMap = () => {
                 className="w-full h-full rounded-xl shadow-lg"
                 options={{ disableDefaultUI: true, zoomControl: true }}
                 key={mapKey}
-                zoom={15}
+                zoom={16}
                 center={
-                    selectedCar === "car1" && pathCar1.length > 0
-                        ? pathCar1[currentIndexCar1]
-                        : selectedCar === "car2" && pathCar2.length > 0
-                        ? pathCar2[currentIndexCar2]
+                    pathCar1.length > 0
+                        ? pathCar1[0]
+                        : pathCar2.length > 0
+                        ? pathCar2[0]
                         : { lat: 11.020082, lng: -74.850364 }
                 }
                 mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -212,116 +185,127 @@ const HeatMap = () => {
 
                 {/* Markers */}
                 {selectedCar === "car1" && pathCar1.length > 0 && (
-                    <Marker position={pathCar1[currentIndexCar1]} icon={iconCar1} />
+                    <Marker position={pathCar1[pathCar1.length - 1]} icon={iconCar1} />
                 )}
                 {selectedCar === "car2" && pathCar2.length > 0 && (
-                    <Marker position={pathCar2[currentIndexCar2]} icon={iconCar2} />
+                    <Marker position={pathCar2[pathCar2.length - 1]} icon={iconCar2} />
                 )}
                 {selectedCar === "both" && (
                     <>
-                        {pathCar1.length > 0 && <Marker position={pathCar1[currentIndexCar1]} icon={iconCar1} />}
-                        {pathCar2.length > 0 && <Marker position={pathCar2[currentIndexCar2]} icon={iconCar2} />}
+                        {pathCar1.length > 0 && <Marker position={pathCar1[pathCar1.length - 1]} icon={iconCar1} />}
+                        {pathCar2.length > 0 && <Marker position={pathCar2[pathCar2.length - 1]} icon={iconCar2} />}
                     </>
                 )}
             </GoogleMap>
 
-            {/* Data Display */}
+            {/* Leyenda Mejorada con Cuadrados de Colores */}
             <div className="absolute bottom-16 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[90%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
-                {selectedCar === "car1" && pathCar1.length > 0 && (
+                <h3 className="font-bold mb-2 text-sm sm:text-base">Leyenda del Mapa de Calor</h3>
+                {heatmapType === "frequency" ? (
                     <div>
-                        <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 1</h3>
-                        <p className="text-xs sm:text-sm">Latitud: {pathCar1[currentIndexCar1].lat}</p>
-                        <p className="text-xs sm:text-sm">Longitud: {pathCar1[currentIndexCar1].lng}</p>
-                        <p className="text-xs sm:text-sm">RPM: {pathCar1[currentIndexCar1].rpm}</p>
-                        <p className="text-xs sm:text-sm">Velocidad: {pathCar1[currentIndexCar1].speed} km/h</p>
-                        <p className="text-xs sm:text-sm">Fecha y hora: {timestampsCar1[currentIndexCar1]}</p>
+                        <p className="text-xs sm:text-sm mb-2">Densidad de puntos:</p>
+                        <ul className="text-xs sm:text-sm">
+                            <li className="flex items-center mb-1">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(0, 255, 255, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Baja densidad
+                            </li>
+                            <li className="flex items-center mb-1">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(0, 0, 255, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Media densidad
+                            </li>
+                            <li className="flex items-center">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(255, 0, 0, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Alta densidad
+                            </li>
+                        </ul>
                     </div>
-                )}
-
-                {selectedCar === "car2" && pathCar2.length > 0 && (
+                ) : (
                     <div>
-                        <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 2</h3>
-                        <p className="text-xs sm:text-sm">Latitud: {pathCar2[currentIndexCar2].lat}</p>
-                        <p className="text-xs sm:text-sm">Longitud: {pathCar2[currentIndexCar2].lng}</p>
-                        <p className="text-xs sm:text-sm">RPM: {pathCar2[currentIndexCar2].rpm}</p>
-                        <p className="text-xs sm:text-sm">Velocidad: {pathCar2[currentIndexCar2].speed} km/h</p>
-                        <p className="text-xs sm:text-sm">Fecha y hora: {timestampsCar2[currentIndexCar2]}</p>
-                    </div>
-                )}
-
-                {selectedCar === "both" && (
-                    <div>
-                        <h3 className="font-bold mb-2 text-sm sm:text-base">Datos de los carros</h3>
-                        <table className="table-auto text-xs sm:text-sm w-full">
-                            <thead>
-                                <tr>
-                                    <th className="px-2"></th>
-                                    <th className="px-2">Carro 1</th>
-                                    <th className="px-2">Carro 2</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td className="px-2">Latitud</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].lat : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].lat : "N/A"}</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-2">Longitud</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].lng : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].lng : "N/A"}</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-2">RPM</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? pathCar1[currentIndexCar1].rpm : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? pathCar2[currentIndexCar2].rpm : "N/A"}</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-2">Velocidad</td>
-                                    <td className="px-2">{pathCar1.length > 0 ? `${pathCar1[currentIndexCar1].speed} km/h` : "N/A"}</td>
-                                    <td className="px-2">{pathCar2.length > 0 ? `${pathCar2[currentIndexCar2].speed} km/h` : "N/A"}</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-2">Fecha y hora</td>
-                                    <td className="px-2">{timestampsCar1.length > 0 ? timestampsCar1[currentIndexCar1] : "N/A"}</td>
-                                    <td className="px-2">{timestampsCar2.length > 0 ? timestampsCar2[currentIndexCar2] : "N/A"}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <p className="text-xs sm:text-sm mb-2">Velocidad:</p>
+                        <ul className="text-xs sm:text-sm">
+                            <li className="flex items-center mb-1">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(0, 255, 255, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Baja (0-20 km/h)
+                            </li>
+                            <li className="flex items-center mb-1">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(0, 191, 255, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Media (21-40 km/h)
+                            </li>
+                            <li className="flex items-center mb-1">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(25, 43, 212, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Alta (41-60 km/h)
+                            </li>
+                            <li className="flex items-center">
+                                <span
+                                    style={{
+                                        backgroundColor: 'rgba(255, 0, 0, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        display: 'inline-block',
+                                        marginRight: '5px'
+                                    }}
+                                ></span>
+                                Muy alta (61+ km/h)
+                            </li>
+                        </ul>
                     </div>
                 )}
             </div>
 
-            {/* Slider for Car 1 */}
-            {selectedCar === "car1" && pathCar1.length > 1 && (
-                <div className="absolute w-full max-w-[90%] sm:max-w-md bottom-20 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
-                    <input
-                        className="w-full accent-yellow-400"
-                        type="range"
-                        min="0"
-                        max={pathCar1.length - 1}
-                        value={currentIndexCar1}
-                        onChange={(e) => setCurrentIndexCar1(Number(e.target.value))}
-                    />
-                </div>
-            )}
-
-            {/* Slider for Car 2 */}
-            {selectedCar === "car2" && pathCar2.length > 1 && (
-                <div className="absolute w-full max-w-[90%] sm:max-w-md bottom-20 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center bg-[#14213d] text-white border border-black rounded-full shadow-lg px-4 py-3">
-                    <input
-                        className="w-full accent-yellow-400"
-                        type="range"
-                        min="0"
-                        max={pathCar2.length - 1}
-                        value={currentIndexCar2}
-                        onChange={(e) => setCurrentIndexCar2(Number(e.target.value))}
-                    />
-                </div>
-            )}
-
             {/* Date Range Modal */}
-            <DateRangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectRange={handleSelectRange} />
+            <DateRangeModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelectRange={handleSelectRange}
+            />
 
             {/* No Data Modal */}
             {noData && (
