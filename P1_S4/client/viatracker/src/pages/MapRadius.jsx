@@ -175,11 +175,11 @@ const MapWithCircle = () => {
         zoom={15}
         defaultCenter={{ lat: 11.020082, lng: -74.850364 }}
         center={
-          selectedCar === "car1" && indexCar1 >= 0
+          selectedCar === "car1" && indexCar1 >= 0 && pathCar1.length > 0
             ? pathCar1[indexCar1]
-            : selectedCar === "car2" && indexCar2 >= 0
+            : selectedCar === "car2" && indexCar2 >= 0 && pathCar2.length > 0
             ? pathCar2[indexCar2]
-            : selectedCar === "both" && indexCar1Both >= 0 && indexCar2Both >= 0
+            : selectedCar === "both" && indexCar1Both >= 0 && indexCar2Both >= 0 && pathCar1.length > 0 && pathCar2.length > 0
             ? {
                 lat: (pathCar1[indexCar1Both].lat + pathCar2[indexCar2Both].lat) / 2,
                 lng: (pathCar1[indexCar1Both].lng + pathCar2[indexCar2Both].lng) / 2,
@@ -252,18 +252,18 @@ const MapWithCircle = () => {
           />
         )}
 
-        {(selectedCar === "car1" || selectedCar === "both") && indexCar1 >= 0 && (
+        {(selectedCar === "car1" || selectedCar === "both") && indexCar1 >= 0 && pathCar1.length > 0 && (
           <Marker position={pathCar1[indexCar1]} icon={iconCar1} />
         )}
 
-        {(selectedCar === "car2" || selectedCar === "both") && indexCar2 >= 0 && (
+        {(selectedCar === "car2" || selectedCar === "both") && indexCar2 >= 0 && pathCar2.length > 0 && (
           <Marker position={pathCar2[indexCar2]} icon={iconCar2} />
         )}
       </GoogleMap>
 
       {/* Tabla dinámica - Ajustada para ser webresponsiva */}
       <div className="absolute bottom-20 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[95%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
-        {selectedCar === "car1" && indexCar1 >= 0 && (
+        {selectedCar === "car1" && indexCar1 >= 0 && pathCar1.length > 0 && (
           <div>
             <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 1</h3>
             <p className="text-xs sm:text-sm">Latitud: {pathCar1[indexCar1].lat}</p>
@@ -274,13 +274,13 @@ const MapWithCircle = () => {
           </div>
         )}
 
-        {selectedCar === "car2" && indexCar2 >= 0 && (
+        {selectedCar === "car2" && indexCar2 >= 0 && pathCar2.length > 0 &&(
           <div>
             <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 2</h3>
-            <p className="text-xs sm:text-sm">Latitud: {pathCar2[indexCar2].lat}</p>
-            <p className="text-xs sm:text-sm">Longitud: {pathCar2[indexCar2].lng}</p>
-            <p className="text-xs sm:text-sm">RPM: {pathCar2[indexCar2].rpm}</p>
-            <p className="text-xs sm:text-sm">Velocidad: {pathCar2[indexCar2].speed}</p>
+            <p className="text-xs sm:text-sm">Latitud: {[indexCar2].lat}</p>
+            <p className="text-xs sm:text-sm">Longitud: {[indexCar2].lng}</p>
+            <p className="text-xs sm:text-sm">RPM: {[indexCar2].rpm}</p>
+            <p className="text-xs sm:text-sm">Velocidad: {[indexCar2].speed}</p>
             <p className="text-xs sm:text-sm">Fecha y hora: {timestampsCar2[indexCar2]}</p>
           </div>
         )}
