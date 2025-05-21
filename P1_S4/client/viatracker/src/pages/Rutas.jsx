@@ -109,9 +109,9 @@ const Rutas = () => {
         key={mapKey}
         zoom={15}
         center={
-          selectedCar === "car1" && indexCar1 >= 0
+          selectedCar === "car1" && indexCar1 >= 0 && pathCar1.length > 0
             ? pathCar1[indexCar1]
-            : selectedCar === "car2" && indexCar2 >= 0
+            : selectedCar === "car2" && indexCar2 >= 0 && pathCar2.length > 0
             ? pathCar2[indexCar2]
             : selectedCar === "both" && indexCar1Both >= 0 && indexCar2Both >= 0
             ? {
@@ -176,7 +176,7 @@ const Rutas = () => {
 
       {/* Tabla dinámica - Ajustada para ser webresponsiva */}
       <div className="absolute bottom-20 left-4 z-10 bg-white p-4 border border-gray-300 rounded-xl shadow-md max-w-[95%] sm:max-w-md max-h-[40vh] sm:max-h-[50vh] overflow-y-auto">
-        {selectedCar === "car1" && indexCar1 >= 0 && (
+        {selectedCar === "car1" && indexCar1 >= 0 && pathCar1.length > 0 && (
           <div>
             <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 1</h3>
             <p className="text-xs sm:text-sm">Latitud: {pathCar1[indexCar1].lat}</p>
@@ -187,7 +187,7 @@ const Rutas = () => {
           </div>
         )}
 
-        {selectedCar === "car2" && indexCar2 >= 0 && (
+        {selectedCar === "car2" && indexCar2 >= 0 && pathCar2.length > 0 && (
           <div>
             <h3 className="font-bold mb-2 text-sm sm:text-base">Carro 2</h3>
             <p className="text-xs sm:text-sm">Latitud: {pathCar2[indexCar2].lat}</p>
