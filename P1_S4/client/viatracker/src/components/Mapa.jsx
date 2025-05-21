@@ -70,7 +70,6 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
                         <p className="text-xs sm:text-sm">Longitud: {positionCar1.lng}</p>
                         <p className="text-xs sm:text-sm">RPM: {positionCar1.rpm !== undefined ? positionCar1.rpm : "No disponible"}</p>
                         <p className="text-xs sm:text-sm">Velocidad: {positionCar1.speed !== undefined ? positionCar1.speed : "No disponible"}</p>
-                        <p className="text-xs sm:text-sm">Fecha y hora: {positionCar1.timestamp}</p>
                     </div>
                 )}
 
@@ -81,7 +80,6 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
                         <p className="text-xs sm:text-sm">Longitud: {positionCar2.lng}</p>
                         <p className="text-xs sm:text-sm">RPM: {positionCar2.rpm !== undefined ? positionCar2.rpm : "No disponible"}</p>
                         <p className="text-xs sm:text-sm">Velocidad: {positionCar2.speed !== undefined ? positionCar2.speed : "No disponible"}</p>
-                        <p className="text-xs sm:text-sm">Fecha y hora: {positionCar2.timestamp}</p>
                     </div>
                 )}
 
@@ -116,11 +114,6 @@ const Map = ({ positionCar1, positionCar2, pathCar1, pathCar2, selectedCar, onSe
                                     <td className="px-2">Velocidad</td>
                                     <td className="px-2">{positionCar1 ? positionCar1.speed : "N/A"}</td>
                                     <td className="px-2">{positionCar2 ? positionCar2.speed : "N/A"}</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-2">Fecha y hora</td>
-                                    <td className="px-2">{positionCar1 ? positionCar1.timestamp : "N/A"}</td>
-                                    <td className="px-2">{positionCar2 ? positionCar2.timestamp : "N/A"}</td>
                                 </tr>
                             </tbody>
                         </table>
